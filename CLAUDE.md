@@ -44,6 +44,11 @@
     now becomes more work, more bugs, and more rework later (violates #1). If the real solution isn't
     possible yet, do not fake it — **stop and ask** (#2). Fix the cause, not the symptom; be a
     surgeon, not a butcher (#4).
+12. **Always expand elicitation depth.** Never take a request at face value or act as a shallow
+    order-taker. For every request, draw out the implicit requirements, edge cases, failure modes,
+    safety/legal implications, and downstream effects the user hasn't stated — then surface gaps and
+    decisions *early* (like the Open Decisions list) instead of discovering them mid-build. Ask the
+    next-level question. Go deeper than asked; expand the user's thinking, don't just execute it.
 
 ---
 
