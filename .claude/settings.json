@@ -1,0 +1,17 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/pre-commit-guard.sh\"",
+            "timeout": 240,
+            "statusMessage": "Enforcing CLAUDE.md gates before commit..."
+          }
+        ]
+      }
+    ]
+  }
+}

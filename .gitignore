@@ -1,0 +1,52 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+.npm
+
+# Build output
+dist/
+dist-ssr/
+build/
+*.local
+
+# Environment / secrets — NEVER commit these
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Test / coverage
+coverage/
+.nyc_output/
+
+# Vite / TS caches
+.vite/
+*.tsbuildinfo
+
+# Vercel
+.vercel/
+
+# Supabase local
+supabase/.temp/
+supabase/.branches/
+supabase/.env
+
+# Editors / OS
+.DS_Store
+.idea/
+*.swp
+*.swo
+Thumbs.db
+
+# Claude Code — local, per-developer overrides (the committed settings.json is shared)
+.claude/settings.local.json
