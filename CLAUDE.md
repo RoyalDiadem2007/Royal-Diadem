@@ -27,8 +27,9 @@
 7. **Verify, do not assume success.** After a change, actually run the types/lint/tests and read the
    output. Report real results. If something failed, say so with the output. Never claim done on
    faith.
-8. **Read before you write.** Read the existing code, conventions, and neighbors before editing.
-   Match the surrounding style. Do not introduce a new pattern when one already exists.
+8. **Read before you write — never skim.** Read the existing code, conventions, neighbors, the spec,
+   and the full user message in detail before acting. Never skim, never skip, never assume you got
+   the gist. Match the surrounding style. Do not introduce a new pattern when one already exists.
 9. **Fix all siblings, not just the instance.** When you find/fix a bug, typo, bad pattern, or
    rename, `grep` the whole codebase for sibling occurrences and correct every one in the same pass.
    Never fix one site and leave duplicates of the same problem behind — that guarantees doing it
@@ -37,6 +38,12 @@
     the *same* mistake recurs, add it to the Repeated-Mistake Log (§15) — and to the relevant
     mistake table (§4/§5) if it's general — so it never reaches a third time. The log is how this
     file gets smarter over time.
+11. **No shortcuts — build the real thing.** No stubs, no `TODO`/`FIXME` left behind, no
+    placeholder/dummy implementations, no workarounds, no patches over the symptom, no "temporary"
+    hacks, no commented-out code "for later." **Lazy code works the hardest** — every shortcut taken
+    now becomes more work, more bugs, and more rework later (violates #1). If the real solution isn't
+    possible yet, do not fake it — **stop and ask** (#2). Fix the cause, not the symptom; be a
+    surgeon, not a butcher (#4).
 
 ---
 
@@ -75,7 +82,8 @@
 - **Errors handled, no silent failures** — §12.
 - **Rate limiting on public/abuse-prone endpoints** — §10.
 - **No secrets in client code or commits** — see `docs/SUPABASE_RULES.md`.
-- **No dead code, debug logs, or leftover TODOs** in delivered work.
+- **No stubs, TODOs/FIXMEs, workarounds, patches, dead code, or debug logs** in delivered work.
+  Build the real thing or stop and ask (§0.11).
 
 ---
 
@@ -295,7 +303,7 @@ A task is done only when ALL are true:
 - [ ] Security: no secrets committed; rate limits where required; input validated; RLS/grants per
       `docs/SUPABASE_RULES.md`.
 - [ ] Surgical: only intended files changed; no unrelated edits/refactors.
-- [ ] No debug logs / dead code / leftover TODOs.
+- [ ] No stubs / TODOs / workarounds / patches / dead code / debug logs (§0.11).
 - [ ] Verified by actually running types/lint/tests and reading the output.
 - [ ] Uncertainty → stopped and asked, did not guess.
 
@@ -323,10 +331,13 @@ in a related area. (Empty until the first repeat is recorded.)
 ---
 
 ## 16. Project context reminders
-- **Claude-in-Claude:** the Encouragement Engine calls the Claude API *through the dedicated MCP
-  server* — admin-gated, output-validated, never posting directly to students (Spec §6.5/§10,
-  `docs/SUPABASE_RULES.md` §8). The platform itself is built with Claude Code; the runtime AI
-  feature is Claude wrapped behind server guardrails.
+- **Claude-in-Claude:** AI is an *embedded runtime feature* of the product, built into the system —
+  not just the tool used to build it. The Encouragement Engine is the first/known layer (calls the
+  Claude API *through the dedicated MCP server* — admin-gated, output-validated, never posting
+  directly to students; Spec §6.5/§10, `docs/SUPABASE_RULES.md` §8), but **AI is embedded in more
+  than just encouragement** — additional AI layers exist/are planned (details TBD with the client).
+  Every AI layer follows the same rule: reached through the server guardrail layer, supervised by a
+  human, never autonomous toward minors.
 
 ---
 
