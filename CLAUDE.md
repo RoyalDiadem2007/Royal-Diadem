@@ -29,6 +29,14 @@
    faith.
 8. **Read before you write.** Read the existing code, conventions, and neighbors before editing.
    Match the surrounding style. Do not introduce a new pattern when one already exists.
+9. **Fix all siblings, not just the instance.** When you find/fix a bug, typo, bad pattern, or
+   rename, `grep` the whole codebase for sibling occurrences and correct every one in the same pass.
+   Never fix one site and leave duplicates of the same problem behind — that guarantees doing it
+   twice (violates #1).
+10. **Document any mistake made twice.** The first time a mistake happens, fix it. The second time
+    the *same* mistake recurs, add it to the Repeated-Mistake Log (§15) — and to the relevant
+    mistake table (§4/§5) if it's general — so it never reaches a third time. The log is how this
+    file gets smarter over time.
 
 ---
 
@@ -297,6 +305,28 @@ A task is done only when ALL are true:
 - **`docs/SUPABASE_RULES.md`** — keys, Data API grants, migrations, Turnstile, storage, Edge
   Functions. Read before any backend work; overrides the spec on those topics.
 - **`Royal_Diadem_Master_Spec.md`** — what we build (features, schema, branding, build order).
+
+---
+
+---
+
+## 15. Repeated-Mistake Log
+
+Per §0.10: when the **same** mistake happens a **second** time, append it here so it never happens a
+third. Each entry = what went wrong, the fix/rule, and how to avoid it. Check this list when working
+in a related area. (Empty until the first repeat is recorded.)
+
+| # | Mistake (seen 2×) | Correct approach | Why / trigger to watch |
+|---|-------------------|------------------|------------------------|
+| _ | _(none logged yet)_ | | |
+
+---
+
+## 16. Project context reminders
+- **Claude-in-Claude:** the Encouragement Engine calls the Claude API *through the dedicated MCP
+  server* — admin-gated, output-validated, never posting directly to students (Spec §6.5/§10,
+  `docs/SUPABASE_RULES.md` §8). The platform itself is built with Claude Code; the runtime AI
+  feature is Claude wrapped behind server guardrails.
 
 ---
 
