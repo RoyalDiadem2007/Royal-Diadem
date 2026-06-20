@@ -4,6 +4,7 @@
 # Blocks the commit (deny) if staged changes violate CLAUDE.md §3/§11:
 #   - introduce `any` (typed) in TypeScript
 #   - introduce @ts-ignore / @ts-nocheck
+#   - introduce console.* (use the audit logger only; logger/audit files are exempt)
 #   - introduce a skipped/focused test (.skip/.only/xit/fit/@pytest.mark.skip/...)
 #   - fail the lint / typecheck / test gates (only run if that npm script exists)
 # Scans ADDED lines only (git diff --cached), so it flags what THIS commit introduces.
@@ -46,6 +47,14 @@ for f in "${staged[@]:-}"; do
       [ -n "$hit" ] && violations+=("no-any — $f introduces \`any\`:"$'\n'"$hit")
       ig="$(printf '%s\n' "$added" | grep -nE '@ts-ignore|@ts-nocheck' || true)"
       [ -n "$ig" ] && violations+=("no-suppress — $f introduces @ts-ignore/@ts-nocheck:"$'\n'"$ig")
+      # console.* is banned (audit logger only); exempt the logger/audit implementation files.
+      case "$f" in
+        *logger*|*Logger*|*audit*|*Audit*) : ;;
+        *)
+          cl="$(printf '%s\n' "$added" | grep -nE '\bconsole\.[a-zA-Z]' || true)"
+          [ -n "$cl" ] && violations+=("no-console — $f uses console.* (use the audit logger):"$'\n'"$cl")
+          ;;
+      esac
       ;;
   esac
 

@@ -82,6 +82,13 @@
 - **Errors handled, no silent failures** — §12.
 - **Rate limiting on public/abuse-prone endpoints** — §10.
 - **No secrets in client code or commits** — see `docs/SUPABASE_RULES.md`.
+- **No `console.*` — use the audit logger only.** All logging goes through the central audit logger
+  (which redacts PHI/PII and routes server-side). Never ship `console.log`/`console.error`/`print`
+  in committed code. (Enforced by the commit guard.)
+- **No PHI/PII in client storage.** Never put student data — names, DOB, PINs, tokens, journal text,
+  crown-check notes — in `localStorage`/`sessionStorage`/`IndexedDB`/cookies in plaintext. Offline
+  PWA cache holds only non-sensitive content (e.g. the approved daily message, relaxation media) or
+  encrypted-at-rest data synced through the server. See §6 and PWA caching design.
 - **No stubs, TODOs/FIXMEs, workarounds, patches, dead code, or debug logs** in delivered work.
   Build the real thing or stop and ask (§0.11).
 
@@ -151,7 +158,7 @@
 | `import _ from 'lodash'` (whole lib) | Import one function or use native | Bundle bloat (PWA budget) |
 | Deep relative imports `../../../..` | Path aliases | Fragile; breaks on move |
 | Magic strings/numbers | Named constants/config | One source of truth |
-| `console.log` left in | Remove or use a leveled logger | Noise + data leaks |
+| `console.*` (log/error/warn/info) | Use the central audit logger only | Console leaks PHI/PII, can't be redacted/routed/audited |
 
 **Config:** `tsconfig` `strict: true`, `noUncheckedIndexedAccess`, `noImplicitAny`,
 `noImplicitReturns`, `noFallthroughCasesInSwitch`, `exactOptionalPropertyTypes` where feasible.
@@ -213,7 +220,9 @@ inline justified `# noqa: CODE  # reason` / `# type: ignore[code]  # reason`.
 |---------|------|-----|
 | Trust client-sent ids/roles | Authorize server-side against the session | Client is hostile/forgeable |
 | Validate only on the client | Validate on the server too | Client checks are bypassable |
-| Log secrets/PII/tokens | Redact; log ids not contents | Logs leak; minors' data is sensitive |
+| Log secrets/PII/tokens | Audit logger that redacts; log ids not contents | Logs leak; minors' data is sensitive |
+| PHI/PII in client storage (localStorage/IndexedDB/cookies) | Keep sensitive data server-side; cache only non-sensitive/encrypted offline | Client storage is unencrypted, shared, and persists — exposes minors' data |
+| `console.*` for diagnostics | Central audit logger only | Console output can't be redacted, routed, or audited |
 | Verbose errors to the client | Generic message + status; detail server-side | Leaks internals/attack surface |
 | Reflect user input into HTML | Sanitize/escape | XSS |
 | Long-lived/global API keys in app | Scoped, server-only, rotatable keys | Blast radius on leak |
