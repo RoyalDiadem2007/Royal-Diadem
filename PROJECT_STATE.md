@@ -4,7 +4,7 @@
 > decisions. Update it as work progresses. For *what* we build see `Royal_Diadem_Master_Spec.md`;
 > for *how* we build see `CLAUDE.md`; for backend rules see `docs/SUPABASE_RULES.md`.
 >
-> _Last updated: 2026-07-16 · Branch: main + `feat/foundation` (Phase 1 underway)_
+> _Last updated: 2026-07-16 (end of session) · Branches: `main` (Foundation merged, all CI green) + `feat/auth` (Phase 2, pushed, awaiting merge)_
 
 **Legend:** ✅ done · 🔄 in progress · ⬜ not started · ⏳ blocked/awaiting input
 
@@ -12,9 +12,19 @@
 
 ## 1. Where we are right now
 
-The original code repo was lost (2026-06-20); only the Master Spec survived. We have **not** started
-the app build. We have established the **foundation documents and guardrails** and confirmed external
-state. Next working session begins the actual rebuild at **Phase 0/1 (Foundation)**.
+**2026-07-16 was the rebuild day.** Phase 1 (Foundation) is complete and merged to `main`:
+strict-gated Vite+React+TS scaffold, branding config as single source of truth, client audit
+logger, PWA base (brand-generated manifest, icons, static-only service worker), 5 Docker-verified
+migrations (17 tables, RLS everywhere, anon locked to 4 public tables), CI/CodeQL/gitleaks/
+Dependabot all live and green. Phase 2 (Auth) is built and pushed on **`feat/auth`**: the full
+Edge-Function trust boundary, PIN login (crown code + PIN), COPPA gate, opaque sessions, atomic
+rate limiting, client login flow — validated by **8 no-mock E2E tests against the real local
+stack** plus 38 unit tests. Nothing has been pushed to the *hosted* Supabase project yet (waiting
+on the access token). See §6 for the morning pickup list.
+
+**Historical note:** the original code repo was lost 2026-06-20 (unpushed codespace auto-deleted);
+only the Master Spec survived. Recovery concluded 2026-07-03 → rebuilt from scratch. Push at every
+session end — always.
 
 **External state (verified 2026-06-20, re-verified 2026-07-03):**
 - GitHub repo `RoyalDiadem2007/Royal-Diadem` — only the spec + our new docs; code never existed here.
@@ -40,10 +50,13 @@ can never happen again.
 - ✅ `.claude/hooks/pre-commit-guard.sh` + `.claude/settings.json` — commit guard (blocks `any`,
   `@ts-ignore`, `console.*`, skipped tests; runs lint/typecheck/test gates when present)
 - ✅ `.gitignore`
-- ✅ `CLAUDE.md` §17 — **SOC 2 & HIPAA alignment** requirements (regulated-data definition, audit
-  controls, TSC mapping, no-PHI-to-AI rule, org-items checklist) + §3 hard gate + §13 DoD checkbox
-  _(2026-07-03, **uncommitted**)_
-- ⏳ **Commit guard not yet active** — open `/hooks` once (or restart) to activate it.
+- ✅ `CLAUDE.md` §17 — **SOC 2 & HIPAA alignment** requirements (committed 2026-07-16)
+- ✅ Commit guard active — verified live 2026-07-16 (runs lint/typecheck/test on every commit)
+- ✅ **Phase 1 Foundation** merged to `main` 2026-07-16 (commit `61977e6` + Dependabot bumps);
+  CI, CodeQL, secret scan all green; TS 7 major deliberately declined (PR #5 closed)
+- ✅ **Phase 2 Auth** on `feat/auth` (commit `92bcb56`, pushed): trust-boundary layer, 3 auth
+  Edge Functions, auth migration, client login, 38 unit + **8 no-mock E2E tests** (real stack)
+- ✅ `docs/KEYS_SETUP.md` — human key-provisioning checklist (Supabase, Turnstile, Anthropic, Vercel)
 
 ---
 
@@ -116,14 +129,38 @@ can never happen again.
 
 ---
 
-## 6. Next-session startup checklist
+## 6. Next-session startup checklist (morning of 2026-07-17)
 
-1. Open `/hooks` to **activate the commit guard**.
-2. Confirm **OD-1 → OD-4** decisions (or accept proposed defaults) before writing schema/auth.
-3. Begin **Phase 1 Foundation**: scaffold (Vite+React+TS), `branding.config.ts`, Supabase migration
-   (via **CLI**, not MCP — see Supabase rules), PWA base (manifest + SW skeleton).
-4. Stand up the **`audit_logs` table** as part of Foundation.
-5. Branch off `main` for app code; commit + push at session end.
+**Human decisions/inputs needed first:**
+1. ⏳ **Approve `@simplewebauthn/server` + `@simplewebauthn/browser`** (CLAUDE.md §2 dependency
+   ask) — unblocks WebAuthn/Face ID, the last piece of Phase 2.
+2. ⏳ **Anthropic API key** (expected today) — set via `npx supabase secrets set ANTHROPIC_API_KEY=…`
+   once the project is linked; needed for Phase 7 Encouragement Engine (Claude-in-Claude).
+3. ⏳ **Supabase access token** (KEYS_SETUP §1a) — unblocks `supabase link` + `supabase db push`
+   of the 5 verified migrations to the hosted project `luvthaezikvssnuegviu`.
+4. Decide: merge `feat/auth` → `main` (CI is the gate; same flow as Foundation).
+
+**Then the build continues, in order:**
+5. **WebAuthn** (after #1): registration at first PIN login, credential storage per spec schema,
+   `auth-webauthn-*` Edge Functions, E2E where feasible (needs virtual authenticator — may be
+   unit + Deno tests instead).
+6. **PIN reset flow (OD-9)** — admin-initiated regenerate + reprint card; decide before Phase 4.
+7. **Phase 3: Admin panel shell** — file-cabinet layout, sidebar, routing (`react-router` will be
+   a §2 dependency ask), role-gated by the session subject.
+8. **Phase 4: Enrollment** — CSV + individual add, PIN + crown-code generation (bcrypt cost 12),
+   COPPA consent workflow; this is where login_code/PIN issuance actually happens.
+9. After db push (#3): deploy the three auth functions (`supabase functions deploy`), set
+   `TURNSTILE_SECRET_KEY` (test secret until real keys) + `ALLOWED_ORIGINS`, and re-run the E2E
+   suite pointed at a Supabase preview branch if desired.
+
+**Session mechanics (every session):**
+- E2E locally: `npx supabase start -x studio,imgproxy,mailpit,realtime,storage-api,vector,logflare`
+  → `npx supabase functions serve --env-file supabase/functions/.env` →
+  `SUPABASE_E2E_SERVICE_KEY="$(npx supabase status -o json | jq -r .SERVICE_ROLE_KEY)" npm run test:e2e`
+  → **`npx supabase stop` when done** (frees CPU; user hit 100% utilization 2026-07-16).
+- Deno is installed at `~/.deno/bin` (codespace-local; reinstall if the codespace rebuilt:
+  `curl -fsSL https://deno.land/install.sh | sh`). `deno check` the functions before committing.
+- Commit + push at session end. No exceptions (see §1 historical note).
 
 ---
 
