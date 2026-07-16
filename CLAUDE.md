@@ -96,6 +96,8 @@
   encrypted-at-rest data synced through the server. See §6 and PWA caching design.
 - **No stubs, TODOs/FIXMEs, workarounds, patches, dead code, or debug logs** in delivered work.
   Build the real thing or stop and ask (§0.11).
+- **SOC 2 / HIPAA alignment (§17).** Any feature touching regulated data (§17.1) ships with
+  server-side RBAC, audit logging, and encryption per §17 in the same task — never as a later pass.
 
 ---
 
@@ -318,6 +320,9 @@ A task is done only when ALL are true:
       `docs/SUPABASE_RULES.md`.
 - [ ] Surgical: only intended files changed; no unrelated edits/refactors.
 - [ ] No stubs / TODOs / workarounds / patches / dead code / debug logs (§0.11).
+- [ ] Compliance: if the task touches regulated data (§17.1), audit logging + server-side RBAC +
+      encryption are in place per §17; no code, UI copy, or docs claim "HIPAA compliant" or
+      "SOC 2 certified."
 - [ ] Verified by actually running types/lint/tests and reading the output.
 - [ ] Uncertainty → stopped and asked, did not guess.
 
@@ -352,6 +357,83 @@ in a related area. (Empty until the first repeat is recorded.)
   than just encouragement** — additional AI layers exist/are planned (details TBD with the client).
   Every AI layer follows the same rule: reached through the server guardrail layer, supervised by a
   human, never autonomous toward minors.
+
+---
+
+## 17. SOC 2 & HIPAA alignment (apply to every feature, every task)
+
+> **Scope of the claim — be precise.** We build the system *technically aligned* with the HIPAA
+> Security Rule safeguards and the SOC 2 Trust Services Criteria. Actual HIPAA compliance and SOC 2
+> certification also require organizational/contractual steps (BAAs, written policies, an
+> independent auditor) that only the human can complete — see §17.5. **Never state or imply in
+> code, UI copy, docs, commits, or marketing text that the product is "HIPAA compliant" or "SOC 2
+> certified."** The accurate phrase is "designed to align with HIPAA / SOC 2 standards."
+
+### 17.1 Regulated data — what gets the full safeguards
+Treat as PHI-equivalent regulated data: student identity (names, DOB, photos, school), PINs and
+credentials, journal entries, crown-check scores and notes, flags and admin notes, guardian and
+COPPA consent records, mentor assignments/notes, and any AI output tied to a specific student.
+**When unsure whether data is regulated: it is.** (Genuinely public content — approved
+announcements, the daily message, About page — is not regulated, but its *authorship metadata* is
+handled per the audit rules below.)
+
+### 17.2 HIPAA Security Rule technical safeguards → code requirements
+- **Access control:** unique identity per user — never shared accounts. RBAC least privilege
+  (super_admin > mentor > viewer) enforced **server-side on every endpoint** (never UI-only).
+  Mentors access only their assigned students' journals/data.
+- **Automatic logoff:** sessions expire on idle timeout; re-authentication required for sensitive
+  admin actions (consent verification, deletions, settings changes).
+- **Audit controls:** an **append-only audit log** records every create/read/update/delete of
+  regulated data — who (actor id + role), what (entity type + id + action), when (UTC), from where
+  (IP), and outcome (allowed/denied). Audit rows are immutable: no `UPDATE`/`DELETE` grants on the
+  audit table for any role. Log **ids, never contents** (§6). Denied attempts are logged too.
+  Retention: 6 years minimum (HIPAA standard) — never auto-purge audit records.
+- **Integrity:** no hard-deletes of regulated data without human approval (§2); soft-delete +
+  audit trail. Migrations never silently drop or transform regulated columns.
+- **Person/entity authentication:** hashed PINs (bcrypt) + WebAuthn; strict lockout/backoff (§10);
+  constant-time comparison for secrets (§6).
+- **Transmission security:** HTTPS/TLS only (HSTS via `vercel.json` security headers); regulated
+  data never sent over unencrypted channels or to unauthenticated endpoints.
+- **Encryption at rest:** database encrypted at rest (Supabase default) **plus** application-layer
+  encryption for journal text (Spec §6.4). Nothing regulated in plaintext client storage (§3).
+
+### 17.3 SOC 2 Trust Services Criteria → engineering requirements
+- **Security:** default-deny, fail-closed everywhere — §6, §10, §12, `docs/SUPABASE_RULES.md`.
+- **Availability:** automated backups + point-in-time recovery enabled on the Supabase project;
+  restore procedure documented; Edge Functions fail closed, never fail silent.
+- **Processing integrity:** validation at every trust boundary; idempotent mutations; transactions
+  for multi-step writes (§7); the audit log makes every state change traceable.
+- **Confidentiality:** least privilege everywhere; secret keys named/scoped/rotatable (SUPABASE_RULES
+  §1); **data minimization** — collect only what the feature needs; retention/deletion schedules are
+  a client decision — stop and ask before implementing any retention rule.
+- **Privacy:** COPPA consent gate before any child data (§1); regulated data never sent to any third
+  party without explicit human approval (§2, §17.4); transparency preserved (students know mentors
+  read journals — Spec §6.4).
+- **Change management:** every change through git (small, reviewed commits — §9); types/lint/tests +
+  secret scanning must pass before deploy; **no direct production data/schema edits** — schema
+  changes only via versioned migrations (SUPABASE_RULES §4); production config changes proposed to
+  the human first.
+- **Incident response:** any suspected exposure, leak, or unauthorized access of regulated data →
+  **stop, report to the human immediately, preserve logs/evidence.** Never quietly patch over a
+  possible breach (breach notification is a legal obligation, and it's the human's call).
+
+### 17.4 AI-specific compliance rule
+**Never send regulated data (§17.1) to the Claude API or any external AI service** — no BAA exists
+with Anthropic. The Encouragement Engine generates generic weekly messages and needs **zero**
+student data in its prompts; keep it that way and validate it server-side. Any future AI layer that
+would need student data → stop and ask first (requires a BAA + human design review before a line of
+code).
+
+### 17.5 Organizational items — NOT code; flag to the human, track, never fake
+These cannot be satisfied by the codebase. Track them in `PROJECT_STATE.md`, remind the human at
+milestones, and never imply they're done:
+- Supabase **HIPAA add-on + signed BAA** (SUPABASE_RULES §5); BAA with any vendor that touches
+  regulated data (Vercel, email/SMS providers, Anthropic if AI ever handles student data).
+- SOC 2 **audit engagement** with a CPA firm (Type I, then Type II observation period).
+- Written policies: risk assessment, incident response / breach notification, workforce training,
+  access review cadence, data retention, sanctions; a designated security/privacy officer.
+- The code's job is to be **audit-ready** — controls implemented, evidence (audit logs, access
+  reviews, change history) produced automatically — so these steps have something to certify.
 
 ---
 

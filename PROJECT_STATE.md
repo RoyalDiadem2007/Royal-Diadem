@@ -4,7 +4,7 @@
 > decisions. Update it as work progresses. For *what* we build see `Royal_Diadem_Master_Spec.md`;
 > for *how* we build see `CLAUDE.md`; for backend rules see `docs/SUPABASE_RULES.md`.
 >
-> _Last updated: 2026-06-20 · Latest commit: 83653c6 · Branch: main (synced to origin)_
+> _Last updated: 2026-07-16 · Branch: main + `feat/foundation` (Phase 1 underway)_
 
 **Legend:** ✅ done · 🔄 in progress · ⬜ not started · ⏳ blocked/awaiting input
 
@@ -16,10 +16,19 @@ The original code repo was lost (2026-06-20); only the Master Spec survived. We 
 the app build. We have established the **foundation documents and guardrails** and confirmed external
 state. Next working session begins the actual rebuild at **Phase 0/1 (Foundation)**.
 
-**External state (verified 2026-06-20):**
+**External state (verified 2026-06-20, re-verified 2026-07-03):**
 - GitHub repo `RoyalDiadem2007/Royal-Diadem` — only the spec + our new docs; code never existed here.
 - Supabase project `luvthaezikvssnuegviu` — ACTIVE_HEALTHY, **public schema empty** (no tables yet).
 - Vercel — no Royal Diadem project deployed yet.
+
+**Recovery search — concluded 2026-07-03.** Exhaustive hunt for the original app found nothing:
+laptop (searched by Maria — empty), this codespace's filesystem, all codespaces (only this one
+exists), all GitHub repos/activity, Supabase (no tables ever created), Vercel (no deployment).
+Last unchecked avenue: **github.com Settings → Repositories → Deleted repositories** (browser-only,
+90-day restore window) and the original claude.ai conversation's artifacts panel. Working
+conclusion: the app lived in a codespace that GitHub auto-deleted after ~30 days of inactivity and
+was never pushed. **Decision: start fresh at Foundation** — and push at every session end so this
+can never happen again.
 
 ---
 
@@ -31,6 +40,9 @@ state. Next working session begins the actual rebuild at **Phase 0/1 (Foundation
 - ✅ `.claude/hooks/pre-commit-guard.sh` + `.claude/settings.json` — commit guard (blocks `any`,
   `@ts-ignore`, `console.*`, skipped tests; runs lint/typecheck/test gates when present)
 - ✅ `.gitignore`
+- ✅ `CLAUDE.md` §17 — **SOC 2 & HIPAA alignment** requirements (regulated-data definition, audit
+  controls, TSC mapping, no-PHI-to-AI rule, org-items checklist) + §3 hard gate + §13 DoD checkbox
+  _(2026-07-03, **uncommitted**)_
 - ⏳ **Commit guard not yet active** — open `/hooks` once (or restart) to activate it.
 
 ---
@@ -40,12 +52,12 @@ state. Next working session begins the actual rebuild at **Phase 0/1 (Foundation
 | # | Phase | Status | Notes |
 |---|-------|--------|-------|
 | 0 | Governance & guardrails (CLAUDE.md, Supabase rules, hook, gitignore) | ✅ | This session |
-| 1 | Foundation: scaffold, branding.config, **schema + RLS + grants**, PWA base | ⬜ | Resolve Open Decisions #1–#4 here |
-| 2 | Auth: PIN gen/hash, login, WebAuthn, COPPA consent gate | ⬜ | Blocked on session-model decision (OD-1) |
+| 1 | Foundation: scaffold, branding.config, **schema + RLS + grants**, PWA base | 🔄 | Started 2026-07-16 on `feat/foundation`; OD-1–OD-4 resolved |
+| 2 | Auth: PIN gen/hash, login, WebAuthn, COPPA consent gate | ⬜ | OD-1 decided; needs Turnstile keys (`docs/KEYS_SETUP.md`) |
 | 3 | Admin panel shell (file-cabinet layout, sidebar, routing) | ⬜ | |
 | 4 | Student enrollment (CSV + individual, PIN distribution) | ⬜ | |
 | 5 | Crown Check (student + admin trends + AI flag) | ⬜ | |
-| 6 | Journal (write + mentor review + AI flag) | ⬜ | Blocked on encryption decision (OD-2) |
+| 6 | Journal (write + mentor review + AI flag) | ⬜ | OD-2 decided (AES-256-GCM in Edge Fn) |
 | 7 | Encouragement Engine (MCP server, draft/approve) | ⬜ | Claude-in-Claude |
 | 8 | Daily Message display | ⬜ | |
 | 9 | Calendar + Announcements | ⬜ | |
@@ -73,10 +85,10 @@ state. Next working session begins the actual rebuild at **Phase 0/1 (Foundation
 
 | ID | Pri | Gap / decision needed | Status |
 |----|-----|-----------------------|--------|
-| OD-1 | 🔴 | **Session/token model** for PIN auth (format, storage — not localStorage PHI, expiry, refresh, revoke) | ⬜ open |
-| OD-2 | 🔴 | **Journal/crown-note encryption** approach + key management (and mentor decrypt path) | ⬜ open |
-| OD-3 | 🔴 | **Crisis escalation + Texas mandated-reporting** protocol (who/how-fast on self-harm/abuse signals) | ⬜ open |
-| OD-4 | 🔴 | **`audit_logs` table** design (actor, action, entity, timestamp, redaction) | ⬜ open |
+| OD-1 | 🔴 | **Session/token model** — DECIDED 2026-07-16 (defaults accepted): server-minted opaque tokens (256-bit random), stored **hashed** in a `sessions` table with expiry + revocation; client holds token **in memory only** (never localStorage — §3 PHI rule); ~12h idle timeout students, shorter for admins + re-auth for sensitive actions (§17.2); every Edge Fn validates against the table | ✅ decided |
+| OD-2 | 🔴 | **Journal/crown-note encryption** — DECIDED 2026-07-16 (defaults accepted): application-layer **AES-256-GCM in the Edge Function**, server-held key (Supabase secret, rotatable); encrypt before insert, decrypt only for the student + her assigned mentor. Not E2E (mentors must read — Spec transparency model) | ✅ decided |
+| OD-3 | 🔴 | **Crisis escalation + Texas mandated-reporting** — PARTIAL 2026-07-16: technical default accepted = high-severity flag → immediate admin-panel badge + alert row for super_admins; email/SMS escalation + the human reporting protocol (who/how fast) still needs Kenecia/legal input before launch | 🔄 tech default set; human protocol ⏳ |
+| OD-4 | 🔴 | **`audit_logs` table** — DECIDED 2026-07-16: append-only (no UPDATE/DELETE grants any role); actor id+role, action, entity type+id, UTC timestamp, IP, outcome (allowed/denied); ids never contents; ≥6yr retention, no auto-purge (§17.2). Ships in Foundation migrations | ✅ decided |
 | OD-5 | 🔴 | **COPPA data rights**: deletion/parent-review workflow, retention policy, soft-delete, **Privacy Policy + ToS** | ⬜ open |
 | OD-6 | 🟠 | **Student↔mentor assignment** table | ⬜ open |
 | OD-7 | 🟠 | **Cohorts/phases** model (cohort table, phase dates, transitions) | ⬜ open |
@@ -88,12 +100,16 @@ state. Next working session begins the actual rebuild at **Phase 0/1 (Foundation
 | OD-13 | 🟡 | **Spanish-language** support (esp. guardian consent) | ⬜ open |
 | OD-14 | 🟡 | Guardian consent for **all minors (13–17)**, not just COPPA under-13? | ⬜ open |
 | OD-15 | ⚪ | **Backups/DR**, staging/prod envs + seed data, **accessibility (WCAG)** target & color contrast | ⬜ open |
+| OD-16 | ⚪ | **SOC 2 / HIPAA org items** (CLAUDE.md §17.5 — human-side): Supabase HIPAA add-on + BAA, vendor BAAs, audit engagement, written policies, security officer | ⬜ open |
 
 ---
 
 ## 5. Pending client deliverables (⏳ from Kenecia / client)
 
-- ⏳ Royal Diadem **logo** (crowned flamingo) → branding, icons, manifest
+- ✅ Royal Diadem **logo** received 2026-07-03 — `Royal Diadem Real Logo.png` in repo root
+  (untracked; commit it, then generate PWA icons 192/512 + favicon from it)
+- ⏳ **Anthropic API key** (for the Claude-in-Claude Encouragement Engine) — Maria obtaining, expected 2026-07-17
+- ⏳ **Keys/accounts per `docs/KEYS_SETUP.md`** — Supabase secret key + access token, Turnstile keys
 - ⏳ Pastor Kenecia Duncan **photo + bio text** → About Us page
 - ⏳ Spec §12 items: tagline, About copy, fonts, scripture rotation, relaxation content, moderation
   preference (pre/post-approve), mood-scale approval, custom domain, age-range confirmation

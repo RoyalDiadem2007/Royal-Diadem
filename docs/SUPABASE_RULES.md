@@ -5,7 +5,7 @@
 > spec wherever they conflict.** Claude Code must follow these rules every time it touches
 > Supabase config, env vars, migrations, RLS, or Edge Functions.
 >
-> _Last verified against Supabase docs: June 2026._
+> _Last verified against Supabase docs: July 16, 2026._
 
 ---
 
@@ -24,8 +24,9 @@
 
 ## 1. API Keys — new model (replaces anon + service_role)
 
-Legacy long-lived JWT `anon` and `service_role` keys are being retired (legacy keys removed in
-**late 2026**; brand-new projects no longer get them at all).
+Legacy long-lived JWT `anon` and `service_role` keys are superseded by the new key pair. As of
+July 2026 the docs give **no hard removal date** — legacy keys keep working until manually
+deactivated in the Dashboard — but they are legacy; **never use them in this project.**
 
 | Key | Format | Where it lives | Privilege |
 |-----|--------|----------------|-----------|
@@ -48,11 +49,12 @@ Legacy long-lived JWT `anon` and `service_role` keys are being retired (legacy k
 VITE_SUPABASE_URL=https://luvthaezikvssnuegviu.supabase.co
 VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_xxx
 ```
-**Server (Edge Functions / Vercel server env — secret, never VITE_):**
+**Server (Vercel server env only — secret, never VITE_):**
 ```
 SUPABASE_SECRET_KEY=sb_secret_xxx
 ```
-> In Supabase Edge Functions the platform also injects `SUPABASE_PUBLISHABLE_KEYS` and
+> In Supabase Edge Functions, do **not** set this yourself — `SUPABASE_`/`SB_` prefixes are
+> reserved (§8) and the platform already injects `SUPABASE_PUBLISHABLE_KEYS` and
 > `SUPABASE_SECRET_KEYS` as **JSON objects keyed by name**, e.g.
 > `JSON.parse(Deno.env.get('SUPABASE_SECRET_KEYS')!)['default']`.
 
@@ -282,6 +284,10 @@ const supabase = createClient(Deno.env.get("SUPABASE_URL")!, secret);
 - Deploy with the **CLI** (`supabase functions deploy <name>`) or MCP `deploy_edge_function`
   (deploy is fine via MCP — only *migrations* have the truncation bug, §4).
 - Set secrets with `supabase secrets set KEY=value` — never commit them; never put them in `VITE_*`.
+- **Reserved prefixes:** custom Edge Function secrets may NOT start with `SUPABASE_` or `SB_` —
+  both are reserved for platform-injected variables (`SUPABASE_URL`, `SUPABASE_SECRET_KEYS`,
+  `SB_REGION`, `SB_EXECUTION_ID`, …). Name our own secrets by service, e.g. `TURNSTILE_SECRET_KEY`,
+  `ANTHROPIC_API_KEY`.
 - A `verify_jwt` setting may need to be **off** for these functions since we use custom sessions, not
   Supabase Auth JWTs — confirm per function.
 
