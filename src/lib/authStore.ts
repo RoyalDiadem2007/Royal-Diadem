@@ -5,8 +5,13 @@
  * fresh login; that is the accepted OD-1 trade-off for minors' safety.
  */
 import { useSyncExternalStore } from 'react';
-import { callEdgeFunction } from '@/lib/api';
+import type {
+  PublicKeyCredentialCreationOptionsJSON,
+  PublicKeyCredentialRequestOptionsJSON,
+} from '@simplewebauthn/browser';
+import { callEdgeFunction, type ApiFailure } from '@/lib/api';
 import { getTurnstileToken } from '@/lib/turnstile';
+import { passkeysSupported, performAuthentication, performRegistration } from '@/lib/passkey';
 import { logger } from '@/lib/logger';
 
 export type AuthSubject = {
@@ -20,6 +25,8 @@ export type AuthSession = {
   token: string;
   expiresAt: string;
   subject: AuthSubject;
+  /** Whether this account already has a passkey — drives the enable prompt. */
+  webauthnRegistered: boolean;
 };
 
 export type LoginInput = {
@@ -39,7 +46,21 @@ const MESSAGES: Readonly<Record<string, string>> = {
   network: "Can't reach Royal Diadem right now. Check your connection and try again.",
   server: 'Something went wrong on our side. Try again in a moment.',
   turnstile: "The security check didn't load. Refresh the page and try again.",
+  passkey_unsupported: "This device doesn't support Face ID / passkey sign-in. Use your PIN.",
+  passkey_cancelled: 'Face ID sign-in was cancelled. Try again, or use your PIN.',
+  account_unavailable: 'This account cannot sign in right now. Talk to your mentor or an admin.',
+  invalid_challenge: 'That sign-in attempt expired. Try again.',
 };
+
+function failureMessage(failure: ApiFailure): string {
+  if (failure.kind === 'rate_limited') {
+    return rateLimitMessage(failure.retryAfterSeconds);
+  }
+  if (failure.kind === 'denied') {
+    return MESSAGES[failure.code] ?? MESSAGES.invalid_credentials ?? '';
+  }
+  return MESSAGES[failure.kind] ?? '';
+}
 
 function rateLimitMessage(retryAfterSeconds: number): string {
   const minutes = Math.max(1, Math.ceil(retryAfterSeconds / 60));
@@ -50,7 +71,12 @@ function parseLoginResponse(raw: unknown): AuthSession {
   if (typeof raw !== 'object' || raw === null) {
     throw new Error('login response is not an object');
   }
-  const record = raw as { token?: unknown; expiresAt?: unknown; subject?: unknown };
+  const record = raw as {
+    token?: unknown;
+    expiresAt?: unknown;
+    subject?: unknown;
+    webauthnRegistered?: unknown;
+  };
   const subject = record.subject;
   if (
     typeof record.token !== 'string' ||
@@ -73,6 +99,7 @@ function parseLoginResponse(raw: unknown): AuthSession {
     token: record.token,
     expiresAt: record.expiresAt,
     subject: { type: s.type, id: s.id, displayName: s.displayName, role: s.role },
+    webauthnRegistered: record.webauthnRegistered === true,
   };
 }
 
@@ -118,21 +145,116 @@ export async function login(input: LoginInput): Promise<LoginResult> {
   });
 
   if (!result.ok) {
-    const { failure } = result;
-    if (failure.kind === 'rate_limited') {
-      return { ok: false, message: rateLimitMessage(failure.retryAfterSeconds) };
-    }
-    if (failure.kind === 'denied') {
-      return {
-        ok: false,
-        message: MESSAGES[failure.code] ?? MESSAGES.invalid_credentials ?? '',
-      };
-    }
-    return { ok: false, message: MESSAGES[failure.kind] ?? '' };
+    return { ok: false, message: failureMessage(result.failure) };
   }
 
   session = result.data;
   logger.info('auth.login_succeeded', { subjectId: result.data.subject.id });
+  notify();
+  return { ok: true };
+}
+
+function checkedCeremonyOptions(raw: unknown): object {
+  if (
+    typeof raw !== 'object' ||
+    raw === null ||
+    !('options' in raw) ||
+    typeof raw.options !== 'object' ||
+    raw.options === null ||
+    !('challenge' in raw.options) ||
+    typeof raw.options.challenge !== 'string'
+  ) {
+    throw new Error('ceremony options are malformed');
+  }
+  return raw.options;
+}
+
+// The options blobs are opaque WebAuthn JSON consumed (and fully validated)
+// by @simplewebauthn/browser; we check the envelope + challenge and pass the
+// rest through.
+function parseRegistrationOptions(raw: unknown): PublicKeyCredentialCreationOptionsJSON {
+  return checkedCeremonyOptions(raw) as PublicKeyCredentialCreationOptionsJSON;
+}
+
+function parseAuthenticationOptions(raw: unknown): PublicKeyCredentialRequestOptionsJSON {
+  return checkedCeremonyOptions(raw) as PublicKeyCredentialRequestOptionsJSON;
+}
+
+/** Usernameless passkey sign-in (Face ID / Touch ID). */
+export async function loginWithPasskey(): Promise<LoginResult> {
+  if (!passkeysSupported()) {
+    return { ok: false, message: MESSAGES.passkey_unsupported ?? '' };
+  }
+
+  const optionsResult = await callEdgeFunction('auth-webauthn-login/options', {
+    method: 'POST',
+    parse: parseAuthenticationOptions,
+  });
+  if (!optionsResult.ok) {
+    return { ok: false, message: failureMessage(optionsResult.failure) };
+  }
+
+  let ceremony;
+  try {
+    ceremony = await performAuthentication(optionsResult.data);
+  } catch {
+    // The user dismissed the platform prompt (or no passkey exists here).
+    return { ok: false, message: MESSAGES.passkey_cancelled ?? '' };
+  }
+
+  const result = await callEdgeFunction('auth-webauthn-login/verify', {
+    method: 'POST',
+    body: { challenge: ceremony.challenge, response: ceremony.response },
+    parse: parseLoginResponse,
+  });
+  if (!result.ok) {
+    return { ok: false, message: failureMessage(result.failure) };
+  }
+
+  session = result.data;
+  logger.info('auth.passkey_login_succeeded', { subjectId: result.data.subject.id });
+  notify();
+  return { ok: true };
+}
+
+/** Enrolls this device's passkey for the signed-in user. */
+export async function registerPasskey(): Promise<LoginResult> {
+  const current = session;
+  if (current === null) {
+    return { ok: false, message: MESSAGES.server ?? '' };
+  }
+  if (!passkeysSupported()) {
+    return { ok: false, message: MESSAGES.passkey_unsupported ?? '' };
+  }
+
+  const optionsResult = await callEdgeFunction('auth-webauthn-register/options', {
+    method: 'POST',
+    sessionToken: current.token,
+    parse: parseRegistrationOptions,
+  });
+  if (!optionsResult.ok) {
+    return { ok: false, message: failureMessage(optionsResult.failure) };
+  }
+
+  let ceremony;
+  try {
+    ceremony = await performRegistration(optionsResult.data);
+  } catch {
+    return { ok: false, message: MESSAGES.passkey_cancelled ?? '' };
+  }
+
+  const result = await callEdgeFunction('auth-webauthn-register/verify', {
+    method: 'POST',
+    sessionToken: current.token,
+    body: { challenge: ceremony.challenge, response: ceremony.response },
+    parse: () => null,
+  });
+  if (!result.ok) {
+    return { ok: false, message: failureMessage(result.failure) };
+  }
+
+  session = { ...current, webauthnRegistered: true };
+  logger.info('auth.passkey_registered', { subjectId: current.subject.id });
   notify();
   return { ok: true };
 }

@@ -16,7 +16,8 @@ export type ApiResult<T> = { ok: true; data: T } | { ok: false; failure: ApiFail
 
 type CallOptions<T> = {
   method: 'GET' | 'POST';
-  body?: Readonly<Record<string, unknown>>;
+  /** JSON-serialized as-is. */
+  body?: unknown;
   sessionToken?: string;
   /** Validates/narrows the response body; throw to reject an unexpected shape. */
   parse: (raw: unknown) => T;

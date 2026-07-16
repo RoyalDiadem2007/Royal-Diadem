@@ -3,10 +3,16 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { LoginScreen } from '@/components/student/LoginScreen';
 import { brand } from '@/config/branding.config';
-import { login } from '@/lib/authStore';
+import { login, loginWithPasskey } from '@/lib/authStore';
+import { passkeysSupported } from '@/lib/passkey';
 
 vi.mock('@/lib/authStore', () => ({
   login: vi.fn(() => Promise.resolve({ ok: true })),
+  loginWithPasskey: vi.fn(() => Promise.resolve({ ok: true })),
+}));
+
+vi.mock('@/lib/passkey', () => ({
+  passkeysSupported: vi.fn(() => true),
 }));
 
 afterEach(() => {
@@ -65,6 +71,23 @@ describe('LoginScreen', () => {
       expect(screen.getByRole('alert')).toHaveTextContent('Nope, try again.');
     });
     expect(screen.getByRole('button', { name: 'Sign in' })).toBeEnabled();
+  });
+
+  it('offers passkey sign-in on capable devices and starts the ceremony', async () => {
+    const user = userEvent.setup();
+    render(<LoginScreen />);
+
+    await user.click(screen.getByRole('button', { name: 'Sign in with Face ID / passkey' }));
+
+    expect(vi.mocked(loginWithPasskey)).toHaveBeenCalledTimes(1);
+  });
+
+  it('hides the passkey button on devices without support', () => {
+    vi.mocked(passkeysSupported).mockReturnValue(false);
+    render(<LoginScreen />);
+    expect(
+      screen.queryByRole('button', { name: 'Sign in with Face ID / passkey' }),
+    ).not.toBeInTheDocument();
   });
 
   it('switches to admin mode with an email field', async () => {

@@ -1,5 +1,6 @@
 import { brand } from '@/config/branding.config';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
+import { EnablePasskeyPrompt } from '@/components/ui/EnablePasskeyPrompt';
 import { LoginScreen } from '@/components/student/LoginScreen';
 import { logout, useAuth } from '@/lib/authStore';
 
@@ -15,6 +16,7 @@ function AuthenticatedHome() {
         <h1 className="app-title">Welcome, {session.subject.displayName}</h1>
         {brand.tagline !== '' && <p className="app-tagline">{brand.tagline}</p>}
       </header>
+      <EnablePasskeyPrompt />
       <button
         type="button"
         className="logout-button"
