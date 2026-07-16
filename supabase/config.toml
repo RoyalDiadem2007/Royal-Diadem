@@ -412,3 +412,15 @@ enabled = true
 # declarative_schema_path = "./database"
 # JSON string passed through to pg-delta SQL formatting.
 # format_options = "{\"keywordCase\":\"upper\",\"indent\":2,\"maxWidth\":80,\"commaStyle\":\"trailing\"}"
+
+# Custom PIN/WebAuthn sessions — these functions do NOT use Supabase Auth JWTs
+# (docs/SUPABASE_RULES.md §8), so platform JWT verification must be off; each
+# function validates the app's own session token against public.sessions.
+[functions.auth-login]
+verify_jwt = false
+
+[functions.auth-logout]
+verify_jwt = false
+
+[functions.auth-session]
+verify_jwt = false

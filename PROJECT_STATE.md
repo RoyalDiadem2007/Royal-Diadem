@@ -53,7 +53,7 @@ can never happen again.
 |---|-------|--------|-------|
 | 0 | Governance & guardrails (CLAUDE.md, Supabase rules, hook, gitignore) | ✅ | This session |
 | 1 | Foundation: scaffold, branding.config, **schema + RLS + grants**, PWA base | 🔄 | `feat/foundation` 2026-07-16: scaffold + strict gates ✅, branding config + shell + tests ✅, audit logger ✅, PWA base ✅, 4 migrations authored + Docker-verified ✅. Remaining: `supabase db push` (needs access token — KEYS_SETUP §1a), Vercel link, merge to main |
-| 2 | Auth: PIN gen/hash, login, WebAuthn, COPPA consent gate | ⬜ | OD-1 decided; needs Turnstile keys (`docs/KEYS_SETUP.md`) |
+| 2 | Auth: PIN gen/hash, login, WebAuthn, COPPA consent gate | 🔄 | `feat/auth` 2026-07-16: Edge Fn trust boundary (`_shared`), auth-login/logout/session (Turnstile→rate-limit→bcrypt→COPPA gate→opaque session→audit), client login flow, **8 no-mock E2E tests passing on the local stack** + 38 unit tests. Decision: students log in with **crown code + PIN** (`students.login_code`) so PIN isn't the sole credential. Remaining: **WebAuthn — blocked on §2 dependency approval for `@simplewebauthn/server`+`browser`**; PIN reset (OD-9); real Turnstile keys; PIN/code generation lands with enrollment (Phase 4) |
 | 3 | Admin panel shell (file-cabinet layout, sidebar, routing) | ⬜ | |
 | 4 | Student enrollment (CSV + individual, PIN distribution) | ⬜ | |
 | 5 | Crown Check (student + admin trends + AI flag) | ⬜ | |

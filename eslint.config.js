@@ -6,7 +6,9 @@ import prettier from 'eslint-config-prettier';
 
 export default tseslint.config(
   {
-    ignores: ['dist', 'coverage', 'node_modules', 'public', 'supabase/.temp'],
+    // supabase/functions is Deno code (Deno globals, npm:/jsr: specifiers) —
+    // outside the Node/tsc program; checked by `deno check` in CI instead.
+    ignores: ['dist', 'coverage', 'node_modules', 'public', 'supabase'],
   },
   js.configs.recommended,
   {

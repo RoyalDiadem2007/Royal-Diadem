@@ -58,5 +58,8 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],
+    // The E2E suite needs the local Supabase stack; it runs via `npm run
+    // test:e2e` (vitest.e2e.config.ts), not in the unit gate.
+    exclude: ['**/node_modules/**', 'tests/e2e/**'],
   },
 });

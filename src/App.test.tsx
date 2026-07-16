@@ -1,27 +1,71 @@
-import { describe, expect, it } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { App } from '@/App';
 import { brand } from '@/config/branding.config';
+import { resetAuthForTests } from '@/lib/authStore';
 
-describe('App shell (white-label)', () => {
-  it('renders the organization name from the branding config, not a hardcoded string', () => {
+vi.mock('@/lib/turnstile', () => ({
+  getTurnstileToken: vi.fn(() => Promise.resolve('turnstile-token-0123456789')),
+}));
+
+const SESSION_BODY = {
+  token: 'raw-opaque-token',
+  expiresAt: '2026-07-17T00:00:00.000Z',
+  subject: { type: 'student', id: 'stu-1', displayName: 'Jada', role: 'student' },
+};
+
+beforeEach(() => {
+  vi.stubEnv('VITE_SUPABASE_URL', 'https://example.supabase.co');
+  vi.stubEnv('VITE_SUPABASE_PUBLISHABLE_KEY', 'sb_publishable_test');
+});
+
+afterEach(() => {
+  resetAuthForTests();
+  vi.unstubAllEnvs();
+  vi.unstubAllGlobals();
+  vi.restoreAllMocks();
+});
+
+describe('App auth gate (white-label)', () => {
+  it('shows the branded login screen while signed out', () => {
     render(<App />);
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(brand.name);
+    expect(screen.getByRole('form', { name: 'Sign in' })).toBeInTheDocument();
   });
 
-  it('renders the logo from the branding config path', () => {
+  it('signs in end-to-end, shows the welcome, and signs out again', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn((url: RequestInfo | URL) => {
+        const target = typeof url === 'string' ? url : url instanceof URL ? url.href : url.url;
+        if (target.endsWith('/auth-login')) {
+          return Promise.resolve(
+            new Response(JSON.stringify(SESSION_BODY), {
+              status: 200,
+              headers: { 'Content-Type': 'application/json' },
+            }),
+          );
+        }
+        return Promise.resolve(new Response(null, { status: 204 }));
+      }),
+    );
+
+    const user = userEvent.setup();
     render(<App />);
-    const logo = screen.getByRole('img', { name: `${brand.name} logo` });
-    expect(logo).toHaveAttribute('src', brand.logo);
-  });
 
-  it('renders the tagline only when the client has provided one', () => {
-    const { container } = render(<App />);
-    const tagline = container.querySelector('.app-tagline');
-    if (brand.tagline === '') {
-      expect(tagline).toBeNull();
-    } else {
-      expect(tagline).toHaveTextContent(brand.tagline);
-    }
+    await user.type(screen.getByLabelText('Crown code'), 'RD-7F3K');
+    await user.type(screen.getByLabelText('PIN'), '123456');
+    await user.click(screen.getByRole('button', { name: 'Sign in' }));
+
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Welcome, Jada');
+    });
+
+    await user.click(screen.getByRole('button', { name: 'Sign out' }));
+
+    await waitFor(() => {
+      expect(screen.getByRole('form', { name: 'Sign in' })).toBeInTheDocument();
+    });
   });
 });

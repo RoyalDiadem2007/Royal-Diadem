@@ -40,6 +40,56 @@ jobs:
       - name: Build
         run: npm run build
 
+  edge-functions:
+    name: Deno check (Edge Functions)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Type-check Edge Functions
+        working-directory: supabase/functions
+        run: deno check auth-login/index.ts auth-logout/index.ts auth-session/index.ts
+
+  e2e:
+    name: E2E (real local stack)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Install (clean, from lockfile)
+        run: npm ci
+
+      - name: Start local Supabase stack (applies migrations)
+        run: supabase start -x studio,imgproxy,mailpit,realtime,storage-api,vector,logflare
+
+      - name: Serve Edge Functions (Turnstile always-pass TEST secret)
+        run: |
+          echo "TURNSTILE_SECRET_KEY=1x0000000000000000000000000000000AA" > supabase/functions/.env
+          supabase functions serve --env-file supabase/functions/.env &
+          for i in $(seq 1 30); do
+            if curl -s -o /dev/null http://127.0.0.1:54321/functions/v1/auth-session; then exit 0; fi
+            sleep 2
+          done
+          echo "functions runtime did not become ready" && exit 1
+
+      - name: Run E2E suite (no mocks)
+        run: |
+          SUPABASE_E2E_SERVICE_KEY="$(supabase status -o json | jq -r '.SERVICE_ROLE_KEY')" \
+            npm run test:e2e
+
   audit:
     name: Dependency audit
     runs-on: ubuntu-latest
