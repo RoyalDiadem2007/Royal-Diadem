@@ -1,0 +1,10 @@
+# Prettier formats source code only; docs keep their hand-authored layout.
+node_modules
+dist
+coverage
+package-lock.json
+*.md
+public
+supabase
+.claude
+*.png

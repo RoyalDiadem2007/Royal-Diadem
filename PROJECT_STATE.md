@@ -52,7 +52,7 @@ can never happen again.
 | # | Phase | Status | Notes |
 |---|-------|--------|-------|
 | 0 | Governance & guardrails (CLAUDE.md, Supabase rules, hook, gitignore) | ✅ | This session |
-| 1 | Foundation: scaffold, branding.config, **schema + RLS + grants**, PWA base | 🔄 | Started 2026-07-16 on `feat/foundation`; OD-1–OD-4 resolved |
+| 1 | Foundation: scaffold, branding.config, **schema + RLS + grants**, PWA base | 🔄 | `feat/foundation` 2026-07-16: scaffold + strict gates ✅, branding config + shell + tests ✅, audit logger ✅, PWA base ✅, 4 migrations authored + Docker-verified ✅. Remaining: `supabase db push` (needs access token — KEYS_SETUP §1a), Vercel link, merge to main |
 | 2 | Auth: PIN gen/hash, login, WebAuthn, COPPA consent gate | ⬜ | OD-1 decided; needs Turnstile keys (`docs/KEYS_SETUP.md`) |
 | 3 | Admin panel shell (file-cabinet layout, sidebar, routing) | ⬜ | |
 | 4 | Student enrollment (CSV + individual, PIN distribution) | ⬜ | |
@@ -72,10 +72,10 @@ can never happen again.
 **Cross-cutting (interleave, not a single phase):**
 | Item | Status | Notes |
 |------|--------|-------|
-| GitHub security scanner (CodeQL, Dependabot, secret scan, gitleaks) | ⬜ | early — protect every commit |
-| CI/CD GitHub Actions YAML (lint/typecheck/test → build → deploy) | ⬜ | |
-| PWA cross-platform: VAPID push, SW, manifest (iPhone/iPad/Android/Mac/Windows) | ⬜ | iOS push needs Add-to-Home-Screen |
-| `audit_logs` table + audit logger | ⬜ | OD-4; core to logging rule |
+| GitHub security scanner (CodeQL, Dependabot, secret scan, gitleaks) | 🔄 | workflows authored 2026-07-16 (`.github/`); repo-side toggles = human (KEYS_SETUP §5) |
+| CI/CD GitHub Actions YAML (lint/typecheck/test → build → deploy) | ✅ | `ci.yml` 2026-07-16; deploy via Vercel Git integration when linked |
+| PWA cross-platform: VAPID push, SW, manifest (iPhone/iPad/Android/Mac/Windows) | 🔄 | manifest (brand-generated) + SW (static-only cache) + icons done; VAPID push later |
+| `audit_logs` table + audit logger | ✅ | migration authored + client logger (`src/lib/logger.ts`, PHI-redacting, transport attaches Phase 2) |
 
 ---
 

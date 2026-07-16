@@ -1,0 +1,57 @@
+# CI — every push and PR must pass the same gates the commit guard enforces
+# locally (CLAUDE.md §3): lint clean, types clean, all tests passing, build OK.
+# Deployment is handled by the Vercel Git integration once the project is
+# linked (docs/KEYS_SETUP.md §4) — CI's job is to block broken code, not ship.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  gates:
+    name: Lint, typecheck, test, build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install (clean, from lockfile)
+        run: npm ci
+
+      - name: Lint (zero warnings)
+        run: npm run lint
+
+      - name: Typecheck (strict)
+        run: npm run typecheck
+
+      - name: Test (100% pass, 0 skipped)
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+  audit:
+    name: Dependency audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      # High+ vulnerabilities fail the build; triage per CLAUDE.md §8 —
+      # never ship known CVEs.
+      - name: npm audit (high and above)
+        run: npm audit --audit-level=high

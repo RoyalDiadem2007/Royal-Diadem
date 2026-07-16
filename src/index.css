@@ -1,0 +1,98 @@
+/*
+ * Base styles. All brand values arrive as CSS custom properties set by
+ * applyBrandTheme() from branding.config.ts — never hardcode a brand color,
+ * name, or font here (Spec §3 white-label rule).
+ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100dvh;
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+}
+
+#root {
+  min-height: 100dvh;
+}
+
+.app-shell {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.app-logo {
+  width: min(60vw, 16rem);
+  height: auto;
+  border-radius: 1rem;
+}
+
+.app-title {
+  font-family: var(--font-display);
+  color: var(--color-primary);
+  font-size: 2rem;
+  margin: 1rem 0 0;
+}
+
+.app-tagline {
+  color: var(--color-text-secondary);
+  margin: 0.5rem 0 0;
+}
+
+.error-fallback {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.error-fallback h1 {
+  color: var(--color-primary);
+  font-size: 1.5rem;
+  margin: 0;
+}
+
+.error-fallback p {
+  color: var(--color-text-secondary);
+  margin: 0;
+  max-width: 28rem;
+}
+
+.error-fallback button {
+  background-color: var(--color-primary);
+  color: var(--color-text-primary);
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.6rem 1.4rem;
+}
