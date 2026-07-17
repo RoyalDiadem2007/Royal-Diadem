@@ -4,11 +4,49 @@
  * drill-down views arrive with their own phases.
  */
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router';
 import { fetchDashboardCounts, type DashboardCounts } from '@/lib/adminDashboard';
+import { adminSectionUrl, sectionsForRole, type AdminRole } from '@/config/adminSections';
 import { useAuth } from '@/lib/authStore';
 
 type LoadState =
   { status: 'loading' } | { status: 'error' } | { status: 'ready'; counts: DashboardCounts };
+
+/**
+ * A dashboard tile is a live link into its section when that section exists
+ * for this role — tiles connect to the registry, so each section wires itself
+ * up here the moment its phase ships.
+ */
+function StatCard({
+  value,
+  label,
+  sectionId,
+  role,
+  alert = false,
+}: {
+  value: number;
+  label: string;
+  sectionId: string;
+  role: AdminRole;
+  alert?: boolean;
+}) {
+  const section = sectionsForRole(role).find((s) => s.id === sectionId);
+  const className = alert ? 'admin-stat-card admin-stat-card-alert' : 'admin-stat-card';
+  const body = (
+    <>
+      <span className="admin-stat-value">{value}</span>
+      <span className="admin-stat-label">{label}</span>
+    </>
+  );
+  if (section === undefined) {
+    return <div className={className}>{body}</div>;
+  }
+  return (
+    <Link to={adminSectionUrl(section)} className={`${className} admin-stat-card-link`}>
+      {body}
+    </Link>
+  );
+}
 
 export function DashboardPage() {
   const [state, setState] = useState<LoadState>({ status: 'loading' });
@@ -73,32 +111,37 @@ export function DashboardPage() {
   }
 
   const { counts } = state;
+  const role = session?.subject.role;
+  if (role === undefined || role === 'student') {
+    return null;
+  }
   return (
     <section className="admin-section">
       <h2 className="admin-section-title">Dashboard</h2>
       <div className="admin-stat-grid">
-        <div className="admin-stat-card">
-          <span className="admin-stat-value">{counts.activeStudents}</span>
-          <span className="admin-stat-label">Active students</span>
-        </div>
-        <div
-          className={
+        <StatCard
+          value={counts.activeStudents}
+          label="Active students"
+          sectionId="students"
+          role={role}
+        />
+        <StatCard
+          value={counts.newFlags}
+          label={
             counts.highSeverityNewFlags > 0
-              ? 'admin-stat-card admin-stat-card-alert'
-              : 'admin-stat-card'
-          }
-        >
-          <span className="admin-stat-value">{counts.newFlags}</span>
-          <span className="admin-stat-label">
-            {counts.highSeverityNewFlags > 0
               ? `New flags (${String(counts.highSeverityNewFlags)} high severity)`
-              : 'New flags'}
-          </span>
-        </div>
-        <div className="admin-stat-card">
-          <span className="admin-stat-value">{counts.todaysCrownChecks}</span>
-          <span className="admin-stat-label">Crown Checks today</span>
-        </div>
+              : 'New flags'
+          }
+          sectionId="flags"
+          role={role}
+          alert={counts.highSeverityNewFlags > 0}
+        />
+        <StatCard
+          value={counts.todaysCrownChecks}
+          label="Crown Checks today"
+          sectionId="crown-checks"
+          role={role}
+        />
       </div>
     </section>
   );

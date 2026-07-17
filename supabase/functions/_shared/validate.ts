@@ -47,6 +47,18 @@ export const resetPinSchema = z.object({ studentId: z.uuid() }).strict();
 
 export type ResetPinRequest = z.infer<typeof resetPinSchema>;
 
+/**
+ * One CSV-import chunk. Small on purpose: bcrypt(12) per row is CPU-heavy for
+ * an Edge Function, so the client slices a big file into chunks of ≤10.
+ */
+export const importStudentsSchema = z
+  .object({
+    rows: z.array(createStudentSchema).min(1).max(10),
+  })
+  .strict();
+
+export type ImportStudentsRequest = z.infer<typeof importStudentsSchema>;
+
 export async function parseJsonBody(req: Request, maxBytes = 10_000): Promise<unknown | null> {
   const lengthHeader = req.headers.get('content-length');
   if (lengthHeader !== null && Number(lengthHeader) > maxBytes) {

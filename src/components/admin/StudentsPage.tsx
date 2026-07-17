@@ -11,6 +11,7 @@ import {
 } from '@/lib/adminStudents';
 import { useAuth } from '@/lib/authStore';
 import { AddStudentForm } from '@/components/admin/AddStudentForm';
+import { CsvImport } from '@/components/admin/CsvImport';
 import { IssuedPinCard } from '@/components/admin/IssuedPinCard';
 
 type RosterState =
@@ -30,6 +31,7 @@ export function StudentsPage() {
   // Bumping `reload` re-runs the roster fetch (after enroll/reset/retry).
   const [reload, setReload] = useState(0);
   const [showForm, setShowForm] = useState(false);
+  const [showImport, setShowImport] = useState(false);
   const [issuedPanel, setIssuedPanel] = useState<IssuedPanel>(null);
   const [confirmResetId, setConfirmResetId] = useState<string | null>(null);
   const [resetError, setResetError] = useState('');
@@ -86,18 +88,42 @@ export function StudentsPage() {
     <section className="admin-section">
       <div className="admin-section-header">
         <h2 className="admin-section-title">Students</h2>
-        {!showForm && issuedPanel === null && (
-          <button
-            type="button"
-            className="admin-retry-button"
-            onClick={() => {
-              setShowForm(true);
-            }}
-          >
-            Add student
-          </button>
+        {!showForm && !showImport && issuedPanel === null && (
+          <div className="admin-confirm-group">
+            <button
+              type="button"
+              className="admin-retry-button"
+              onClick={() => {
+                setShowForm(true);
+              }}
+            >
+              Add student
+            </button>
+            <button
+              type="button"
+              className="admin-retry-button"
+              onClick={() => {
+                setShowImport(true);
+              }}
+            >
+              Import CSV
+            </button>
+          </div>
         )}
       </div>
+
+      {showImport && (
+        <CsvImport
+          sessionToken={token}
+          onFinished={() => {
+            setShowImport(false);
+            refresh();
+          }}
+          onCancel={() => {
+            setShowImport(false);
+          }}
+        />
+      )}
 
       {issuedPanel !== null && (
         <IssuedPinCard

@@ -21,6 +21,7 @@ import { serverLog } from '../_shared/logger.ts';
 import { ageOn, generateCrownCode, generatePin } from '../_shared/enrollment.ts';
 import {
   createStudentSchema,
+  importStudentsSchema,
   parseJsonBody,
   resetPinSchema,
   type CreateStudentRequest,
@@ -179,6 +180,82 @@ async function handleCreate(
   return jsonResponse(req, 201, { student: toWire(inserted.row), pin });
 }
 
+type ImportRowResult =
+  | { index: number; ok: true; student: ReturnType<typeof toWire>; pin: string }
+  | { index: number; ok: false; reason: 'duplicate' | 'server_error' };
+
+/**
+ * Enrolls one row of a CSV chunk. A same-name-and-DOB match is refused as a
+ * duplicate so re-running an import can't double-enroll a cohort (§7
+ * idempotency); everything else is identical to individual enrollment.
+ */
+async function importRow(
+  db: SupabaseClient,
+  ctx: AdminContext,
+  row: CreateStudentRequest,
+  index: number,
+): Promise<ImportRowResult> {
+  const { data: existing, error: dupError } = await db
+    .from('students')
+    .select('id')
+    .eq('first_name', row.firstName)
+    .eq('last_name', row.lastName)
+    .eq('date_of_birth', row.dateOfBirth)
+    .limit(1)
+    .maybeSingle();
+  if (dupError !== null) {
+    serverLog.error('admin_students.import_dup_check_failed', {});
+    return { index, ok: false, reason: 'server_error' };
+  }
+  if (existing !== null) {
+    return { index, ok: false, reason: 'duplicate' };
+  }
+
+  const pin = generatePin();
+  const pinHash = await bcrypt.hash(pin, BCRYPT_COST);
+  const coppaRequired = ageOn(row.dateOfBirth, new Date()) < COPPA_AGE;
+
+  const inserted = await insertWithUniqueCode(db, row, pinHash, coppaRequired);
+  if (inserted === null) {
+    return { index, ok: false, reason: 'server_error' };
+  }
+
+  await writeAudit(db, {
+    actorType: 'admin',
+    actorId: ctx.subject.subjectId,
+    actorRole: ctx.role,
+    action: 'create',
+    entityType: ENTITY,
+    entityId: inserted.row.id,
+    outcome: 'allowed',
+    ip: ctx.ip,
+    metadata: { coppaRequired, via: 'csv_import' },
+  });
+
+  return { index, ok: true, student: toWire(inserted.row), pin };
+}
+
+async function handleImport(
+  db: SupabaseClient,
+  req: Request,
+  ctx: AdminContext,
+): Promise<Response> {
+  const body = await parseJsonBody(req, 50_000);
+  const parsed = importStudentsSchema.safeParse(body);
+  if (!parsed.success) {
+    return errorResponse(req, 400, 'invalid_request');
+  }
+
+  // Sequential on purpose: bcrypt is the cost, and parallel hashing would
+  // spike the function's CPU ceiling without changing total work.
+  const results: ImportRowResult[] = [];
+  for (const [index, row] of parsed.data.rows.entries()) {
+    results.push(await importRow(db, ctx, row, index));
+  }
+
+  return jsonResponse(req, 200, { results });
+}
+
 async function handleResetPin(
   db: SupabaseClient,
   req: Request,
@@ -257,6 +334,9 @@ Deno.serve(async (req) => {
   }
   if (action === 'create' && req.method === 'POST') {
     return handleCreate(db, req, auth.ctx);
+  }
+  if (action === 'import' && req.method === 'POST') {
+    return handleImport(db, req, auth.ctx);
   }
   if (action === 'reset-pin' && req.method === 'POST') {
     return handleResetPin(db, req, auth.ctx);

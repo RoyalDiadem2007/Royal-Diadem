@@ -554,3 +554,117 @@ button {
   margin: 0 0 1rem;
   font-size: 0.9rem;
 }
+
+/* CSV import wizard + printable PIN card sheet. */
+.csv-import {
+  background-color: var(--color-card-surface);
+  border: 1px solid var(--color-accent);
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+  max-width: 48rem;
+}
+
+.csv-file-label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+.csv-mapping-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.csv-mapping-grid label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+}
+
+.csv-mapping-grid select {
+  font: inherit;
+  padding: 0.55rem 0.75rem;
+  border: 1px solid var(--color-accent);
+  border-radius: 0.5rem;
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
+}
+
+.csv-problem-list {
+  color: var(--color-danger);
+  font-size: 0.9rem;
+  margin: 0 0 1rem;
+  padding-left: 1.25rem;
+}
+
+.pin-card-sheet {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+  gap: 1rem;
+  margin: 1rem 0 1.5rem;
+}
+
+.pin-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  border: 2px dashed var(--color-crown-gold);
+  border-radius: 0.75rem;
+  padding: 1rem;
+}
+
+.pin-card-name {
+  font-family: var(--font-display);
+  color: var(--color-primary);
+  font-size: 1.1rem;
+}
+
+.pin-card-row {
+  color: var(--color-text-primary);
+  font-size: 1rem;
+  letter-spacing: 0.05em;
+}
+
+/* Printing the card sheet: only the cards, black on white, cut lines kept. */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+
+  .pin-card-sheet,
+  .pin-card-sheet * {
+    visibility: visible;
+  }
+
+  .pin-card-sheet {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+  }
+
+  .pin-card,
+  .pin-card-name,
+  .pin-card-row {
+    color: #000;
+    border-color: #000;
+  }
+}
+
+/* A stat card that links into its section. */
+.admin-stat-card-link {
+  text-decoration: none;
+  transition: border-color 0.15s ease;
+}
+
+.admin-stat-card-link:hover,
+.admin-stat-card-link:focus-visible {
+  border-color: var(--color-primary);
+}

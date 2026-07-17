@@ -116,6 +116,47 @@ describe('admin shell routing and dashboard', () => {
     expect(headers.get('authorization')).toBe('Bearer raw-admin-token');
   });
 
+  it('connects the Active students tile to the Students section for a super admin', async () => {
+    const SUPER_SESSION = {
+      ...ADMIN_SESSION_BODY,
+      subject: { type: 'admin', id: 'adm-9', displayName: 'Kenecia', role: 'super_admin' },
+    };
+    const stub: FetchStub = {
+      loginBody: SUPER_SESSION,
+      dashboardResponses: [jsonResponse(COUNTS_BODY)],
+      dashboardCalls: [],
+    };
+    stubFetch(stub);
+
+    render(<App />);
+    await signIn('admin');
+    await screen.findByText('Active students');
+
+    const tile = screen.getByRole('link', { name: /Active students/ });
+    expect(tile).toHaveAttribute('href', '/admin/students');
+    // Tiles without a live section stay plain cards for now.
+    expect(screen.queryByRole('link', { name: /New flags/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /Crown Checks today/ })).not.toBeInTheDocument();
+
+    await userEvent.setup().click(tile);
+    expect(await screen.findByRole('heading', { name: 'Students' })).toBeInTheDocument();
+  });
+
+  it('keeps dashboard tiles plain for a mentor (no Students access until OD-6)', async () => {
+    const stub: FetchStub = {
+      loginBody: ADMIN_SESSION_BODY,
+      dashboardResponses: [jsonResponse(COUNTS_BODY)],
+      dashboardCalls: [],
+    };
+    stubFetch(stub);
+
+    render(<App />);
+    await signIn('admin');
+    await screen.findByText('Active students');
+
+    expect(screen.queryByRole('link', { name: /Active students/ })).not.toBeInTheDocument();
+  });
+
   it('shows a calm error state and recovers via Try again', async () => {
     const stub: FetchStub = {
       loginBody: ADMIN_SESSION_BODY,
