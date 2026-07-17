@@ -19,6 +19,14 @@ function allowedOrigins(): readonly string[] {
     .filter((o) => o !== '');
 }
 
+/**
+ * The app's canonical public origin — where emailed links point. First entry
+ * of ALLOWED_ORIGINS (production sets it; the fallback is local dev only).
+ */
+export function appOrigin(): string {
+  return allowedOrigins()[0] ?? DEFAULT_DEV_ORIGIN;
+}
+
 export function corsHeaders(req: Request): Headers {
   const headers = new Headers({
     'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',

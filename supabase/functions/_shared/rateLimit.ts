@@ -72,6 +72,20 @@ export async function enforceLoginRateLimit(
   return { allowed: true };
 }
 
+// Magic-link claims: tokens are 256-bit and single-use, so the limiter only
+// needs to blunt online guessing/scraping, not carry the whole defense.
+const CLAIM_IP_POLICY: Policy = { maxAttempts: 10, windowSeconds: 900, lockoutSeconds: 900 };
+
+/** Records one magic-link claim attempt for this IP; fail closed. */
+export async function enforceClaimRateLimit(
+  db: SupabaseClient,
+  ip: string | null,
+): Promise<RateLimitOutcome> {
+  // No IP header at all → treat as the shared "unknown" bucket rather than
+  // waving it through: still bounded, still fail closed if the limiter dies.
+  return recordAttempt(db, `claim:ip:${(ip ?? 'unknown').toLowerCase()}`, CLAIM_IP_POLICY);
+}
+
 /** On successful login: clear the identifier counter (IP counter stays). */
 export async function clearIdentifierAttempts(db: SupabaseClient, identifier: string): Promise<void> {
   const { error } = await db.rpc('clear_auth_attempts', {

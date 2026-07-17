@@ -65,6 +65,19 @@ encouragement messages (admin-reviewed, never posted directly — Spec §6.5/§1
 
 ---
 
+## 3b. Resend — needed for magic-link onboarding (Phase 4c, OD-19)
+
+Transactional email for enrollment magic links (and later the consent workflow). Approved
+vendor 2026-07-17; handles guardian/student names + emails → tracked on the CLAUDE.md §17.5
+vendor list.
+
+| # | What | Where to get it | Where it goes | Status |
+|---|------|-----------------|---------------|--------|
+| R1 | **Resend account + API key** | [resend.com](https://resend.com) → API Keys → create `royal-diadem-links` | `npx supabase secrets set RESEND_API_KEY=…` — server-only, never `VITE_*`, never the repo | ⬜ |
+| R2 | **Sending domain** (later; test address works day one) | Resend → Domains → verify a domain, then set `npx supabase secrets set EMAIL_FROM="Royal Diadem <hello@yourdomain.org>"` | Until then the code falls back to Resend's onboarding sender (only delivers to your own inbox — fine for testing, not launch) | ⬜ |
+
+---
+
 ## 4. Vercel — needed at first deploy (end of Foundation / Phase 3)
 
 > Full launch runbook: **`docs/VERCEL_SETUP.md`** (settings, env vars, deploy order, and the

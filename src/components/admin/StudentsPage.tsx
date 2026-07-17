@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import {
   listStudents,
   resetStudentPin,
+  sendMagicLink,
   type IssuedCredentials,
   type StudentRoster,
 } from '@/lib/adminStudents';
@@ -25,6 +26,16 @@ const CONSENT_LABELS: Readonly<Record<string, string>> = {
   denied: 'Consent denied',
 };
 
+// Specific, actionable copy per send-link refusal (OD-19 age matrix).
+const SEND_LINK_ERRORS: Readonly<Record<string, string>> = {
+  no_student_email: 'No student email on file — add one, or print a PIN card instead.',
+  no_guardian_email: 'No guardian email on file — add the guardian first.',
+  consent_pending: 'Guardian consent must be verified before an under-13 welcome link is sent.',
+  account_inactive: 'This account is inactive — reactivate it before sending a link.',
+  email_not_configured: 'Email sending isn’t configured yet (Resend key — see KEYS_SETUP §3b).',
+  email_send_failed: 'The email couldn’t be delivered. Try again in a moment.',
+};
+
 export function StudentsPage() {
   const [state, setState] = useState<RosterState>({ status: 'loading' });
   const [page, setPage] = useState(1);
@@ -35,6 +46,8 @@ export function StudentsPage() {
   const [issuedPanel, setIssuedPanel] = useState<IssuedPanel>(null);
   const [confirmResetId, setConfirmResetId] = useState<string | null>(null);
   const [resetError, setResetError] = useState('');
+  const [linkNotice, setLinkNotice] = useState('');
+  const [sendingLinkId, setSendingLinkId] = useState<string | null>(null);
   const session = useAuth();
   const token = session?.token;
 
@@ -63,6 +76,27 @@ export function StudentsPage() {
   function refresh(): void {
     setState({ status: 'loading' });
     setReload((n) => n + 1);
+  }
+
+  function handleSendLink(student: { id: string; displayName: string }): void {
+    if (token === undefined || sendingLinkId !== null) {
+      return;
+    }
+    setSendingLinkId(student.id);
+    setLinkNotice('');
+    void sendMagicLink(token, student.id).then((result) => {
+      setSendingLinkId(null);
+      if (result.ok) {
+        const inbox = result.data.recipient === 'guardian' ? 'the guardian' : 'the student';
+        setLinkNotice(
+          `Welcome link for ${student.displayName} sent to ${inbox} — it works once and expires in 72 hours.`,
+        );
+        return;
+      }
+      const specific =
+        result.failure.kind === 'denied' ? SEND_LINK_ERRORS[result.failure.code] : undefined;
+      setLinkNotice(specific ?? 'Couldn’t send the link. Check your connection and try again.');
+    });
   }
 
   function handleReset(studentId: string): void {
@@ -155,6 +189,12 @@ export function StudentsPage() {
         </p>
       )}
 
+      {linkNotice !== '' && (
+        <p className="admin-section-note" role="status">
+          {linkNotice}
+        </p>
+      )}
+
       {state.status === 'loading' && <p className="admin-section-note">Loading the roster…</p>}
 
       {state.status === 'error' && (
@@ -226,15 +266,27 @@ export function StudentsPage() {
                           </button>
                         </span>
                       ) : (
-                        <button
-                          type="button"
-                          className="logout-button"
-                          onClick={() => {
-                            setConfirmResetId(student.id);
-                          }}
-                        >
-                          Reset PIN
-                        </button>
+                        <span className="admin-confirm-group">
+                          <button
+                            type="button"
+                            className="logout-button"
+                            onClick={() => {
+                              setConfirmResetId(student.id);
+                            }}
+                          >
+                            Reset PIN
+                          </button>
+                          <button
+                            type="button"
+                            className="logout-button"
+                            disabled={sendingLinkId !== null}
+                            onClick={() => {
+                              handleSendLink(student);
+                            }}
+                          >
+                            {sendingLinkId === student.id ? 'Sending…' : 'Email link'}
+                          </button>
+                        </span>
                       )}
                     </td>
                   </tr>

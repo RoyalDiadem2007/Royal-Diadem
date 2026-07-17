@@ -442,3 +442,6 @@ verify_jwt = false
 
 [functions.admin-crown-checks]
 verify_jwt = false
+
+[functions.magic-link-claim]
+verify_jwt = false

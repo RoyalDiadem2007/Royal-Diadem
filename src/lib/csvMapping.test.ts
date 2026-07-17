@@ -67,3 +67,63 @@ describe('mapRows', () => {
     });
   });
 });
+
+describe('email columns (OD-19)', () => {
+  const mapping = autoMapColumns([
+    'First Name',
+    'Last Name',
+    'DOB',
+    'Student Email',
+    'Parent Name',
+    'Parent Email',
+  ]);
+
+  it('auto-maps student and guardian email headers', () => {
+    expect(mapping.studentEmail).toBe(3);
+    expect(mapping.guardianName).toBe(4);
+    expect(mapping.guardianEmail).toBe(5);
+  });
+
+  it('accepts a 13+ row with both emails', () => {
+    const rows = mapRows(
+      [['Maya', 'Older', '2010-01-15', 'maya@example.com', 'Rae Older', 'rae@example.com']],
+      mapping,
+    );
+    expect(rows[0]?.ok).toBe(true);
+    if (rows[0]?.ok === true) {
+      expect(rows[0].input.studentEmail).toBe('maya@example.com');
+      expect(rows[0].input.guardianName).toBe('Rae Older');
+      expect(rows[0].input.guardianEmail).toBe('rae@example.com');
+    }
+  });
+
+  it("rejects an under-13 row carrying the student's own email", () => {
+    const rows = mapRows(
+      [['Ivy', 'Young', '2016-01-15', 'ivy@example.com', 'Mel Young', 'mel@example.com']],
+      mapping,
+    );
+    expect(rows[0]).toEqual({
+      ok: false,
+      line: 2,
+      problem: 'Under-13 students use the guardian email, not their own',
+    });
+  });
+
+  it('rejects a half-entered guardian (name without email)', () => {
+    const rows = mapRows([['Maya', 'Older', '2010-01-15', '', 'Rae Older', '']], mapping);
+    expect(rows[0]).toEqual({
+      ok: false,
+      line: 2,
+      problem: 'Guardian name and email must both be filled in',
+    });
+  });
+
+  it('rejects addresses that are not emails', () => {
+    const rows = mapRows([['Maya', 'Older', '2010-01-15', 'not-an-email', '', '']], mapping);
+    expect(rows[0]).toEqual({
+      ok: false,
+      line: 2,
+      problem: 'Student email is not a valid address',
+    });
+  });
+});

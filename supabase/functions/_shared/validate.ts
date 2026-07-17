@@ -38,14 +38,40 @@ export const createStudentSchema = z
     gradeLevel: z.string().trim().min(1).max(100).optional(),
     schoolName: z.string().trim().min(1).max(100).optional(),
     phase: z.string().trim().min(1).max(100).optional(),
+    /** 13+ only (OD-19) — the server rejects it for under-13 enrollments. */
+    studentEmail: z.email().trim().max(254).optional(),
+    guardianName: z.string().trim().min(1).max(200).optional(),
+    guardianEmail: z.email().trim().max(254).optional(),
+    guardianRelationship: z.enum(['parent', 'legal_guardian', 'other']).optional(),
   })
-  .strict();
+  .strict()
+  // A guardian is one record: an email without a name (or vice versa) is a
+  // half-entered form, not a guardian.
+  .refine(
+    (value) => (value.guardianEmail === undefined) === (value.guardianName === undefined),
+    'guardian name and email must be provided together',
+  );
 
 export type CreateStudentRequest = z.infer<typeof createStudentSchema>;
 
 export const resetPinSchema = z.object({ studentId: z.uuid() }).strict();
 
 export type ResetPinRequest = z.infer<typeof resetPinSchema>;
+
+/** Admin request to (re)send a first-login magic link (OD-19). */
+export const sendLinkSchema = z.object({ studentId: z.uuid() }).strict();
+
+export type SendLinkRequest = z.infer<typeof sendLinkSchema>;
+
+/** Public claim of an emailed magic link — Turnstile-gated like login. */
+export const claimLinkSchema = z
+  .object({
+    token: z.string().trim().min(20).max(200),
+    turnstileToken: z.string().min(10).max(3000),
+  })
+  .strict();
+
+export type ClaimLinkRequest = z.infer<typeof claimLinkSchema>;
 
 /**
  * One CSV-import chunk. Small on purpose: bcrypt(12) per row is CPU-heavy for

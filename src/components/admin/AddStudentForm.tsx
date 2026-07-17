@@ -18,6 +18,25 @@ type Props = {
 
 const GENERIC_ERROR = 'Couldn’t enroll the student. Check the details and try again.';
 
+function isUnder13(isoDob: string): boolean {
+  if (isoDob === '') {
+    return false;
+  }
+  const dob = new Date(`${isoDob}T00:00:00Z`);
+  if (Number.isNaN(dob.getTime())) {
+    return false;
+  }
+  const now = new Date();
+  let age = now.getUTCFullYear() - dob.getUTCFullYear();
+  const beforeBirthday =
+    now.getUTCMonth() < dob.getUTCMonth() ||
+    (now.getUTCMonth() === dob.getUTCMonth() && now.getUTCDate() < dob.getUTCDate());
+  if (beforeBirthday) {
+    age -= 1;
+  }
+  return age < 13;
+}
+
 export function AddStudentForm({ sessionToken, onEnrolled, onCancel }: Props) {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -26,8 +45,15 @@ export function AddStudentForm({ sessionToken, onEnrolled, onCancel }: Props) {
   const [gradeLevel, setGradeLevel] = useState('');
   const [schoolName, setSchoolName] = useState('');
   const [phase, setPhase] = useState('');
+  const [studentEmail, setStudentEmail] = useState('');
+  const [guardianName, setGuardianName] = useState('');
+  const [guardianEmail, setGuardianEmail] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+
+  // UX-only mirror of the server's OD-19 rule: an under-13's own email is
+  // never collected — her magic link goes to the guardian.
+  const under13 = isUnder13(dateOfBirth);
 
   const canSubmit =
     !submitting &&
@@ -56,6 +82,13 @@ export function AddStudentForm({ sessionToken, onEnrolled, onCancel }: Props) {
     }
     if (phase.trim() !== '') {
       input.phase = phase.trim();
+    }
+    if (!under13 && studentEmail.trim() !== '') {
+      input.studentEmail = studentEmail.trim();
+    }
+    if (guardianName.trim() !== '' && guardianEmail.trim() !== '') {
+      input.guardianName = guardianName.trim();
+      input.guardianEmail = guardianEmail.trim();
     }
     void createStudent(sessionToken, input).then((result) => {
       setSubmitting(false);
@@ -155,6 +188,44 @@ export function AddStudentForm({ sessionToken, onEnrolled, onCancel }: Props) {
             maxLength={100}
             onChange={(e) => {
               setPhase(e.target.value);
+            }}
+          />
+        </label>
+        <label>
+          <span>
+            {under13
+              ? 'Student email — under 13 uses guardian email'
+              : 'Student email (13+, for her welcome link)'}
+          </span>
+          <input
+            type="email"
+            value={under13 ? '' : studentEmail}
+            maxLength={254}
+            disabled={under13}
+            onChange={(e) => {
+              setStudentEmail(e.target.value);
+            }}
+          />
+        </label>
+        <label>
+          <span>Guardian name{under13 ? ' (receives the welcome link)' : ' (optional)'}</span>
+          <input
+            type="text"
+            value={guardianName}
+            maxLength={200}
+            onChange={(e) => {
+              setGuardianName(e.target.value);
+            }}
+          />
+        </label>
+        <label>
+          <span>Guardian email{under13 ? '' : ' (optional)'}</span>
+          <input
+            type="email"
+            value={guardianEmail}
+            maxLength={254}
+            onChange={(e) => {
+              setGuardianEmail(e.target.value);
             }}
           />
         </label>

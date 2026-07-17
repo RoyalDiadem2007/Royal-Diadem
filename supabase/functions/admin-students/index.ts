@@ -19,11 +19,19 @@ import { requireAdmin, type AdminContext } from '../_shared/adminAuth.ts';
 import { writeAudit } from '../_shared/audit.ts';
 import { serverLog } from '../_shared/logger.ts';
 import { ageOn, generateCrownCode, generatePin } from '../_shared/enrollment.ts';
+import { emailConfigured, sendEmail } from '../_shared/email.ts';
+import {
+  buildFirstLoginEmail,
+  issueMagicLink,
+  linkRecipientForAge,
+  withLink,
+} from '../_shared/magicLinks.ts';
 import {
   createStudentSchema,
   importStudentsSchema,
   parseJsonBody,
   resetPinSchema,
+  sendLinkSchema,
   type CreateStudentRequest,
 } from '../_shared/validate.ts';
 
@@ -45,10 +53,11 @@ type StudentRow = {
   coppa_consent_status: string;
   phase: string | null;
   enrollment_date: string;
+  email: string | null;
 };
 
 const LIST_COLUMNS =
-  'id, first_name, last_name, display_name, login_code, status, coppa_required, coppa_consent_status, phase, enrollment_date';
+  'id, first_name, last_name, display_name, login_code, status, coppa_required, coppa_consent_status, phase, enrollment_date, email';
 
 function toWire(row: StudentRow) {
   return {
@@ -64,7 +73,39 @@ function toWire(row: StudentRow) {
     coppaConsentStatus: row.coppa_consent_status,
     phase: row.phase,
     enrollmentDate: row.enrollment_date,
+    email: row.email,
   };
+}
+
+/**
+ * OD-19: an under-13's own email is never collected pre-consent — her
+ * provisioning goes through the guardian. Rejecting here keeps the rule
+ * server-side, not a form nicety.
+ */
+function emailAllowedForAge(input: CreateStudentRequest, coppaRequired: boolean): boolean {
+  return !(coppaRequired && input.studentEmail !== undefined);
+}
+
+/** Creates the guardian record when the enrollment carried one. */
+async function createGuardianIfPresent(
+  db: SupabaseClient,
+  studentId: string,
+  input: CreateStudentRequest,
+): Promise<boolean> {
+  if (input.guardianName === undefined || input.guardianEmail === undefined) {
+    return true;
+  }
+  const { error } = await db.from('guardians').insert({
+    student_id: studentId,
+    guardian_name: input.guardianName,
+    relationship: input.guardianRelationship ?? 'parent',
+    email: input.guardianEmail,
+  });
+  if (error !== null) {
+    serverLog.error('admin_students.guardian_insert_failed', {});
+    return false;
+  }
+  return true;
 }
 
 async function handleList(
@@ -128,6 +169,7 @@ async function insertWithUniqueCode(
         pin_hash: pinHash,
         login_code: loginCode.toLowerCase(),
         coppa_required: coppaRequired,
+        email: input.studentEmail ?? null,
       })
       .select(LIST_COLUMNS)
       .single();
@@ -158,9 +200,17 @@ async function handleCreate(
   const pin = generatePin();
   const pinHash = await bcrypt.hash(pin, BCRYPT_COST);
   const coppaRequired = ageOn(parsed.data.dateOfBirth, new Date()) < COPPA_AGE;
+  if (!emailAllowedForAge(parsed.data, coppaRequired)) {
+    return errorResponse(req, 400, 'invalid_request');
+  }
 
   const inserted = await insertWithUniqueCode(db, parsed.data, pinHash, coppaRequired);
   if (inserted === null) {
+    return errorResponse(req, 500, 'server_error');
+  }
+  if (!(await createGuardianIfPresent(db, inserted.row.id, parsed.data))) {
+    // Student exists but the guardian record failed — surface it rather than
+    // pretending the enrollment fully succeeded.
     return errorResponse(req, 500, 'server_error');
   }
 
@@ -182,7 +232,7 @@ async function handleCreate(
 
 type ImportRowResult =
   | { index: number; ok: true; student: ReturnType<typeof toWire>; pin: string }
-  | { index: number; ok: false; reason: 'duplicate' | 'server_error' };
+  | { index: number; ok: false; reason: 'duplicate' | 'server_error' | 'underage_email' };
 
 /**
  * Enrolls one row of a CSV chunk. A same-name-and-DOB match is refused as a
@@ -214,9 +264,15 @@ async function importRow(
   const pin = generatePin();
   const pinHash = await bcrypt.hash(pin, BCRYPT_COST);
   const coppaRequired = ageOn(row.dateOfBirth, new Date()) < COPPA_AGE;
+  if (!emailAllowedForAge(row, coppaRequired)) {
+    return { index, ok: false, reason: 'underage_email' };
+  }
 
   const inserted = await insertWithUniqueCode(db, row, pinHash, coppaRequired);
   if (inserted === null) {
+    return { index, ok: false, reason: 'server_error' };
+  }
+  if (!(await createGuardianIfPresent(db, inserted.row.id, row))) {
     return { index, ok: false, reason: 'server_error' };
   }
 
@@ -314,6 +370,116 @@ async function handleResetPin(
   return jsonResponse(req, 200, { student: toWire(data as StudentRow), pin });
 }
 
+/**
+ * (Re)sends the first-login magic link (OD-19). The recipient is decided by
+ * age SERVER-SIDE: under-13 → guardian inbox (and only after verified
+ * consent), 13+ → the student's own inbox. Failures are specific codes so the
+ * admin UI can say exactly what's missing.
+ */
+async function handleSendLink(
+  db: SupabaseClient,
+  req: Request,
+  ctx: AdminContext,
+): Promise<Response> {
+  const body = await parseJsonBody(req);
+  const parsed = sendLinkSchema.safeParse(body);
+  if (!parsed.success) {
+    return errorResponse(req, 400, 'invalid_request');
+  }
+  const { studentId } = parsed.data;
+
+  const { data: student, error } = await db
+    .from('students')
+    .select('id, date_of_birth, email, status, coppa_required, coppa_consent_status')
+    .eq('id', studentId)
+    .maybeSingle();
+  if (error !== null) {
+    serverLog.error('admin_students.send_link_lookup_failed', {});
+    return errorResponse(req, 500, 'server_error');
+  }
+  if (student === null) {
+    return errorResponse(req, 404, 'not_found');
+  }
+  if (student.status !== 'active') {
+    return errorResponse(req, 409, 'account_inactive');
+  }
+  if (!emailConfigured()) {
+    return errorResponse(req, 503, 'email_not_configured');
+  }
+
+  const age = ageOn(String(student.date_of_birth), new Date());
+  const recipient = linkRecipientForAge(age);
+
+  let toAddress: string | null = null;
+  let guardianId: string | null = null;
+  if (recipient === 'student') {
+    toAddress = typeof student.email === 'string' && student.email !== '' ? student.email : null;
+    if (toAddress === null) {
+      return errorResponse(req, 409, 'no_student_email');
+    }
+  } else {
+    // Guardian-mediated setup: consent must be verified BEFORE any link goes
+    // out (OD-19 ordering; the consent workflow itself is OD-10).
+    if (student.coppa_required === true && student.coppa_consent_status !== 'verified') {
+      return errorResponse(req, 409, 'consent_pending');
+    }
+    const { data: guardian, error: guardianError } = await db
+      .from('guardians')
+      .select('id, email')
+      .eq('student_id', studentId)
+      .not('email', 'is', null)
+      .order('verification_timestamp', { ascending: false, nullsFirst: false })
+      .limit(1)
+      .maybeSingle();
+    if (guardianError !== null) {
+      serverLog.error('admin_students.send_link_guardian_failed', {});
+      return errorResponse(req, 500, 'server_error');
+    }
+    if (guardian === null || typeof guardian.email !== 'string' || guardian.email === '') {
+      return errorResponse(req, 409, 'no_guardian_email');
+    }
+    toAddress = guardian.email;
+    guardianId = String(guardian.id);
+  }
+
+  const issued = await issueMagicLink(db, {
+    studentId,
+    recipient,
+    guardianId,
+    createdBy: ctx.subject.subjectId,
+  });
+  if (issued === null) {
+    return errorResponse(req, 500, 'server_error');
+  }
+
+  const delivered = await sendEmail(withLink(buildFirstLoginEmail(toAddress, recipient), issued.token));
+  if (!delivered) {
+    // Undeliverable link must not stay claimable — revoke what we just made.
+    await db
+      .from('magic_links')
+      .update({ revoked_at: new Date().toISOString() })
+      .eq('student_id', studentId)
+      .eq('recipient', recipient)
+      .is('used_at', null)
+      .is('revoked_at', null);
+    return errorResponse(req, 502, 'email_send_failed');
+  }
+
+  await writeAudit(db, {
+    actorType: 'admin',
+    actorId: ctx.subject.subjectId,
+    actorRole: ctx.role,
+    action: 'create',
+    entityType: 'magic_link',
+    entityId: studentId,
+    outcome: 'allowed',
+    ip: ctx.ip,
+    metadata: { recipient },
+  });
+
+  return jsonResponse(req, 200, { sent: true, recipient, expiresAt: issued.expiresAt });
+}
+
 Deno.serve(async (req) => {
   const preflight = handlePreflight(req);
   if (preflight !== null) {
@@ -340,6 +506,9 @@ Deno.serve(async (req) => {
   }
   if (action === 'reset-pin' && req.method === 'POST') {
     return handleResetPin(db, req, auth.ctx);
+  }
+  if (action === 'send-link' && req.method === 'POST') {
+    return handleSendLink(db, req, auth.ctx);
   }
   return errorResponse(req, 405, 'method_not_allowed');
 });
