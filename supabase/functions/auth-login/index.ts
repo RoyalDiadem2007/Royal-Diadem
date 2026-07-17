@@ -205,9 +205,17 @@ Deno.serve(async (req) => {
     ip,
   });
 
+  // Lets the client offer "Enable Face ID?" only when no passkey exists yet.
+  const { count } = await db
+    .from('webauthn_credentials')
+    .select('id', { count: 'exact', head: true })
+    .eq('subject_type', subjectType)
+    .eq('subject_id', account.id);
+
   return jsonResponse(req, 200, {
     token: session.token,
     expiresAt: session.expiresAt,
+    webauthnRegistered: (count ?? 0) > 0,
     subject: {
       type: subjectType,
       id: account.id,

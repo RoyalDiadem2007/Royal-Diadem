@@ -424,3 +424,9 @@ verify_jwt = false
 
 [functions.auth-session]
 verify_jwt = false
+
+[functions.auth-webauthn-register]
+verify_jwt = false
+
+[functions.auth-webauthn-login]
+verify_jwt = false

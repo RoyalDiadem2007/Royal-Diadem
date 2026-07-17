@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { brand } from '@/config/branding.config';
-import { login } from '@/lib/authStore';
+import { login, loginWithPasskey } from '@/lib/authStore';
+import { passkeysSupported } from '@/lib/passkey';
 
 type Mode = 'student' | 'admin';
 
@@ -21,6 +22,20 @@ export function LoginScreen() {
     setSubmitting(true);
     setErrorMessage(null);
     void login({ subjectType: mode, identifier, pin })
+      .then((result) => {
+        if (!result.ok) {
+          setErrorMessage(result.message);
+        }
+      })
+      .finally(() => {
+        setSubmitting(false);
+      });
+  };
+
+  const handlePasskey = (): void => {
+    setSubmitting(true);
+    setErrorMessage(null);
+    void loginWithPasskey()
       .then((result) => {
         if (!result.ok) {
           setErrorMessage(result.message);
@@ -85,6 +100,17 @@ export function LoginScreen() {
           {submitting ? 'Signing in…' : 'Sign in'}
         </button>
       </form>
+
+      {passkeysSupported() && (
+        <button
+          type="button"
+          className="login-passkey"
+          disabled={submitting}
+          onClick={handlePasskey}
+        >
+          Sign in with Face ID / passkey
+        </button>
+      )}
 
       <button
         type="button"

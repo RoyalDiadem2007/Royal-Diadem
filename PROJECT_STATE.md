@@ -66,7 +66,7 @@ can never happen again.
 |---|-------|--------|-------|
 | 0 | Governance & guardrails (CLAUDE.md, Supabase rules, hook, gitignore) | ✅ | This session |
 | 1 | Foundation: scaffold, branding.config, **schema + RLS + grants**, PWA base | 🔄 | `feat/foundation` 2026-07-16: scaffold + strict gates ✅, branding config + shell + tests ✅, audit logger ✅, PWA base ✅, 4 migrations authored + Docker-verified ✅. Remaining: `supabase db push` (needs access token — KEYS_SETUP §1a), Vercel link, merge to main |
-| 2 | Auth: PIN gen/hash, login, WebAuthn, COPPA consent gate | 🔄 | `feat/auth` 2026-07-16: Edge Fn trust boundary (`_shared`), auth-login/logout/session (Turnstile→rate-limit→bcrypt→COPPA gate→opaque session→audit), client login flow, **8 no-mock E2E tests passing on the local stack** + 38 unit tests. Decision: students log in with **crown code + PIN** (`students.login_code`) so PIN isn't the sole credential. Remaining: **WebAuthn — blocked on §2 dependency approval for `@simplewebauthn/server`+`browser`**; PIN reset (OD-9); real Turnstile keys; PIN/code generation lands with enrollment (Phase 4) |
+| 2 | Auth: PIN gen/hash, login, WebAuthn, COPPA consent gate | 🔄 | Merged to main 2026-07-16: Edge Fn trust boundary, auth-login/logout/session (Turnstile→rate-limit→bcrypt→COPPA gate→opaque session→audit), client login flow. **WebAuthn added on `feat/webauthn`** (dep `@simplewebauthn` approved 2026-07-16): passkeys in own `webauthn_credentials` table (multi-device + signature counter — spec's single-credential columns superseded; **dropping them = pending §2 ask**), usernameless discoverable login, session-gated registration, counter-regression rejection, single-use 5-min challenges; client Face ID button + post-login enable prompt. **14 no-mock E2E tests** (8 auth + 6 webauthn) + 50 unit tests. Decisions: crown code + PIN identifiers; **no Turnstile on WebAuthn** (crypto challenge-response isn't brute-forceable; IP rate limit still applies). Remaining: full passkey ceremony E2E needs a browser virtual authenticator (Playwright, later); PIN reset (OD-9); real Turnstile keys; PIN/code generation in Phase 4 |
 | 3 | Admin panel shell (file-cabinet layout, sidebar, routing) | ⬜ | |
 | 4 | Student enrollment (CSV + individual, PIN distribution) | ⬜ | |
 | 5 | Crown Check (student + admin trends + AI flag) | ⬜ | |
@@ -114,6 +114,7 @@ can never happen again.
 | OD-14 | 🟡 | Guardian consent for **all minors (13–17)**, not just COPPA under-13? | ⬜ open |
 | OD-15 | ⚪ | **Backups/DR**, staging/prod envs + seed data, **accessibility (WCAG)** target & color contrast | ⬜ open |
 | OD-16 | ⚪ | **SOC 2 / HIPAA org items** (CLAUDE.md §17.5 — human-side): Supabase HIPAA add-on + BAA, vendor BAAs, audit engagement, written policies, security officer | ⬜ open |
+| OD-17 | 🟡 | **AI journal analysis ("Journaling Coach")** — DECIDED 2026-07-17: buildable once the Anthropic BAA is signed (+ guardian-consent language + design review). Until then the spec's server-side keyword/pattern flag covers escalation signals. Maria is fully aware of the BAA requirement — **do not re-raise it**; when the BAA lands, just build | ⏳ awaiting BAA |
 
 ---
 
