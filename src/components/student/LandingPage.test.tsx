@@ -27,17 +27,19 @@ afterEach(() => {
 });
 
 describe('public landing page (OD-20)', () => {
-  it('is the front door: logo, founder photo, write-up — all from the branding config', () => {
+  it('is the front door: large centered logo + write-up, all from the branding config', () => {
     render(<App />);
 
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(brand.name);
     expect(screen.getByAltText(`${brand.name} logo`)).toHaveAttribute('src', brand.logo);
-
-    const founderPhoto = screen.getByAltText(`${brand.founder.name}, ${brand.founder.title}`);
-    expect(founderPhoto).toHaveAttribute('src', brand.founder.photo);
-    expect(screen.getByText(new RegExp(brand.founder.name))).toBeInTheDocument();
-
     expect(screen.getByText(brand.landingBlurb)).toBeInTheDocument();
+
+    // Kenecia opted her photo off the landing page (2026-07-17) — the logo
+    // carries it. Her photo appears nowhere here.
+    expect(
+      screen.queryByAltText(`${brand.founder.name}, ${brand.founder.title}`),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByText(new RegExp(brand.founder.name))).not.toBeInTheDocument();
 
     // No sign-in form here — the landing page is content only.
     expect(screen.queryByRole('form', { name: 'Sign in' })).not.toBeInTheDocument();

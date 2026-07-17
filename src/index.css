@@ -856,43 +856,42 @@ button {
   text-align: center;
 }
 
+/* The hero: the logo carries the page (Kenecia 2026-07-17) — large,
+ * centered, with a soft brand glow so it feels lit, not pasted on. */
+.landing-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1.5rem 0 0.5rem;
+}
+
 .landing-logo {
-  width: 8rem;
-  max-width: 40vw;
+  width: 17rem;
+  max-width: 72vw;
+  filter: drop-shadow(0 0 3.5rem color-mix(in srgb, var(--color-primary) 35%, transparent));
 }
 
 .landing-title {
   font-family: var(--font-display);
   color: var(--color-primary);
-  font-size: 2rem;
+  font-size: 2.4rem;
+  letter-spacing: 0.02em;
   margin: 0;
 }
 
 .landing-tagline {
   color: var(--color-text-secondary);
-  margin: 0;
-}
-
-.landing-founder-photo {
-  width: 9rem;
-  height: 9rem;
-  object-fit: cover;
-  border-radius: 50%;
-  border: 3px solid var(--color-crown-gold);
-  margin-top: 0.75rem;
-}
-
-.landing-founder-caption {
-  color: var(--color-text-secondary);
-  font-size: 0.95rem;
+  font-size: 1.05rem;
   margin: 0;
 }
 
 .landing-blurb {
-  color: var(--color-text-primary);
-  max-width: 34rem;
-  line-height: 1.6;
-  margin: 0.75rem 0 1rem;
+  color: var(--color-text-secondary);
+  max-width: 32rem;
+  font-size: 1.05rem;
+  line-height: 1.75;
+  margin: 1.25rem 0 1rem;
 }
 
 .landing-enter {
