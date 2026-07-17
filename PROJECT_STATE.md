@@ -4,7 +4,7 @@
 > decisions. Update it as work progresses. For *what* we build see `Royal_Diadem_Master_Spec.md`;
 > for *how* we build see `CLAUDE.md`; for backend rules see `docs/SUPABASE_RULES.md`.
 >
-> _Last updated: 2026-07-17 evening · Phases 0–5 merged (PR #10). **PR #11 (Phase 4c magic-link onboarding) is fully CI-green and awaiting Maria's merge decision.** Vercel is now connected to the repo (preview checks live). Supabase secrets set via dashboard: `ANTHROPIC_API_KEY`, `RESEND_API_KEY`; Maria instructed on `ALLOWED_ORIGINS`. Still nothing deployed to hosted Supabase (access token, KEYS_SETUP §1a)._
+> _Last updated: 2026-07-17 night · Phases 0–5 + 4c all merged (PR #11 merged on Maria's instruction, all CI green). Vercel + Supabase GitHub integrations connected (preview checks live on PRs). Supabase secrets set via dashboard: `ANTHROPIC_API_KEY`, `RESEND_API_KEY`; Maria instructed on `ALLOWED_ORIGINS`. Still nothing deployed to hosted Supabase (access token, KEYS_SETUP §1a). Landing page (OD-20) built on `feat/landing-page`._
 
 **Legend:** ✅ done · 🔄 in progress · ⬜ not started · ⏳ blocked/awaiting input
 
@@ -161,16 +161,14 @@ can never happen again.
 4. ⏳ **OD-3 human protocol, OD-12 full permission matrix, OD-6 mentor assignment model** — needed
    before mentors get real access to student data.
 
-**Immediate pickup (next session):**
-0. **Merge PR #11** if Maria approves (all CI green; she has not yet said merge) — then the
-   post-merge PROJECT_STATE refresh.
-
 **Build queue (all unblocked):**
 4c-next. **Guardian access portal** (OD-19 build B): guardian magic-link accounts for 13–15,
    the student consent-code ceremony (in-app notification), Kenecia's audited emergency
    override.
-4d. **Landing page** (OD-20): logo + Kenecia photo + short write-up + arrow → login. Small;
-   needs the write-up drafted for her approval.
+4d. ✅ **Landing page** (OD-20) — built 2026-07-17 on `feat/landing-page`: `/` = logo +
+   Kenecia photo + write-up + bouncing arrow → `/login`; sign-out lands on the landing page.
+   **Write-up copy is a DRAFT in `branding.config.ts` (`landingBlurb`) — needs Kenecia's
+   approval**; swap the string when her copy arrives.
 5. ✅ **Phase 5: Crown Check** — merged 2026-07-17 (PR #10; see tracker row 5).
 6. **Phase 6: Journal** — write + mentor review + keyword flag; AES-256-GCM in the Edge Function
    (OD-2 decided). Mentor visibility needs OD-6 first, or ships super_admin-only like Students.

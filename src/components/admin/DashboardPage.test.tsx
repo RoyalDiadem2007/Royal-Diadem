@@ -77,7 +77,7 @@ async function signIn(kind: 'admin' | 'student'): Promise<void> {
 beforeEach(() => {
   vi.stubEnv('VITE_SUPABASE_URL', 'https://example.supabase.co');
   vi.stubEnv('VITE_SUPABASE_PUBLISHABLE_KEY', 'sb_publishable_test');
-  window.history.replaceState(null, '', '/');
+  window.history.replaceState(null, '', '/login');
 });
 
 afterEach(() => {
