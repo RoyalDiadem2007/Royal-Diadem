@@ -457,3 +457,6 @@ verify_jwt = false
 
 [functions.admin-journal]
 verify_jwt = false
+
+[functions.push]
+verify_jwt = false

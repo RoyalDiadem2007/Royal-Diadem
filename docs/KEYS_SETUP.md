@@ -30,6 +30,8 @@ Project: `RoyalDiadem2007's Project` — ref `luvthaezikvssnuegviu` (us-west-2)
 
 | 1d | **Journal encryption key** (OD-2 — AES-256-GCM at rest for journal text) | Generate it yourself — run: `npx supabase secrets set JOURNAL_ENCRYPTION_KEY="$(openssl rand -base64 32)"` (once linked; or paste the generated value into Dashboard → Edge Functions → Secrets) | Supabase function secrets only. **Losing this key means existing journal entries become unreadable — store a copy in your password manager.** Rotation requires a re-encryption pass (ask Claude) | ⬜ |
 
+| 1e | **VAPID web-push keys** (phone notifications, e.g. the guardian-request nudge) | Generate: `npx web-push generate-vapid-keys` → set THREE secrets: `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, and `VAPID_SUBJECT=mailto:you@yourdomain.org` (dashboard → Edge Functions → Secrets, or `npx supabase secrets set …` once linked) | Supabase function secrets. The public key is safe anywhere; the private key is server-only. Rotating logs everyone out of notifications (they re-enable in-app) | ⬜ |
+
 **Database password** (only if the CLI asks during `db push`): Dashboard → Project Settings →
 Database → you can reset it if unknown. Keep it in your password manager; Claude never needs it
 stored anywhere.
