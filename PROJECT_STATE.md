@@ -165,10 +165,11 @@ can never happen again.
 4c-next. **Guardian access portal** (OD-19 build B): guardian magic-link accounts for 13–15,
    the student consent-code ceremony (in-app notification), Kenecia's audited emergency
    override.
-4d. ✅ **Landing page** (OD-20) — built 2026-07-17 on `feat/landing-page`: `/` = logo +
-   Kenecia photo + write-up + bouncing arrow → `/login`; sign-out lands on the landing page.
-   **Write-up copy is a DRAFT in `branding.config.ts` (`landingBlurb`) — needs Kenecia's
-   approval**; swap the string when her copy arrives.
+4d. ✅ **Landing page** (OD-20) — merged 2026-07-17 (PR #12): `/` = logo + Kenecia photo +
+   write-up + bouncing arrow → `/login`; sign-out lands on the landing page. **Write-up copy
+   is a DRAFT in `branding.config.ts` (`landingBlurb`) — needs Kenecia's approval**; swap the
+   string when her copy arrives. **Standing rule since PR #12 (Maria): squash-merge any PR
+   the moment all CI checks are green — no per-PR ask.**
 5. ✅ **Phase 5: Crown Check** — merged 2026-07-17 (PR #10; see tracker row 5).
 6. **Phase 6: Journal** — write + mentor review + keyword flag; AES-256-GCM in the Edge Function
    (OD-2 decided). Mentor visibility needs OD-6 first, or ships super_admin-only like Students.
