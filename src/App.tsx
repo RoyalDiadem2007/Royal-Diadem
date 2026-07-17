@@ -3,6 +3,7 @@ import { brand } from '@/config/branding.config';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { EnablePasskeyPrompt } from '@/components/ui/EnablePasskeyPrompt';
 import { LoginScreen } from '@/components/student/LoginScreen';
+import { LandingPage } from '@/components/student/LandingPage';
 import { WelcomeScreen } from '@/components/student/WelcomeScreen';
 import { CrownCheck } from '@/components/student/CrownCheck';
 import { DashboardPage } from '@/components/admin/DashboardPage';
@@ -68,8 +69,11 @@ export function App() {
       <BrowserRouter>
         {session === null ? (
           <Routes>
-            {/* Emailed magic links land here (OD-19); everything else signs in. */}
+            {/* The public front door (OD-20): landing → arrow → sign-in. */}
+            <Route path="/" element={<LandingPage />} />
+            {/* Emailed magic links land here (OD-19). */}
             <Route path="/welcome" element={<WelcomeScreen />} />
+            {/* /login and any deep link (e.g. /admin) go to sign-in. */}
             <Route path="*" element={<LoginScreen />} />
           </Routes>
         ) : (

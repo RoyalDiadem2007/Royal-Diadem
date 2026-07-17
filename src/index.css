@@ -844,6 +844,100 @@ button {
   background-color: var(--color-crown-gold);
 }
 
+/* Public landing page (OD-20): logo, founder, write-up, arrow to sign-in. */
+.landing-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 2rem 1.5rem;
+  text-align: center;
+}
+
+.landing-logo {
+  width: 8rem;
+  max-width: 40vw;
+}
+
+.landing-title {
+  font-family: var(--font-display);
+  color: var(--color-primary);
+  font-size: 2rem;
+  margin: 0;
+}
+
+.landing-tagline {
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+.landing-founder-photo {
+  width: 9rem;
+  height: 9rem;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 3px solid var(--color-crown-gold);
+  margin-top: 0.75rem;
+}
+
+.landing-founder-caption {
+  color: var(--color-text-secondary);
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+.landing-blurb {
+  color: var(--color-text-primary);
+  max-width: 34rem;
+  line-height: 1.6;
+  margin: 0.75rem 0 1rem;
+}
+
+.landing-enter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  margin-top: auto;
+  padding: 0.75rem 2rem;
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+.landing-enter-arrow {
+  font-size: 2rem;
+  animation: landing-bounce 1.6s ease-in-out infinite;
+}
+
+.landing-enter-text {
+  color: var(--color-text-secondary);
+  font-size: 0.95rem;
+}
+
+.landing-enter:hover .landing-enter-text,
+.landing-enter:focus-visible .landing-enter-text {
+  color: var(--color-text-primary);
+}
+
+@keyframes landing-bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(0.4rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-enter-arrow {
+    animation: none;
+  }
+}
+
 /* /welcome — the one-time credential reveal (the digital PIN card). */
 .welcome-credentials {
   background-color: var(--color-card-surface);

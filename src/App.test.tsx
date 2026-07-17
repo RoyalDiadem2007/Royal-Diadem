@@ -28,13 +28,18 @@ afterEach(() => {
 });
 
 describe('App auth gate (white-label)', () => {
-  it('shows the branded login screen while signed out', () => {
+  it('opens on the branded landing page, with sign-in one arrow away (OD-20)', async () => {
+    window.history.replaceState(null, '', '/');
     render(<App />);
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(brand.name);
-    expect(screen.getByRole('form', { name: 'Sign in' })).toBeInTheDocument();
+    expect(screen.queryByRole('form', { name: 'Sign in' })).not.toBeInTheDocument();
+
+    await userEvent.setup().click(screen.getByRole('link', { name: 'Continue to sign in' }));
+    expect(await screen.findByRole('form', { name: 'Sign in' })).toBeInTheDocument();
   });
 
   it('signs in end-to-end, shows the welcome, and signs out again', async () => {
+    window.history.replaceState(null, '', '/login');
     vi.stubGlobal(
       'fetch',
       vi.fn((url: RequestInfo | URL) => {
@@ -64,8 +69,11 @@ describe('App auth gate (white-label)', () => {
 
     await user.click(screen.getByRole('button', { name: 'Sign out' }));
 
+    // Signing out lands on the public front door (OD-20), one arrow from
+    // sign-in — not straight back onto the form.
     await waitFor(() => {
-      expect(screen.getByRole('form', { name: 'Sign in' })).toBeInTheDocument();
+      expect(screen.getByRole('link', { name: 'Continue to sign in' })).toBeInTheDocument();
     });
+    expect(screen.queryByRole('form', { name: 'Sign in' })).not.toBeInTheDocument();
   });
 });

@@ -29,12 +29,25 @@ export type BrandFonts = {
   body: string;
 };
 
+export type BrandFounder = {
+  name: string;
+  /** e.g. "Founder" — shown under the photo on the landing page. */
+  title: string;
+  photo: string;
+};
+
 export type BrandConfig = {
   name: string;
   /** Awaiting client copy — empty string until provided (Spec §12). */
   tagline: string;
   /** Used for the PWA manifest description and the HTML meta description. */
   appDescription: string;
+  /**
+   * Landing-page write-up (OD-20). DRAFT pending Kenecia's approval —
+   * drafted from Spec §1; she may replace it wholesale (Spec §12 About copy).
+   */
+  landingBlurb: string;
+  founder: BrandFounder;
   colors: BrandColors;
   logo: string;
   fonts: BrandFonts;
@@ -46,6 +59,17 @@ export const brand: BrandConfig = {
   name: 'Royal Diadem',
   tagline: '',
   appDescription: 'Empowerment platform for young queens',
+  landingBlurb:
+    'Royal Diadem is a Houston nonprofit that has walked alongside young women ages 11–19 ' +
+    'since 2007 — building confidence, life skills, and sisterhood through mentorship, ' +
+    'journaling, and the Crowning Glory salon, where caring for a girl on the outside ' +
+    'reflects the worth she already carries on the inside. Every girl who walks through our ' +
+    'doors is treated like what she is: royalty.',
+  founder: {
+    name: 'Pastor Kenecia Duncan',
+    title: 'Founder',
+    photo: '/assets/kenecia-headshot.jpg',
+  },
   colors: {
     primary: '#E05070', // Royal pink (flamingo body, "Royal" text)
     secondary: '#C01050', // Deep magenta ("Diadem" script)
