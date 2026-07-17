@@ -114,6 +114,7 @@ can never happen again.
 | OD-14 | 🟡 | Guardian consent for **all minors (13–17)**, not just COPPA under-13? | ⬜ open |
 | OD-15 | ⚪ | **Backups/DR**, staging/prod envs + seed data, **accessibility (WCAG)** target & color contrast | ⬜ open |
 | OD-16 | ⚪ | **SOC 2 / HIPAA org items** (CLAUDE.md §17.5 — human-side): Supabase HIPAA add-on + BAA, vendor BAAs, audit engagement, written policies, security officer | ⬜ open |
+| OD-17 | 🟡 | **AI journal analysis ("Journaling Coach")** — DECIDED 2026-07-17: buildable once the Anthropic BAA is signed (+ guardian-consent language + design review). Until then the spec's server-side keyword/pattern flag covers escalation signals. Maria is fully aware of the BAA requirement — **do not re-raise it**; when the BAA lands, just build | ⏳ awaiting BAA |
 
 ---
 
