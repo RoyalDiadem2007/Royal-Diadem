@@ -70,6 +70,24 @@ export const emergencyAccessSchema = z.object({ studentId: z.uuid() }).strict();
 /** Guardian asks to view a linked student's account. */
 export const requestAccessSchema = z.object({ studentId: z.uuid() }).strict();
 
+/** Student journal entry (Spec §6.4). Text is encrypted before insert. */
+export const writeJournalSchema = z
+  .object({
+    promptId: z.uuid().optional(),
+    text: z.string().trim().min(1).max(4000),
+  })
+  .strict();
+
+export type WriteJournalRequest = z.infer<typeof writeJournalSchema>;
+
+export const createPromptSchema = z
+  .object({ text: z.string().trim().min(1).max(500) })
+  .strict();
+
+export const togglePromptSchema = z
+  .object({ promptId: z.uuid(), active: z.boolean() })
+  .strict();
+
 /** Guardian enters the consent code the student shared with them. */
 export const enterCodeSchema = z
   .object({

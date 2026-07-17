@@ -949,6 +949,117 @@ button {
   }
 }
 
+/* Journal (Phase 6): student card + admin review + prompts manager. */
+.journal-transparency {
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+  font-style: italic;
+  margin: 0 0 0.75rem;
+}
+
+.crown-check-note textarea,
+.crown-check-note select {
+  font: inherit;
+  padding: 0.55rem 0.75rem;
+  border: 1px solid var(--color-accent);
+  border-radius: 0.5rem;
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
+  resize: vertical;
+}
+
+.journal-history {
+  margin-top: 1rem;
+  color: var(--color-text-secondary);
+}
+
+.journal-history summary {
+  cursor: pointer;
+}
+
+.journal-history-list {
+  list-style: none;
+  margin: 0.75rem 0 0;
+  padding: 0;
+}
+
+.journal-history-list li {
+  margin-bottom: 0.75rem;
+}
+
+.journal-history-date {
+  color: var(--color-crown-gold);
+  font-size: 0.85rem;
+}
+
+.journal-history-prompt {
+  color: var(--color-text-secondary);
+  font-size: 0.85rem;
+}
+
+.journal-history-text {
+  color: var(--color-text-primary);
+  white-space: pre-wrap;
+  margin: 0.25rem 0 0;
+}
+
+.journal-review-entry {
+  background-color: var(--color-card-surface);
+  border: 1px solid var(--color-accent);
+  border-radius: 0.75rem;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1rem;
+  max-width: 48rem;
+}
+
+.journal-review-text {
+  color: var(--color-text-primary);
+  white-space: pre-wrap;
+  margin: 0.5rem 0 0;
+}
+
+.journal-prompts-manager {
+  margin-top: 2rem;
+  max-width: 48rem;
+}
+
+.journal-prompt-add {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.journal-prompt-add input {
+  font: inherit;
+  flex: 1;
+  padding: 0.55rem 0.75rem;
+  border: 1px solid var(--color-accent);
+  border-radius: 0.5rem;
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
+}
+
+.journal-prompt-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.journal-prompt-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--color-card-surface);
+  color: var(--color-text-primary);
+}
+
+.journal-prompt-retired {
+  color: var(--color-text-secondary);
+  text-decoration: line-through;
+}
+
 /* Guardian consent ceremony (OD-19 build B). */
 .guardian-request-card {
   background-color: var(--color-card-surface);

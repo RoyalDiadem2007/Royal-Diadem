@@ -26,6 +26,8 @@ export type GuardianStudentView = {
   };
   /** Newest-first; scores and emojis only — never note text (v1 boundary). */
   trend: { checkDate: string; moodScore: number; moodEmoji: string }[];
+  /** Journal entries inside the consent window (OD-19/Phase 6). */
+  journal: { text: string; createdAt: string }[];
   accessExpiresAt: string | null;
 };
 
@@ -117,6 +119,13 @@ function parseStudentView(raw: unknown): GuardianStudentView {
         throw new Error('trend point is malformed');
       }
       return { checkDate: p.checkDate, moodScore: p.moodScore, moodEmoji: p.moodEmoji };
+    }),
+    journal: (Array.isArray(record.journal) ? record.journal : []).map((entry) => {
+      const e = asRecord(entry, 'journal entry');
+      if (typeof e.text !== 'string' || typeof e.createdAt !== 'string') {
+        throw new Error('journal entry is malformed');
+      }
+      return { text: e.text, createdAt: e.createdAt };
     }),
     accessExpiresAt: optionalIso(record.accessExpiresAt),
   };

@@ -24,6 +24,9 @@ export const ADMIN_SECTIONS: readonly AdminSection[] = [
   // Same OD-6 rule: trend views expose per-student regulated data, so mentors
   // wait for assignment scoping.
   { id: 'crown-checks', label: 'Crown Checks', path: 'crown-checks', roles: ['super_admin'] },
+  // Journal review is the most sensitive read in the app — super_admin only
+  // until OD-6 mentor assignment scopes it.
+  { id: 'journals', label: 'Journals', path: 'journals', roles: ['super_admin'] },
 ];
 
 export function sectionsForRole(role: AdminRole): readonly AdminSection[] {

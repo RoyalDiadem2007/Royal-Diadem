@@ -26,11 +26,13 @@ import { serverLog } from '../_shared/logger.ts';
 import { generatePin } from '../_shared/enrollment.ts';
 import { sha256Hex } from '../_shared/hash.ts';
 import { enterCodeSchema, parseJsonBody, requestAccessSchema } from '../_shared/validate.ts';
+import { decryptJournalText, journalCryptoConfigured } from '../_shared/journalCrypto.ts';
 
 const ENTITY = 'guardian_access_request';
 const CODE_TTL_MINUTES = 10;
 const ACCESS_WINDOW_MINUTES = 30;
 const TREND_DAYS = 14;
+const JOURNAL_ENTRIES_LIMIT = 10;
 
 type LinkedStudent = {
   guardianId: string;
@@ -382,6 +384,36 @@ async function handleStudentView(
     return errorResponse(req, 500, 'server_error');
   }
 
+  // Journal entries inside the window (OD-19: "read student journal entries"
+  // — the ceremony/emergency grant is exactly what authorizes this read).
+  const journal: { text: string; createdAt: string }[] = [];
+  if (await journalCryptoConfigured()) {
+    const { data: entries, error: journalError } = await db
+      .from('journal_entries')
+      .select('entry_ciphertext, entry_iv, created_at')
+      .eq('student_id', studentId)
+      .order('created_at', { ascending: false })
+      .limit(JOURNAL_ENTRIES_LIMIT);
+    if (journalError !== null) {
+      serverLog.error('guardian_portal.journal_failed', {});
+      return errorResponse(req, 500, 'server_error');
+    }
+    for (const row of entries as {
+      entry_ciphertext: string;
+      entry_iv: string;
+      created_at: string;
+    }[]) {
+      const text = await decryptJournalText({
+        ciphertext: row.entry_ciphertext,
+        iv: row.entry_iv,
+      });
+      if (text === null) {
+        return errorResponse(req, 500, 'server_error');
+      }
+      journal.push({ text, createdAt: row.created_at });
+    }
+  }
+
   await writeAudit(db, {
     actorType: 'guardian',
     actorId: ctx.subject.subjectId,
@@ -391,7 +423,10 @@ async function handleStudentView(
     entityId: studentId,
     outcome: 'allowed',
     ip: ctx.ip,
-    metadata: { via: request.emergency ? 'emergency_grant' : 'consent_grant' },
+    metadata: {
+      via: request.emergency ? 'emergency_grant' : 'consent_grant',
+      journalEntries: journal.length,
+    },
   });
 
   return jsonResponse(req, 200, {
@@ -407,6 +442,7 @@ async function handleStudentView(
     trend: (checks as { check_date: string; mood_score: number; mood_emoji: string }[]).map(
       (c) => ({ checkDate: c.check_date, moodScore: c.mood_score, moodEmoji: c.mood_emoji }),
     ),
+    journal,
     accessExpiresAt: state.accessExpiresAt,
   });
 }

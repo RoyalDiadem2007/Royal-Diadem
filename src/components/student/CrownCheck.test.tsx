@@ -64,6 +64,11 @@ function stubFetch(stub: FetchStub): void {
         const next = stub.statusResponses.shift();
         return Promise.resolve(next ?? jsonResponse({ error: 'server_error' }, 500));
       }
+      if (target.endsWith('/journal')) {
+        // The Journal card shares the home screen; keep it quietly healthy so
+        // these tests assert on the Crown Check card alone.
+        return Promise.resolve(jsonResponse({ prompts: [], entries: [] }));
+      }
       return Promise.resolve(new Response(null, { status: 204 }));
     }),
   );
