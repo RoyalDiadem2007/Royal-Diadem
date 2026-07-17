@@ -4,6 +4,7 @@ import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { EnablePasskeyPrompt } from '@/components/ui/EnablePasskeyPrompt';
 import { LoginScreen } from '@/components/student/LoginScreen';
 import { DashboardPage } from '@/components/admin/DashboardPage';
+import { StudentsPage } from '@/components/admin/StudentsPage';
 import { AdminLayout } from '@/layouts/AdminLayout';
 import { logout, useAuth, type AuthSession } from '@/lib/authStore';
 
@@ -47,6 +48,7 @@ function AuthedRoutes({ session }: { session: AuthSession }) {
       {isAdmin && (
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<DashboardPage />} />
+          <Route path="students" element={<StudentsPage />} />
         </Route>
       )}
       <Route path="*" element={<Navigate to="/" replace />} />

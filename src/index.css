@@ -391,3 +391,166 @@ button {
     border-bottom: 1px solid var(--color-accent);
   }
 }
+
+/* Students section: roster table, enrollment form, one-time PIN card. */
+.admin-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.admin-section-header .admin-section-title {
+  margin: 0;
+}
+
+.admin-subsection-title {
+  font-family: var(--font-display);
+  color: var(--color-primary);
+  font-size: 1.15rem;
+  margin: 0 0 1rem;
+}
+
+.admin-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--color-accent);
+  border-radius: 0.75rem;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: var(--color-card-surface);
+}
+
+.admin-table th,
+.admin-table td {
+  text-align: left;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--color-accent);
+  color: var(--color-text-primary);
+  white-space: nowrap;
+}
+
+.admin-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.admin-table th {
+  color: var(--color-text-secondary);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.admin-table-sub {
+  color: var(--color-text-secondary);
+  font-size: 0.85rem;
+}
+
+.admin-confirm-group {
+  display: inline-flex;
+  gap: 0.5rem;
+}
+
+.admin-danger-button {
+  background-color: var(--color-danger);
+  color: var(--color-text-primary);
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1.2rem;
+}
+
+.admin-pagination {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.admin-pagination .admin-section-note {
+  margin: 0;
+}
+
+.add-student-form {
+  background-color: var(--color-card-surface);
+  border: 1px solid var(--color-accent);
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+  max-width: 48rem;
+}
+
+.add-student-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.add-student-grid label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+}
+
+.add-student-grid input {
+  font: inherit;
+  padding: 0.55rem 0.75rem;
+  border: 1px solid var(--color-accent);
+  border-radius: 0.5rem;
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
+}
+
+.add-student-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.add-student-actions .logout-button {
+  margin-top: 0;
+}
+
+.issued-pin-card {
+  background-color: var(--color-card-surface);
+  border: 2px solid var(--color-crown-gold);
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+  max-width: 32rem;
+}
+
+.issued-pin-title {
+  font-family: var(--font-display);
+  color: var(--color-primary);
+  font-size: 1.15rem;
+  margin: 0 0 1rem;
+}
+
+.issued-pin-details {
+  display: flex;
+  gap: 2.5rem;
+  margin: 0 0 1rem;
+}
+
+.issued-pin-details dt {
+  color: var(--color-text-secondary);
+  font-size: 0.85rem;
+}
+
+.issued-pin-details dd {
+  margin: 0.25rem 0 0;
+  font-size: 1.6rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--color-text-primary);
+}
+
+.issued-pin-warning {
+  color: var(--color-warning);
+  margin: 0 0 1rem;
+  font-size: 0.9rem;
+}

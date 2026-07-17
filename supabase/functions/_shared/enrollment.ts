@@ -1,0 +1,72 @@
+/**
+ * Credential generation for student enrollment (Spec §5, §13 Phase 4).
+ * Crown codes are non-secret identifiers printed on the PIN card; PINs are
+ * secrets — generated with rejection sampling (no modulo bias), returned to
+ * the enrolling admin exactly once, stored only as a bcrypt hash.
+ */
+
+/** Unambiguous alphabet — no 0/O, 1/I/L — so a printed card can't be misread. */
+const CODE_ALPHABET = '23456789ABCDEFGHJKMNPQRSTUVWXYZ';
+const CODE_SUFFIX_LENGTH = 4;
+const PIN_DIGITS = 6;
+
+/**
+ * White-label rule (§4.5): the prefix is deployment configuration, not code.
+ * 'RD' is this deployment's configured default; other tenants set
+ * CROWN_CODE_PREFIX as a function secret.
+ */
+export function crownCodePrefix(): string {
+  const configured = Deno.env.get('CROWN_CODE_PREFIX')?.trim();
+  return configured !== undefined && configured !== '' ? configured : 'RD';
+}
+
+/** Unbiased random indexes below `range` via byte-level rejection sampling. */
+function unbiasedIndexes(count: number, range: number): number[] {
+  // Largest multiple of `range` inside byte space — reject bytes above it.
+  const limit = Math.floor(256 / range) * range;
+  const out: number[] = [];
+  while (out.length < count) {
+    const bytes = crypto.getRandomValues(new Uint8Array(count * 2));
+    for (const b of bytes) {
+      if (b < limit && out.length < count) {
+        out.push(b % range);
+      }
+    }
+  }
+  return out;
+}
+
+/** e.g. RD-7F3K. Uniqueness is enforced by the database (retry on collision). */
+export function generateCrownCode(): string {
+  const suffix = unbiasedIndexes(CODE_SUFFIX_LENGTH, CODE_ALPHABET.length)
+    .map((i) => CODE_ALPHABET[i] ?? '')
+    .join('');
+  return `${crownCodePrefix()}-${suffix}`;
+}
+
+/** Crypto-random 6-digit PIN (leading zeros allowed), unbiased. */
+export function generatePin(): string {
+  const range = 10 ** PIN_DIGITS;
+  // Largest multiple of `range` inside uint32 space — reject above it.
+  const limit = Math.floor(0x1_0000_0000 / range) * range;
+  for (;;) {
+    const buffer = crypto.getRandomValues(new Uint8Array(4));
+    const n = new DataView(buffer.buffer).getUint32(0);
+    if (n < limit) {
+      return String(n % range).padStart(PIN_DIGITS, '0');
+    }
+  }
+}
+
+/** Whole-year age on `on` for a YYYY-MM-DD date of birth. */
+export function ageOn(dateOfBirth: string, on: Date): number {
+  const dob = new Date(`${dateOfBirth}T00:00:00Z`);
+  let age = on.getUTCFullYear() - dob.getUTCFullYear();
+  const hadBirthday =
+    on.getUTCMonth() > dob.getUTCMonth() ||
+    (on.getUTCMonth() === dob.getUTCMonth() && on.getUTCDate() >= dob.getUTCDate());
+  if (!hadBirthday) {
+    age -= 1;
+  }
+  return age;
+}

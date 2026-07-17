@@ -18,6 +18,9 @@ export type AdminSection = {
 
 export const ADMIN_SECTIONS: readonly AdminSection[] = [
   { id: 'dashboard', label: 'Dashboard', path: '', roles: ['super_admin', 'mentor', 'viewer'] },
+  // Mentors join once the assignment model exists (OD-6): they see only their
+  // assigned students, which this section cannot scope yet.
+  { id: 'students', label: 'Students', path: 'students', roles: ['super_admin'] },
 ];
 
 export function sectionsForRole(role: AdminRole): readonly AdminSection[] {
