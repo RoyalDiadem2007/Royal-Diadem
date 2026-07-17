@@ -16,6 +16,7 @@ import {
 } from '@/lib/guardianPortal';
 import { moodTierFor } from '@/config/crownCheck.config';
 import { logout, useAuth } from '@/lib/authStore';
+import { EnablePushPrompt } from '@/components/ui/EnablePushPrompt';
 
 type ListState =
   { status: 'loading' } | { status: 'error' } | { status: 'ready'; students: GuardianStudent[] };
@@ -298,6 +299,8 @@ export function GuardianHome() {
             )}
           </section>
         ))}
+
+      <EnablePushPrompt />
 
       <button
         type="button"

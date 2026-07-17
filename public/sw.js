@@ -8,7 +8,7 @@
  * phase as an encrypted, server-mediated queue — not via this cache.
  */
 
-const CACHE_NAME = 'rd-static-v2';
+const CACHE_NAME = 'rd-static-v3';
 
 const PRECACHE_URLS = [
   '/',
@@ -96,4 +96,39 @@ self.addEventListener('fetch', (event) => {
         .catch(() => caches.match('/').then((cached) => cached ?? Response.error())),
     );
   }
+});
+
+/*
+ * Web push (VAPID). Payloads are PII-free by contract (see _shared/push.ts):
+ * a brand title + generic "open the app" line. Anything sensitive waits
+ * behind sign-in.
+ */
+self.addEventListener('push', (event) => {
+  // Neutral fallback (white-label §3: no hardcoded org name here) — real
+  // pushes always carry a branded title from the server.
+  let payload = { title: 'New update', body: 'Open the app — something needs you.' };
+  try {
+    if (event.data) {
+      payload = { ...payload, ...event.data.json() };
+    }
+  } catch {
+    // Unparseable payload: show the generic nudge.
+  }
+  event.waitUntil(
+    self.registration.showNotification(payload.title, {
+      body: payload.body,
+      icon: '/icons/icon-192.png',
+      badge: '/icons/icon-192.png',
+    }),
+  );
+});
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clients) => {
+      const open = clients.find((client) => 'focus' in client);
+      return open ? open.focus() : self.clients.openWindow('/');
+    }),
+  );
 });

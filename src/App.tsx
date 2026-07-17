@@ -2,6 +2,7 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router';
 import { brand } from '@/config/branding.config';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { EnablePasskeyPrompt } from '@/components/ui/EnablePasskeyPrompt';
+import { EnablePushPrompt } from '@/components/ui/EnablePushPrompt';
 import { LoginScreen } from '@/components/student/LoginScreen';
 import { LandingPage } from '@/components/student/LandingPage';
 import { WelcomeScreen } from '@/components/student/WelcomeScreen';
@@ -30,6 +31,7 @@ function StudentHome() {
         {brand.tagline !== '' && <p className="app-tagline">{brand.tagline}</p>}
       </header>
       <EnablePasskeyPrompt />
+      <EnablePushPrompt />
       <GuardianRequestNotice />
       <CrownCheck />
       <Journal />

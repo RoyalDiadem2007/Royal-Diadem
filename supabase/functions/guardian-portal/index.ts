@@ -27,6 +27,8 @@ import { generatePin } from '../_shared/enrollment.ts';
 import { sha256Hex } from '../_shared/hash.ts';
 import { enterCodeSchema, parseJsonBody, requestAccessSchema } from '../_shared/validate.ts';
 import { decryptJournalText, journalCryptoConfigured } from '../_shared/journalCrypto.ts';
+import { sendPushToSubject } from '../_shared/push.ts';
+import { brandName } from '../_shared/magicLinks.ts';
 
 const ENTITY = 'guardian_access_request';
 const CODE_TTL_MINUTES = 10;
@@ -242,6 +244,13 @@ async function handleRequestAccess(
     outcome: 'allowed',
     ip: ctx.ip,
     metadata: { studentId },
+  });
+
+  // Nudge her phone even if the app is closed. PII-free payload by contract:
+  // no guardian name, no code — every detail waits inside the signed-in app.
+  await sendPushToSubject(db, 'student', studentId, {
+    title: brandName(),
+    body: 'Someone is asking to view your account. Open the app to see who — sharing is your call.',
   });
 
   // The code goes to the STUDENT's app, never back to the guardian.
