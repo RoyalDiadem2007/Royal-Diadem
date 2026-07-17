@@ -4,7 +4,7 @@
 > decisions. Update it as work progresses. For *what* we build see `Royal_Diadem_Master_Spec.md`;
 > for *how* we build see `CLAUDE.md`; for backend rules see `docs/SUPABASE_RULES.md`.
 >
-> _Last updated: 2026-07-17 (after PR #9) · Branch: `main` — Phases 0–3 complete + Phase 4a/4b merged, all CI green. No unmerged feature branches._
+> _Last updated: 2026-07-17 evening · Phases 0–5 merged (PR #10). **PR #11 (Phase 4c magic-link onboarding) is fully CI-green and awaiting Maria's merge decision.** Vercel is now connected to the repo (preview checks live). Supabase secrets set via dashboard: `ANTHROPIC_API_KEY`, `RESEND_API_KEY`; Maria instructed on `ALLOWED_ORIGINS`. Still nothing deployed to hosted Supabase (access token, KEYS_SETUP §1a)._
 
 **Legend:** ✅ done · 🔄 in progress · ⬜ not started · ⏳ blocked/awaiting input
 
@@ -127,6 +127,7 @@ can never happen again.
 | OD-16 | ⚪ | **SOC 2 / HIPAA org items** (CLAUDE.md §17.5 — human-side): Supabase HIPAA add-on + BAA, vendor BAAs, audit engagement, written policies, security officer | ⬜ open |
 | OD-17 | 🟡 | **AI journal analysis ("Journaling Coach")** — DECIDED 2026-07-17: buildable once the Anthropic BAA is signed (+ guardian-consent language + design review). Until then the spec's server-side keyword/pattern flag covers escalation signals. Maria is fully aware of the BAA requirement — **do not re-raise it**; when the BAA lands, just build | ⏳ awaiting BAA |
 | OD-19 | 🟡 | **Magic-link onboarding + guardian access model** — DECIDED 2026-07-17 (Maria): low-friction credential delivery replaces in-person-only cards (cards remain the no-email fallback). **By age at issuance:** 16+ → magic link straight to the student's email; 13–15 → student gets her own setup link AND the guardian gets a linked account; 11–12 (COPPA) → guardian-only link, set up together with the student present, consent verified before any link is sent. **PIN is generated at claim time** and shown exactly once on the claim screen; claim = first login (Turnstile-gated, rate-limited, single-use hashed token, 72h expiry), then the existing passkey prompt takes over and the PIN stays as lockout fallback. **Guardian access (13–15, build B):** guardian may view the account / read journals ONLY with the student's live knowledge — guardian enters email+code → student gets an in-app notification with a consent code she must share → access opens; every access audited. **Emergency override:** super_admin (Kenecia) may grant guardian access without student knowledge — heavily audited; whether the student is told afterward parks with the OD-3 human protocol. Notification channel: in-app first (no SMS vendor); email vendor: **Resend** (approved §2; on the §17.5 vendor list). Build order: 4c magic-link provisioning first, guardian portal next | ✅ decided |
+| OD-20 | 🟡 | **Public landing page** — DECIDED 2026-07-17 (Maria): `/` becomes a public landing page — Royal Diadem logo, **Kenecia's photo** (received; `public/assets/kenecia-headshot.jpg`), a short write-up about the organization, and an **arrow at the bottom leading to the login page** (login moves to its own route). Write-up copy: draft from Spec §1 org overview → Kenecia approves (§12 About copy still pending). Landing content is public/non-regulated; photo ships in the app bundle. Build: small standalone item, natural pairing with Phase 12 About Us but can ship sooner | ✅ decided |
 | OD-18 | 🟡 | **AI gateway architecture** — DECIDED 2026-07-17 (Maria's design, confirmed): Phase 7 ships as a *governed AI response gateway*, built as a shared server module (`_shared/aiGateway`) so every AI layer routes through it. Edge Function is the locked gate: holds the key, pins Haiku + strict params, cost/rate caps, server-side output validation. **No auto-pass path** — all validated output → drafts table → human approve → publish (CLAUDE.md §1). Lean corrective loop: admin reject/edit records original + correction + reason + rule + reviewer + model/prompt version (`ai_corrections`); human-approved `ai_rules` feed the validator/prompt-builder on future calls — no auto-learning from raw feedback, no retraining claims. An MCP-protocol interface may layer on top later; enforcement never lives in it | ✅ decided |
 
 ---
@@ -139,7 +140,8 @@ can never happen again.
   (`ANTHROPIC_API_KEY`, via dashboard; project not yet CLI-linked). Gates only Phase 7 live generation
 - ⏳ **Keys/accounts per `docs/KEYS_SETUP.md`** — Supabase secret key + access token, Turnstile keys
 - ⏳ **Resend API key** (KEYS_SETUP §3b) — magic-link emails; local/CI run on the log transport until it lands
-- ⏳ Pastor Kenecia Duncan **photo + bio text** → About Us page
+- ✅ Pastor Kenecia Duncan **photo** received 2026-07-17 → `public/assets/kenecia-headshot.jpg`
+  (landing page OD-20 + About Us). **Bio text / short org write-up still ⏳**
 - ⏳ Spec §12 items: tagline, About copy, fonts, scripture rotation, relaxation content, moderation
   preference (pre/post-approve), mood-scale approval, custom domain, age-range confirmation
 
@@ -159,7 +161,16 @@ can never happen again.
 4. ⏳ **OD-3 human protocol, OD-12 full permission matrix, OD-6 mentor assignment model** — needed
    before mentors get real access to student data.
 
-**Build queue (all unblocked, in spec order):**
+**Immediate pickup (next session):**
+0. **Merge PR #11** if Maria approves (all CI green; she has not yet said merge) — then the
+   post-merge PROJECT_STATE refresh.
+
+**Build queue (all unblocked):**
+4c-next. **Guardian access portal** (OD-19 build B): guardian magic-link accounts for 13–15,
+   the student consent-code ceremony (in-app notification), Kenecia's audited emergency
+   override.
+4d. **Landing page** (OD-20): logo + Kenecia photo + short write-up + arrow → login. Small;
+   needs the write-up drafted for her approval.
 5. ✅ **Phase 5: Crown Check** — merged 2026-07-17 (PR #10; see tracker row 5).
 6. **Phase 6: Journal** — write + mentor review + keyword flag; AES-256-GCM in the Edge Function
    (OD-2 decided). Mentor visibility needs OD-6 first, or ships super_admin-only like Students.
