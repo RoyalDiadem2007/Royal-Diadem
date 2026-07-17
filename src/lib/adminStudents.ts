@@ -136,6 +136,91 @@ export async function createStudent(
   });
 }
 
+export type ImportOutcome =
+  | { line: number; ok: true; issued: IssuedCredentials }
+  | { line: number; ok: false; reason: string };
+
+export type ImportSummary = {
+  outcomes: ImportOutcome[];
+  /** True when a transport failure stopped the run before every row was tried. */
+  aborted: boolean;
+};
+
+// bcrypt(12) per row is CPU-heavy for an Edge Function, so the file is
+// imported in small sequential chunks; the server enforces the same bound.
+const IMPORT_CHUNK_SIZE = 10;
+
+function parseImportResults(raw: unknown): { index: number; result: unknown }[] {
+  if (typeof raw !== 'object' || raw === null || !('results' in raw)) {
+    throw new Error('import response is malformed');
+  }
+  const { results } = raw;
+  if (!Array.isArray(results)) {
+    throw new Error('import response is malformed');
+  }
+  return results.map((entry: unknown, index) => ({
+    index,
+    result: entry,
+  }));
+}
+
+function outcomeFrom(line: number, result: unknown): ImportOutcome {
+  if (typeof result !== 'object' || result === null) {
+    return { line, ok: false, reason: 'server_error' };
+  }
+  const record = result as Record<string, unknown>;
+  if (record.ok === true) {
+    try {
+      const student = parseStudent(record.student);
+      if (typeof record.pin !== 'string' || !/^\d{4,8}$/.test(record.pin)) {
+        throw new Error('pin malformed');
+      }
+      return { line, ok: true, issued: { student, pin: record.pin } };
+    } catch {
+      // A malformed success entry is reported, never silently dropped.
+      return { line, ok: false, reason: 'server_error' };
+    }
+  }
+  return {
+    line,
+    ok: false,
+    reason: typeof record.reason === 'string' ? record.reason : 'server_error',
+  };
+}
+
+/**
+ * Imports pre-validated rows in chunks. `lines` carries each row's 1-based
+ * CSV line number for the results report. Stops on a transport failure and
+ * reports how far it got (`aborted`).
+ */
+export async function importStudents(
+  sessionToken: string,
+  rows: readonly { line: number; input: CreateStudentInput }[],
+  onProgress?: (done: number, total: number) => void,
+): Promise<ImportSummary> {
+  const outcomes: ImportOutcome[] = [];
+  for (let start = 0; start < rows.length; start += IMPORT_CHUNK_SIZE) {
+    const chunk = rows.slice(start, start + IMPORT_CHUNK_SIZE);
+    const result = await callEdgeFunction('admin-students/import', {
+      method: 'POST',
+      sessionToken,
+      body: { rows: chunk.map((r) => r.input) },
+      parse: parseImportResults,
+    });
+    if (!result.ok) {
+      return { outcomes, aborted: true };
+    }
+    for (const entry of result.data) {
+      const row = chunk[entry.index];
+      if (row !== undefined) {
+        outcomes.push(outcomeFrom(row.line, entry.result));
+      }
+    }
+    onProgress?.(Math.min(start + chunk.length, rows.length), rows.length);
+  }
+  return { outcomes, aborted: false };
+}
+
 export async function resetStudentPin(
   sessionToken: string,
   studentId: string,

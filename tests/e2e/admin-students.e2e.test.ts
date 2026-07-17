@@ -247,6 +247,64 @@ describe('admin-students Edge Function (E2E, no mocks)', () => {
     expect(audits[0]?.actor_role).toBe('mentor');
   });
 
+  it('imports a CSV chunk with per-row results; imported credentials really log in', async () => {
+    const token = await loginAdmin(SUPER_EMAIL);
+    const row = (first: string, dob: string) => ({
+      firstName: first,
+      lastName: LAST_NAME,
+      displayName: first,
+      dateOfBirth: dob,
+    });
+
+    // The same girl twice in one file: first row enrolls, second is refused
+    // as a duplicate (re-running an import can't double-enroll, §7).
+    const res = await callFunction('admin-students/import', {
+      method: 'POST',
+      bearer: token,
+      body: {
+        rows: [row('Imelda', '2012-04-14'), row('Imelda', '2012-04-14'), row('Iris', '2010-05-05')],
+      },
+    });
+    expect(res.status).toBe(200);
+    const body = (await res.json()) as {
+      results: (
+        | { index: number; ok: true; student: { loginCode: string }; pin: string }
+        | { index: number; ok: false; reason: string }
+      )[];
+    };
+    expect(body.results).toHaveLength(3);
+    const [first, second, third] = body.results;
+    if (first?.ok !== true || third?.ok !== true) {
+      throw new Error('expected rows 0 and 2 to enroll');
+    }
+    expect(second).toEqual({ index: 1, ok: false, reason: 'duplicate' });
+
+    const login = await loginStudent(third.student.loginCode, third.pin);
+    expect(login.status).toBe(200);
+
+    const audits = await restSelect(
+      'audit_logs',
+      `actor_id=eq.${superAdminId}&entity_type=eq.student&action=eq.create&metadata->>via=eq.csv_import&order=created_at.desc&limit=2`,
+    );
+    expect(audits).toHaveLength(2);
+  });
+
+  it('rejects an oversized import chunk with 400 (client must slice)', async () => {
+    const token = await loginAdmin(SUPER_EMAIL);
+    const rows = Array.from({ length: 11 }, (_, i) => ({
+      firstName: `Bulk${String(i)}`,
+      lastName: LAST_NAME,
+      displayName: `Bulk${String(i)}`,
+      dateOfBirth: '2012-01-01',
+    }));
+    const res = await callFunction('admin-students/import', {
+      method: 'POST',
+      bearer: token,
+      body: { rows },
+    });
+    expect(res.status).toBe(400);
+  });
+
   it('rejects malformed enrollment bodies with 400', async () => {
     const token = await loginAdmin(SUPER_EMAIL);
     const res = await callFunction('admin-students/create', {
