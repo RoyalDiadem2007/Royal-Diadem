@@ -8,7 +8,7 @@
  * phase as an encrypted, server-mediated queue — not via this cache.
  */
 
-const CACHE_NAME = 'rd-static-v1';
+const CACHE_NAME = 'rd-static-v2';
 
 const PRECACHE_URLS = [
   '/',
@@ -16,6 +16,8 @@ const PRECACHE_URLS = [
   '/assets/royal-diadem-logo.png',
   '/icons/icon-192.png',
   '/icons/icon-512.png',
+  '/icons/icon-maskable-192.png',
+  '/icons/icon-maskable-512.png',
   '/icons/apple-touch-icon.png',
   '/icons/favicon-48.png',
 ];

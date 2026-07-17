@@ -17,11 +17,23 @@ body {
   min-height: 100dvh;
 }
 
+html {
+  /* iOS inflates text after rotation without this. */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
 body {
   background-color: var(--color-background);
   color: var(--color-text-primary);
   font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
+  /* Installed-app mode draws edge-to-edge (viewport-fit=cover): keep content
+   * clear of the iPhone notch/Dynamic Island and home indicator. Zero on
+   * every non-notched device. */
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom)
+    env(safe-area-inset-left);
+  -webkit-tap-highlight-color: transparent;
 }
 
 img {

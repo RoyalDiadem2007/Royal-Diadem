@@ -98,7 +98,7 @@ can never happen again.
 |------|--------|-------|
 | GitHub security scanner (CodeQL, Dependabot, secret scan, gitleaks) | 🔄 | workflows authored 2026-07-16 (`.github/`); repo-side toggles = human (KEYS_SETUP §5) |
 | CI/CD GitHub Actions YAML (lint/typecheck/test → build → deploy) | ✅ | `ci.yml` 2026-07-16; deploy via Vercel Git integration when linked |
-| PWA cross-platform: VAPID push, SW, manifest (iPhone/iPad/Android/Mac/Windows) | 🔄 | manifest (brand-generated) + SW (static-only cache) + icons done; VAPID push later |
+| PWA cross-platform: VAPID push, SW, manifest (iPhone/iPad/Android/Mac/Windows) | 🔄 | Cross-platform pass 2026-07-17: Android **maskable icons** (safe-zone padded, brand bg), manifest `id`/`scope`/`lang` + `purpose` split, **iOS installed-app metas** (capable/status-bar/title), **safe-area insets** (notch/Dynamic Island/home indicator), text-size-adjust, tap-highlight, SW precache v2. Student surfaces are centered-column responsive (phone→tablet→desktop); admin is desktop-first with a ≤48rem stacked fallback (Spec §3). Remaining: **VAPID push** (own phase), real-device install smoke test at launch (VERCEL_SETUP §6) |
 | `audit_logs` table + audit logger | ✅ | migration authored + client logger (`src/lib/logger.ts`, PHI-redacting, transport attaches Phase 2) |
 
 ---

@@ -5,6 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="description" content="%BRAND_DESCRIPTION%" />
     <meta name="theme-color" content="%BRAND_THEME_COLOR%" />
+    <!-- Installed-app behavior on iOS (Safari reads these, not the manifest,
+         for title/status bar) and older Android WebViews. -->
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="%BRAND_NAME%" />
     <link rel="icon" type="image/png" href="/icons/favicon-48.png" />
     <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
     <link rel="manifest" href="/manifest.json" />
