@@ -22,13 +22,16 @@ import { ageOn, generateCrownCode, generatePin } from '../_shared/enrollment.ts'
 import { emailConfigured, sendEmail } from '../_shared/email.ts';
 import {
   buildFirstLoginEmail,
+  buildGuardianPortalEmail,
   issueMagicLink,
   linkRecipientForAge,
   withLink,
 } from '../_shared/magicLinks.ts';
 import {
   createStudentSchema,
+  emergencyAccessSchema,
   importStudentsSchema,
+  inviteGuardianSchema,
   parseJsonBody,
   resetPinSchema,
   sendLinkSchema,
@@ -480,6 +483,223 @@ async function handleSendLink(
   return jsonResponse(req, 200, { sent: true, recipient, expiresAt: issued.expiresAt });
 }
 
+// Guardian portal eligibility (OD-19): under-16s. 13–15 by Maria's design;
+// 11–12 included because the same portal is how a COPPA parent exercises the
+// review right. 16+ students have no guardian access surface.
+const GUARDIAN_PORTAL_MAX_AGE = 16;
+const EMERGENCY_ACCESS_MINUTES = 60;
+
+type PortalGuardian = { guardianId: string; name: string; email: string; accountId: string | null };
+
+async function portalGuardianFor(
+  db: SupabaseClient,
+  studentId: string,
+): Promise<PortalGuardian | null | 'error'> {
+  const { data, error } = await db
+    .from('guardians')
+    .select('id, guardian_name, email, account_id')
+    .eq('student_id', studentId)
+    .not('email', 'is', null)
+    .order('verification_timestamp', { ascending: false, nullsFirst: false })
+    .limit(1)
+    .maybeSingle();
+  if (error !== null) {
+    serverLog.error('admin_students.portal_guardian_lookup_failed', {});
+    return 'error';
+  }
+  if (data === null || typeof data.email !== 'string' || data.email === '') {
+    return null;
+  }
+  return {
+    guardianId: String(data.id),
+    name: String(data.guardian_name),
+    email: data.email,
+    accountId: data.account_id === null ? null : String(data.account_id),
+  };
+}
+
+/**
+ * Invites the student's guardian to the portal (OD-19 build B): find-or-create
+ * the guardian_accounts identity (one login even with two daughters), link the
+ * guardian row, email a guardian_portal magic link.
+ */
+async function handleInviteGuardian(
+  db: SupabaseClient,
+  req: Request,
+  ctx: AdminContext,
+): Promise<Response> {
+  const parsed = inviteGuardianSchema.safeParse(await parseJsonBody(req));
+  if (!parsed.success) {
+    return errorResponse(req, 400, 'invalid_request');
+  }
+  const { studentId } = parsed.data;
+
+  const { data: student, error } = await db
+    .from('students')
+    .select('id, date_of_birth, status')
+    .eq('id', studentId)
+    .maybeSingle();
+  if (error !== null) {
+    serverLog.error('admin_students.invite_lookup_failed', {});
+    return errorResponse(req, 500, 'server_error');
+  }
+  if (student === null) {
+    return errorResponse(req, 404, 'not_found');
+  }
+  if (student.status !== 'active') {
+    return errorResponse(req, 409, 'account_inactive');
+  }
+  if (ageOn(String(student.date_of_birth), new Date()) >= GUARDIAN_PORTAL_MAX_AGE) {
+    return errorResponse(req, 409, 'not_eligible');
+  }
+  if (!emailConfigured()) {
+    return errorResponse(req, 503, 'email_not_configured');
+  }
+
+  const guardian = await portalGuardianFor(db, studentId);
+  if (guardian === 'error') {
+    return errorResponse(req, 500, 'server_error');
+  }
+  if (guardian === null) {
+    return errorResponse(req, 409, 'no_guardian_email');
+  }
+
+  // Find-or-create the account identity by (lowercased) email.
+  let accountId = guardian.accountId;
+  if (accountId === null) {
+    const email = guardian.email.toLowerCase();
+    const { data: existing, error: findError } = await db
+      .from('guardian_accounts')
+      .select('id')
+      .eq('email', email)
+      .maybeSingle();
+    if (findError !== null) {
+      serverLog.error('admin_students.account_find_failed', {});
+      return errorResponse(req, 500, 'server_error');
+    }
+    if (existing !== null) {
+      accountId = String(existing.id);
+    } else {
+      const { data: created, error: createError } = await db
+        .from('guardian_accounts')
+        .insert({ email, display_name: guardian.name })
+        .select('id')
+        .maybeSingle();
+      if (createError !== null || created === null) {
+        serverLog.error('admin_students.account_create_failed', {});
+        return errorResponse(req, 500, 'server_error');
+      }
+      accountId = String(created.id);
+    }
+    const { error: linkError } = await db
+      .from('guardians')
+      .update({ account_id: accountId })
+      .eq('id', guardian.guardianId);
+    if (linkError !== null) {
+      serverLog.error('admin_students.account_link_failed', {});
+      return errorResponse(req, 500, 'server_error');
+    }
+  }
+
+  const issued = await issueMagicLink(db, {
+    studentId,
+    recipient: 'guardian',
+    guardianId: guardian.guardianId,
+    createdBy: ctx.subject.subjectId,
+    purpose: 'guardian_portal',
+  });
+  if (issued === null) {
+    return errorResponse(req, 500, 'server_error');
+  }
+
+  const delivered = await sendEmail(withLink(buildGuardianPortalEmail(guardian.email), issued.token));
+  if (!delivered) {
+    await db
+      .from('magic_links')
+      .update({ revoked_at: new Date().toISOString() })
+      .eq('student_id', studentId)
+      .eq('recipient', 'guardian')
+      .eq('purpose', 'guardian_portal')
+      .is('used_at', null)
+      .is('revoked_at', null);
+    return errorResponse(req, 502, 'email_send_failed');
+  }
+
+  await writeAudit(db, {
+    actorType: 'admin',
+    actorId: ctx.subject.subjectId,
+    actorRole: ctx.role,
+    action: 'create',
+    entityType: 'magic_link',
+    entityId: studentId,
+    outcome: 'allowed',
+    ip: ctx.ip,
+    metadata: { recipient: 'guardian', purpose: 'guardian_portal' },
+  });
+
+  return jsonResponse(req, 200, { sent: true, expiresAt: issued.expiresAt });
+}
+
+/**
+ * super_admin crisis path (OD-19): opens a guardian viewing window WITHOUT
+ * the student's knowledge — no code, nothing in her app. Heavily audited;
+ * whether she is told afterward is the OD-3 human protocol's call.
+ */
+async function handleEmergencyAccess(
+  db: SupabaseClient,
+  req: Request,
+  ctx: AdminContext,
+): Promise<Response> {
+  const parsed = emergencyAccessSchema.safeParse(await parseJsonBody(req));
+  if (!parsed.success) {
+    return errorResponse(req, 400, 'invalid_request');
+  }
+  const { studentId } = parsed.data;
+
+  const guardian = await portalGuardianFor(db, studentId);
+  if (guardian === 'error') {
+    return errorResponse(req, 500, 'server_error');
+  }
+  if (guardian === null || guardian.accountId === null) {
+    // No portal identity to grant to — the guardian must be invited first.
+    return errorResponse(req, 409, 'guardian_no_portal');
+  }
+
+  const accessExpiresAt = new Date(Date.now() + EMERGENCY_ACCESS_MINUTES * 60_000).toISOString();
+  const { data: inserted, error } = await db
+    .from('guardian_access_requests')
+    .insert({
+      account_id: guardian.accountId,
+      guardian_id: guardian.guardianId,
+      student_id: studentId,
+      status: 'approved',
+      emergency: true,
+      granted_by: ctx.subject.subjectId,
+      granted_at: new Date().toISOString(),
+      access_expires_at: accessExpiresAt,
+    })
+    .select('id')
+    .maybeSingle();
+  if (error !== null || inserted === null) {
+    serverLog.error('admin_students.emergency_grant_failed', {});
+    return errorResponse(req, 500, 'server_error');
+  }
+
+  await writeAudit(db, {
+    actorType: 'admin',
+    actorId: ctx.subject.subjectId,
+    actorRole: ctx.role,
+    action: 'create',
+    entityType: 'guardian_access_request',
+    entityId: String(inserted.id),
+    outcome: 'allowed',
+    ip: ctx.ip,
+    metadata: { studentId, emergency: true, minutes: EMERGENCY_ACCESS_MINUTES },
+  });
+
+  return jsonResponse(req, 201, { granted: true, accessExpiresAt });
+}
+
 Deno.serve(async (req) => {
   const preflight = handlePreflight(req);
   if (preflight !== null) {
@@ -509,6 +729,15 @@ Deno.serve(async (req) => {
   }
   if (action === 'send-link' && req.method === 'POST') {
     return handleSendLink(db, req, auth.ctx);
+  }
+  if (action === 'invite-guardian' && req.method === 'POST') {
+    return handleInviteGuardian(db, req, auth.ctx);
+  }
+  if (action === 'emergency-access' && req.method === 'POST') {
+    // requireAdmin above is already ['super_admin']-only for this whole
+    // function; if OD-6 ever widens that list, this route must stay
+    // super_admin — the crisis path belongs to Kenecia alone.
+    return handleEmergencyAccess(db, req, auth.ctx);
   }
   return errorResponse(req, 405, 'method_not_allowed');
 });

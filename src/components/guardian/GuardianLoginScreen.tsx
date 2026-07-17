@@ -1,19 +1,20 @@
+/**
+ * Guardian portal sign-in (OD-19 build B): email + the PIN issued when the
+ * guardian claimed their invitation link. Same auth pipeline as every other
+ * login (Turnstile, rate limits, opaque session) — just a guardian subject.
+ */
 import { useState } from 'react';
+import { Link } from 'react-router';
 import { brand } from '@/config/branding.config';
-import { login, loginWithPasskey } from '@/lib/authStore';
-import { passkeysSupported } from '@/lib/passkey';
+import { login } from '@/lib/authStore';
 
-type Mode = 'student' | 'admin';
-
-export function LoginScreen() {
-  const [mode, setMode] = useState<Mode>('student');
-  const [identifier, setIdentifier] = useState('');
+export function GuardianLoginScreen() {
+  const [email, setEmail] = useState('');
   const [pin, setPin] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const identifierLabel = mode === 'student' ? 'Crown code' : 'Email';
-  const canSubmit = !submitting && identifier.trim() !== '' && pin.trim() !== '';
+  const canSubmit = !submitting && email.trim() !== '' && pin.trim() !== '';
 
   const handleSubmit = (): void => {
     if (!canSubmit) {
@@ -21,21 +22,7 @@ export function LoginScreen() {
     }
     setSubmitting(true);
     setErrorMessage(null);
-    void login({ subjectType: mode, identifier, pin })
-      .then((result) => {
-        if (!result.ok) {
-          setErrorMessage(result.message);
-        }
-      })
-      .finally(() => {
-        setSubmitting(false);
-      });
-  };
-
-  const handlePasskey = (): void => {
-    setSubmitting(true);
-    setErrorMessage(null);
-    void loginWithPasskey()
+    void login({ subjectType: 'guardian', identifier: email, pin })
       .then((result) => {
         if (!result.ok) {
           setErrorMessage(result.message);
@@ -50,6 +37,7 @@ export function LoginScreen() {
     <div className="login-screen">
       <img src={brand.logo} alt={`${brand.name} logo`} className="login-logo" />
       <h1 className="login-title">{brand.name}</h1>
+      <p className="welcome-hint">Guardian sign-in</p>
 
       <form
         onSubmit={(event) => {
@@ -57,18 +45,17 @@ export function LoginScreen() {
           handleSubmit();
         }}
         className="login-form"
-        aria-label="Sign in"
+        aria-label="Guardian sign in"
       >
         <label className="login-field">
-          <span>{identifierLabel}</span>
+          <span>Email</span>
           <input
-            type={mode === 'admin' ? 'email' : 'text'}
+            type="email"
             name="identifier"
             autoComplete="username"
-            autoCapitalize="none"
-            value={identifier}
+            value={email}
             onChange={(e) => {
-              setIdentifier(e.target.value);
+              setEmail(e.target.value);
             }}
             disabled={submitting}
           />
@@ -101,32 +88,9 @@ export function LoginScreen() {
         </button>
       </form>
 
-      {passkeysSupported() && (
-        <button
-          type="button"
-          className="login-passkey"
-          disabled={submitting}
-          onClick={handlePasskey}
-        >
-          Sign in with Face ID / passkey
-        </button>
-      )}
-
-      <button
-        type="button"
-        className="login-mode-toggle"
-        onClick={() => {
-          setMode(mode === 'student' ? 'admin' : 'student');
-          setErrorMessage(null);
-        }}
-      >
-        {mode === 'student'
-          ? 'Mentor or admin? Sign in here'
-          : 'Student? Sign in with your crown code'}
-      </button>
-      <a className="login-mode-toggle" href="/guardian">
-        Parent or guardian? Sign in here
-      </a>
+      <Link className="login-mode-toggle" to="/login">
+        Student or admin? Sign in here
+      </Link>
     </div>
   );
 }

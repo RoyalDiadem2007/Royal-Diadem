@@ -445,3 +445,9 @@ verify_jwt = false
 
 [functions.magic-link-claim]
 verify_jwt = false
+
+[functions.guardian-portal]
+verify_jwt = false
+
+[functions.student-guardian-requests]
+verify_jwt = false

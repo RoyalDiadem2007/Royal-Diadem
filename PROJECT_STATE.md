@@ -162,9 +162,17 @@ can never happen again.
    before mentors get real access to student data.
 
 **Build queue (all unblocked):**
-4c-next. **Guardian access portal** (OD-19 build B): guardian magic-link accounts for 13–15,
-   the student consent-code ceremony (in-app notification), Kenecia's audited emergency
-   override.
+4c-next. ✅ **Guardian access portal** (OD-19 build B) — built 2026-07-17 on
+   `feat/guardian-portal`, PR pending. Guardians = third session subject (`guardian_accounts`:
+   one login per parent across siblings; email+PIN issued via a `guardian_portal` magic-link
+   claim; no passkeys). **Consent ceremony:** guardian asks → 6-digit code (10-min, single-use,
+   rate-limited) appears ONLY in the student's app → she chooses to share → 30-min viewing
+   window. **v1 view boundary: profile + mood trend (scores/emojis) — crown-check NOTE TEXT
+   excluded** (journal/note visibility plugs into the same grant machinery at Phase 6; widen
+   deliberately if Maria wants notes sooner). **Emergency override:** super_admin only, 60-min
+   window, invisible to the student, fully audited (`via: emergency_grant` on every read).
+   Portal eligibility: under-16 (11–12 included — COPPA parental review right). Admin roster:
+   Invite guardian + confirm-gated Emergency access. 8 unit + 9 E2E added (125/65 total).
 4d. ✅ **Landing page** (OD-20) — merged 2026-07-17 (PR #12): `/` = logo + Kenecia photo +
    write-up + bouncing arrow → `/login`; sign-out lands on the landing page. **Write-up copy
    is a DRAFT in `branding.config.ts` (`landingBlurb`) — needs Kenecia's approval**; swap the

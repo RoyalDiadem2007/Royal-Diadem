@@ -17,10 +17,15 @@ const ROLE_LABELS: Readonly<Record<AdminRole, string>> = {
 
 export function AdminLayout() {
   const session = useAuth();
-  if (session?.subject.type !== 'admin' || session.subject.role === 'student') {
+  const role = session?.subject.role;
+  if (
+    session?.subject.type !== 'admin' ||
+    role === undefined ||
+    role === 'student' ||
+    role === 'guardian'
+  ) {
     return null;
   }
-  const role = session.subject.role;
   const sections = sectionsForRole(role);
 
   return (

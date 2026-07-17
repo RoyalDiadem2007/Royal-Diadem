@@ -6,9 +6,9 @@ import { z } from 'npm:zod@4';
 
 export const loginRequestSchema = z
   .object({
-    subjectType: z.enum(['student', 'admin']),
-    /** Student crown code or admin email. */
-    identifier: z.string().trim().min(1).max(100),
+    subjectType: z.enum(['student', 'admin', 'guardian']),
+    /** Student crown code, or admin/guardian email. */
+    identifier: z.string().trim().min(1).max(254),
     pin: z.string().regex(/^\d{4,8}$/, 'PIN must be 4-8 digits'),
     turnstileToken: z.string().min(10).max(3000),
   })
@@ -60,6 +60,23 @@ export type ResetPinRequest = z.infer<typeof resetPinSchema>;
 
 /** Admin request to (re)send a first-login magic link (OD-19). */
 export const sendLinkSchema = z.object({ studentId: z.uuid() }).strict();
+
+/** Admin: invite this student's guardian to the portal (OD-19 build B). */
+export const inviteGuardianSchema = z.object({ studentId: z.uuid() }).strict();
+
+/** super_admin crisis path: guardian access without the ceremony. */
+export const emergencyAccessSchema = z.object({ studentId: z.uuid() }).strict();
+
+/** Guardian asks to view a linked student's account. */
+export const requestAccessSchema = z.object({ studentId: z.uuid() }).strict();
+
+/** Guardian enters the consent code the student shared with them. */
+export const enterCodeSchema = z
+  .object({
+    studentId: z.uuid(),
+    code: z.string().regex(/^\d{6}$/, 'consent code is 6 digits'),
+  })
+  .strict();
 
 export type SendLinkRequest = z.infer<typeof sendLinkSchema>;
 

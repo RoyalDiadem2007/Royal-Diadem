@@ -32,10 +32,124 @@ type LinkRow = {
   id: string;
   student_id: string;
   recipient: string;
+  purpose: string;
+  guardian_id: string | null;
   expires_at: string;
   used_at: string | null;
   revoked_at: string | null;
 };
+
+/** Marks the token used, atomically — a raced double-claim loses here. */
+async function claimTokenOnce(
+  db: ReturnType<typeof createServiceClient>,
+  linkId: string,
+): Promise<boolean | null> {
+  const { data, error } = await db
+    .from('magic_links')
+    .update({ used_at: new Date().toISOString() })
+    .eq('id', linkId)
+    .is('used_at', null)
+    .is('revoked_at', null)
+    .select('id');
+  if (error !== null) {
+    serverLog.error('magic_link_claim.mark_used_failed', {});
+    return null;
+  }
+  return data.length > 0;
+}
+
+/**
+ * Guardian portal claim (OD-19 build B): issues the guardian's sign-in PIN
+ * and mints a GUARDIAN session. Grants no access to any student — that takes
+ * the consent ceremony (or an audited emergency grant) every time.
+ */
+async function handleGuardianPortalClaim(
+  db: ReturnType<typeof createServiceClient>,
+  req: Request,
+  row: LinkRow,
+  ip: string | null,
+): Promise<Response> {
+  const { data: guardian, error: guardianError } = await db
+    .from('guardians')
+    .select('id, account_id')
+    .eq('id', String(row.guardian_id))
+    .maybeSingle();
+  if (guardianError !== null || guardian === null || guardian.account_id === null) {
+    serverLog.error('magic_link_claim.guardian_lookup_failed', {});
+    return errorResponse(req, 500, 'server_error');
+  }
+  const accountId = String(guardian.account_id);
+  const { data: account, error: accountError } = await db
+    .from('guardian_accounts')
+    .select('id, email, display_name')
+    .eq('id', accountId)
+    .maybeSingle();
+  if (accountError !== null || account === null) {
+    serverLog.error('magic_link_claim.account_lookup_failed', {});
+    return errorResponse(req, 500, 'server_error');
+  }
+
+  const claimed = await claimTokenOnce(db, row.id);
+  if (claimed === null) {
+    return errorResponse(req, 500, 'server_error');
+  }
+  if (!claimed) {
+    return errorResponse(req, 401, 'invalid_link');
+  }
+
+  const pin = generatePin();
+  const pinHash = await bcrypt.hash(pin, BCRYPT_COST);
+  const { error: pinError } = await db
+    .from('guardian_accounts')
+    .update({ pin_hash: pinHash })
+    .eq('id', accountId);
+  if (pinError !== null) {
+    serverLog.error('magic_link_claim.guardian_pin_failed', {});
+    return errorResponse(req, 500, 'server_error');
+  }
+  const { error: revokeError } = await db
+    .from('sessions')
+    .update({ revoked_at: new Date().toISOString() })
+    .eq('subject_type', 'guardian')
+    .eq('subject_id', accountId)
+    .is('revoked_at', null);
+  if (revokeError !== null) {
+    serverLog.error('magic_link_claim.guardian_session_revoke_failed', {});
+  }
+
+  const session = await mintSession(db, 'guardian', accountId, ip, req.headers.get('user-agent'));
+  if (session === null) {
+    return errorResponse(req, 500, 'server_error');
+  }
+
+  await writeAudit(db, {
+    actorType: 'guardian',
+    actorId: accountId,
+    actorRole: 'guardian',
+    action: 'login',
+    entityType: ENTITY,
+    entityId: row.id,
+    outcome: 'allowed',
+    ip,
+    metadata: { purpose: 'guardian_portal' },
+  });
+
+  return jsonResponse(req, 200, {
+    token: session.token,
+    expiresAt: session.expiresAt,
+    webauthnRegistered: false,
+    subject: {
+      type: 'guardian',
+      id: accountId,
+      displayName: String(account.display_name),
+      role: 'guardian',
+    },
+    credentials: {
+      loginEmail: String(account.email),
+      pin,
+    },
+  });
+}
 
 Deno.serve(async (req) => {
   const preflight = handlePreflight(req);
@@ -82,7 +196,7 @@ Deno.serve(async (req) => {
   const tokenHash = await sha256Hex(token);
   const { data: link, error: linkError } = await db
     .from('magic_links')
-    .select('id, student_id, recipient, expires_at, used_at, revoked_at')
+    .select('id, student_id, recipient, purpose, guardian_id, expires_at, used_at, revoked_at')
     .eq('token_hash', tokenHash)
     .maybeSingle();
   if (linkError !== null) {
@@ -105,6 +219,10 @@ Deno.serve(async (req) => {
     });
     // One generic code for every unclaimable state — no token-state oracle.
     return errorResponse(req, 401, 'invalid_link');
+  }
+
+  if (row.purpose === 'guardian_portal') {
+    return handleGuardianPortalClaim(db, req, row, ip);
   }
 
   const { data: student, error: studentError } = await db
@@ -134,19 +252,12 @@ Deno.serve(async (req) => {
   }
 
   // Claim the token FIRST, atomically — the guard predicates make a raced
-  // double-claim lose here rather than double-issue credentials.
-  const { data: claimed, error: claimError } = await db
-    .from('magic_links')
-    .update({ used_at: new Date().toISOString() })
-    .eq('id', row.id)
-    .is('used_at', null)
-    .is('revoked_at', null)
-    .select('id');
-  if (claimError !== null) {
-    serverLog.error('magic_link_claim.mark_used_failed', {});
+  // double-claim lose rather than double-issue credentials.
+  const claimed = await claimTokenOnce(db, row.id);
+  if (claimed === null) {
     return errorResponse(req, 500, 'server_error');
   }
-  if (claimed.length === 0) {
+  if (!claimed) {
     return errorResponse(req, 401, 'invalid_link');
   }
 

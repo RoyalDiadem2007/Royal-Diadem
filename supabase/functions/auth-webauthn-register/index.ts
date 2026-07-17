@@ -56,6 +56,11 @@ Deno.serve(async (req) => {
   if (subject === null) {
     return errorResponse(req, 401, 'invalid_session');
   }
+  if (subject.subjectType === 'guardian') {
+    // Passkeys are a student/admin surface; guardians sign in with email+PIN
+    // (OD-19). The webauthn_credentials check constraint enforces the same.
+    return errorResponse(req, 403, 'forbidden');
+  }
 
   const rp = relyingParty();
   const step = subPath(req);

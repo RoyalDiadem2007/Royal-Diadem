@@ -938,6 +938,89 @@ button {
   }
 }
 
+/* Guardian consent ceremony (OD-19 build B). */
+.guardian-request-card {
+  background-color: var(--color-card-surface);
+  border: 2px solid var(--color-crown-gold);
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  margin: 1.5rem auto 0;
+  max-width: 26rem;
+  text-align: left;
+}
+
+.guardian-request-text {
+  color: var(--color-text-primary);
+  margin: 0 0 0.75rem;
+}
+
+.guardian-request-code {
+  color: var(--color-crown-gold);
+  font-size: 2rem;
+  letter-spacing: 0.35em;
+  text-align: center;
+  margin: 0 0 0.5rem;
+}
+
+.guardian-request-hint {
+  color: var(--color-text-secondary);
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+.guardian-student-card,
+.guardian-view-card {
+  background-color: var(--color-card-surface);
+  border: 1px solid var(--color-accent);
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  margin: 1rem auto;
+  max-width: 26rem;
+  text-align: left;
+}
+
+.guardian-code-entry {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.guardian-code-entry input {
+  font: inherit;
+  font-size: 1.3rem;
+  letter-spacing: 0.35em;
+  text-align: center;
+  padding: 0.55rem 0.75rem;
+  border: 1px solid var(--color-accent);
+  border-radius: 0.5rem;
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
+}
+
+.guardian-view-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  color: var(--color-text-primary);
+  margin: 0 0 0.5rem;
+}
+
+.guardian-view-row span:first-child {
+  color: var(--color-text-secondary);
+}
+
+.guardian-trend-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  color: var(--color-text-primary);
+}
+
+.guardian-trend-list li {
+  padding: 0.35rem 0;
+  border-bottom: 1px solid var(--color-card-surface);
+}
+
 /* /welcome — the one-time credential reveal (the digital PIN card). */
 .welcome-credentials {
   background-color: var(--color-card-surface);
