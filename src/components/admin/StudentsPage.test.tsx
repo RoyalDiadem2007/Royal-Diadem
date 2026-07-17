@@ -267,4 +267,57 @@ describe('Students section', () => {
       'No guardian email on file — add the guardian first.',
     );
   });
+
+  it('invites a guardian to the portal and refuses 16+ students with the reason', async () => {
+    stubFetch(SUPER_ADMIN_SESSION, {
+      'admin-students?page=1': () => jsonResponse(rosterBody([STUDENT_AVA, STUDENT_ZOE])),
+      'admin-students/invite-guardian': (() => {
+        let call = 0;
+        return () => {
+          call += 1;
+          return call === 1
+            ? jsonResponse({ sent: true, expiresAt: '2026-07-20T00:00:00.000Z' })
+            : jsonResponse({ error: 'not_eligible' }, 409);
+        };
+      })(),
+    });
+    render(<App />);
+    await openStudentsSection();
+    await screen.findByText(/Little, Zoe/);
+
+    const user = userEvent.setup();
+    const [firstInvite, secondInvite] = screen.getAllByRole('button', { name: 'Invite guardian' });
+    if (firstInvite === undefined || secondInvite === undefined) {
+      throw new Error('expected two Invite guardian buttons');
+    }
+    await user.click(firstInvite);
+    expect(await screen.findByRole('status')).toHaveTextContent('portal invitation');
+
+    await user.click(secondInvite);
+    expect(await screen.findByRole('status')).toHaveTextContent(
+      'Students 16 and up don’t have guardian portal access',
+    );
+  });
+
+  it('grants emergency access only behind an explicit confirm, and says it is audited', async () => {
+    stubFetch(SUPER_ADMIN_SESSION, {
+      'admin-students?page=1': () => jsonResponse(rosterBody([STUDENT_ZOE])),
+      'admin-students/emergency-access': () =>
+        jsonResponse({ granted: true, accessExpiresAt: '2026-07-17T21:00:00.000Z' }, 201),
+    });
+    render(<App />);
+    await openStudentsSection();
+    await screen.findByText(/Little, Zoe/);
+
+    const user = userEvent.setup();
+    await user.click(screen.getByRole('button', { name: 'Emergency access' }));
+    // Nothing granted yet — an explicit confirm stands between.
+    expect(screen.queryByRole('status')).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Confirm emergency access' }));
+    const notice = await screen.findByRole('status');
+    expect(notice).toHaveTextContent('open for 60 minutes');
+    expect(notice).toHaveTextContent('The student is not notified');
+    expect(notice).toHaveTextContent('fully audited');
+  });
 });

@@ -50,16 +50,21 @@ export function WelcomeScreen() {
             or screenshot this before you continue.
           </p>
           <p className="welcome-credential-row">
-            <span className="welcome-credential-label">Crown code</span>
-            <span className="welcome-credential-value">{credentials.crownCode}</span>
+            <span className="welcome-credential-label">
+              {credentials.kind === 'student' ? 'Crown code' : 'Email'}
+            </span>
+            <span className="welcome-credential-value">
+              {credentials.kind === 'student' ? credentials.crownCode : credentials.loginEmail}
+            </span>
           </p>
           <p className="welcome-credential-row">
             <span className="welcome-credential-label">PIN</span>
             <span className="welcome-credential-value">{credentials.pin}</span>
           </p>
           <p className="welcome-hint">
-            Next you can turn on Face ID / Touch ID so you rarely need these — they&rsquo;re your
-            backup if you ever get locked out.
+            {credentials.kind === 'student'
+              ? "Next you can turn on Face ID / Touch ID so you rarely need these — they're your backup if you ever get locked out."
+              : 'Sign in at the guardian page with these whenever you return. Viewing her account always starts with a code she shares from her app.'}
           </p>
         </div>
         <button

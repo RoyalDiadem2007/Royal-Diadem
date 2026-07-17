@@ -9,9 +9,9 @@ import type { SupabaseClient } from 'jsr:@supabase/supabase-js@2';
 import { serverLog } from './logger.ts';
 
 export type AuditEntry = {
-  actorType: 'student' | 'admin' | 'system';
+  actorType: 'student' | 'admin' | 'guardian' | 'system';
   actorId: string | null;
-  actorRole: 'student' | 'super_admin' | 'mentor' | 'viewer' | 'system' | null;
+  actorRole: 'student' | 'super_admin' | 'mentor' | 'viewer' | 'guardian' | 'system' | null;
   action: 'create' | 'read' | 'update' | 'delete' | 'login' | 'logout' | 'consent' | 'export';
   entityType: string;
   entityId: string | null;

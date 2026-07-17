@@ -273,3 +273,51 @@ export async function sendMagicLink(
     parse: parseSentLink,
   });
 }
+
+function parseInviteSent(raw: unknown): { expiresAt: string } {
+  if (typeof raw !== 'object' || raw === null) {
+    throw new Error('invite response is malformed');
+  }
+  const record = raw as Record<string, unknown>;
+  if (record.sent !== true || typeof record.expiresAt !== 'string') {
+    throw new Error('invite response is malformed');
+  }
+  return { expiresAt: record.expiresAt };
+}
+
+/** Invites the student's guardian to the portal (OD-19 build B; under-16s). */
+export async function inviteGuardian(
+  sessionToken: string,
+  studentId: string,
+): Promise<ApiResult<{ expiresAt: string }>> {
+  return callEdgeFunction('admin-students/invite-guardian', {
+    method: 'POST',
+    sessionToken,
+    body: { studentId },
+    parse: parseInviteSent,
+  });
+}
+
+function parseEmergency(raw: unknown): { accessExpiresAt: string } {
+  if (typeof raw !== 'object' || raw === null) {
+    throw new Error('emergency response is malformed');
+  }
+  const record = raw as Record<string, unknown>;
+  if (record.granted !== true || typeof record.accessExpiresAt !== 'string') {
+    throw new Error('emergency response is malformed');
+  }
+  return { accessExpiresAt: record.accessExpiresAt };
+}
+
+/** super_admin crisis path: guardian access without the student's knowledge. */
+export async function grantEmergencyAccess(
+  sessionToken: string,
+  studentId: string,
+): Promise<ApiResult<{ accessExpiresAt: string }>> {
+  return callEdgeFunction('admin-students/emergency-access', {
+    method: 'POST',
+    sessionToken,
+    body: { studentId },
+    parse: parseEmergency,
+  });
+}

@@ -37,23 +37,29 @@ export function brandName(): string {
 
 export type IssuedLink = { token: string; expiresAt: string };
 
+export type LinkPurpose = 'first_login' | 'guardian_portal';
+
 export type IssueInput = {
   studentId: string;
   recipient: LinkRecipient;
   guardianId: string | null;
   createdBy: string;
+  purpose?: LinkPurpose;
 };
 
-/** Revokes prior active links, then issues a fresh one. Null on failure. */
+/** Revokes prior active links (same student/recipient/purpose), then issues
+ * a fresh one. Null on failure. */
 export async function issueMagicLink(
   db: SupabaseClient,
   input: IssueInput,
 ): Promise<IssuedLink | null> {
+  const purpose = input.purpose ?? 'first_login';
   const { error: revokeError } = await db
     .from('magic_links')
     .update({ revoked_at: new Date().toISOString() })
     .eq('student_id', input.studentId)
     .eq('recipient', input.recipient)
+    .eq('purpose', purpose)
     .is('used_at', null)
     .is('revoked_at', null);
   if (revokeError !== null) {
@@ -70,6 +76,7 @@ export async function issueMagicLink(
     recipient: input.recipient,
     guardian_id: input.guardianId,
     token_hash: tokenHash,
+    purpose,
     expires_at: expiresAt,
     created_by: input.createdBy,
   });
@@ -116,6 +123,32 @@ export function buildFirstLoginEmail(to: string, recipient: LinkRecipient): Outb
     html,
     text,
   };
+}
+
+/** Guardian portal invitation (OD-19 build B). Like the first-login email,
+ * the link is the only secret. */
+export function buildGuardianPortalEmail(to: string): OutboundEmail {
+  const name = brandName();
+  const url = '__LINK__';
+  const text = [
+    `${name} guardian access`,
+    '',
+    'You have been invited to the guardian portal. Through it you can ask to view your ' +
+      "daughter's or mentee's account — each time, she sees your request in her app and " +
+      'shares a code with you, so nothing happens without her knowing.',
+    '',
+    url,
+    '',
+    `This link works once and expires in ${String(LINK_TTL_HOURS)} hours. It will show your ` +
+      'sign-in details exactly once — have somewhere safe ready to save them.',
+  ].join('\n');
+  const html = text
+    .split('\n')
+    .map((line) =>
+      line === url ? `<p><a href="${url}">Open your guardian invitation</a></p>` : `<p>${line}</p>`,
+    )
+    .join('');
+  return { to, subject: `${name} — your guardian portal invitation`, html, text };
 }
 
 /** Substitutes the real link into a built email (kept out of the builder so

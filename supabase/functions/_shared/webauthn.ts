@@ -108,7 +108,9 @@ export async function consumeChallenge(
 
 export type StoredCredential = {
   rowId: string;
-  subjectType: SubjectType;
+  /** Passkeys are a student/admin surface — guardians sign in with email+PIN
+   * (OD-19), so a guardian-typed credential row can never exist or load. */
+  subjectType: 'student' | 'admin';
   subjectId: string;
   credentialId: string;
   publicKey: string;

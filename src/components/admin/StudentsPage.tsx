@@ -4,6 +4,8 @@
  */
 import { useEffect, useState } from 'react';
 import {
+  grantEmergencyAccess,
+  inviteGuardian,
   listStudents,
   resetStudentPin,
   sendMagicLink,
@@ -34,6 +36,8 @@ const SEND_LINK_ERRORS: Readonly<Record<string, string>> = {
   account_inactive: 'This account is inactive — reactivate it before sending a link.',
   email_not_configured: 'Email sending isn’t configured yet (Resend key — see KEYS_SETUP §3b).',
   email_send_failed: 'The email couldn’t be delivered. Try again in a moment.',
+  not_eligible: 'Students 16 and up don’t have guardian portal access (OD-19).',
+  guardian_no_portal: 'The guardian hasn’t claimed a portal invitation yet — invite them first.',
 };
 
 export function StudentsPage() {
@@ -48,6 +52,7 @@ export function StudentsPage() {
   const [resetError, setResetError] = useState('');
   const [linkNotice, setLinkNotice] = useState('');
   const [sendingLinkId, setSendingLinkId] = useState<string | null>(null);
+  const [confirmEmergencyId, setConfirmEmergencyId] = useState<string | null>(null);
   const session = useAuth();
   const token = session?.token;
 
@@ -96,6 +101,45 @@ export function StudentsPage() {
       const specific =
         result.failure.kind === 'denied' ? SEND_LINK_ERRORS[result.failure.code] : undefined;
       setLinkNotice(specific ?? 'Couldn’t send the link. Check your connection and try again.');
+    });
+  }
+
+  function handleInviteGuardian(student: { id: string; displayName: string }): void {
+    if (token === undefined || sendingLinkId !== null) {
+      return;
+    }
+    setSendingLinkId(student.id);
+    setLinkNotice('');
+    void inviteGuardian(token, student.id).then((result) => {
+      setSendingLinkId(null);
+      if (result.ok) {
+        setLinkNotice(
+          `Guardian portal invitation for ${student.displayName} sent — the link works once and expires in 72 hours.`,
+        );
+        return;
+      }
+      const specific =
+        result.failure.kind === 'denied' ? SEND_LINK_ERRORS[result.failure.code] : undefined;
+      setLinkNotice(specific ?? 'Couldn’t send the invitation. Try again.');
+    });
+  }
+
+  function handleEmergency(student: { id: string; displayName: string }): void {
+    if (token === undefined) {
+      return;
+    }
+    setConfirmEmergencyId(null);
+    setLinkNotice('');
+    void grantEmergencyAccess(token, student.id).then((result) => {
+      if (result.ok) {
+        setLinkNotice(
+          `Emergency guardian access for ${student.displayName} is open for 60 minutes. The student is not notified; the grant is fully audited.`,
+        );
+        return;
+      }
+      const specific =
+        result.failure.kind === 'denied' ? SEND_LINK_ERRORS[result.failure.code] : undefined;
+      setLinkNotice(specific ?? 'Couldn’t grant emergency access. Try again.');
     });
   }
 
@@ -265,6 +309,27 @@ export function StudentsPage() {
                             Keep PIN
                           </button>
                         </span>
+                      ) : confirmEmergencyId === student.id ? (
+                        <span className="admin-confirm-group">
+                          <button
+                            type="button"
+                            className="admin-danger-button"
+                            onClick={() => {
+                              handleEmergency(student);
+                            }}
+                          >
+                            Confirm emergency access
+                          </button>
+                          <button
+                            type="button"
+                            className="logout-button"
+                            onClick={() => {
+                              setConfirmEmergencyId(null);
+                            }}
+                          >
+                            Cancel
+                          </button>
+                        </span>
                       ) : (
                         <span className="admin-confirm-group">
                           <button
@@ -285,6 +350,25 @@ export function StudentsPage() {
                             }}
                           >
                             {sendingLinkId === student.id ? 'Sending…' : 'Email link'}
+                          </button>
+                          <button
+                            type="button"
+                            className="logout-button"
+                            disabled={sendingLinkId !== null}
+                            onClick={() => {
+                              handleInviteGuardian(student);
+                            }}
+                          >
+                            Invite guardian
+                          </button>
+                          <button
+                            type="button"
+                            className="logout-button"
+                            onClick={() => {
+                              setConfirmEmergencyId(student.id);
+                            }}
+                          >
+                            Emergency access
                           </button>
                         </span>
                       )}

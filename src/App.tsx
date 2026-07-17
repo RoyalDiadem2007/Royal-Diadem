@@ -6,6 +6,9 @@ import { LoginScreen } from '@/components/student/LoginScreen';
 import { LandingPage } from '@/components/student/LandingPage';
 import { WelcomeScreen } from '@/components/student/WelcomeScreen';
 import { CrownCheck } from '@/components/student/CrownCheck';
+import { GuardianRequestNotice } from '@/components/student/GuardianRequestNotice';
+import { GuardianHome } from '@/components/guardian/GuardianHome';
+import { GuardianLoginScreen } from '@/components/guardian/GuardianLoginScreen';
 import { DashboardPage } from '@/components/admin/DashboardPage';
 import { StudentsPage } from '@/components/admin/StudentsPage';
 import { CrownChecksPage } from '@/components/admin/CrownChecksPage';
@@ -25,6 +28,7 @@ function StudentHome() {
         {brand.tagline !== '' && <p className="app-tagline">{brand.tagline}</p>}
       </header>
       <EnablePasskeyPrompt />
+      <GuardianRequestNotice />
       <CrownCheck />
       <button
         type="button"
@@ -46,6 +50,14 @@ function StudentHome() {
  * Edge Function.
  */
 function AuthedRoutes({ session }: { session: AuthSession }) {
+  if (session.subject.type === 'guardian') {
+    // The portal is the guardian's entire surface; every path lands there.
+    return (
+      <Routes>
+        <Route path="*" element={<GuardianHome />} />
+      </Routes>
+    );
+  }
   const isAdmin = session.subject.type === 'admin';
   return (
     <Routes>
@@ -73,6 +85,8 @@ export function App() {
             <Route path="/" element={<LandingPage />} />
             {/* Emailed magic links land here (OD-19). */}
             <Route path="/welcome" element={<WelcomeScreen />} />
+            {/* Guardian portal sign-in (OD-19 build B). */}
+            <Route path="/guardian" element={<GuardianLoginScreen />} />
             {/* /login and any deep link (e.g. /admin) go to sign-in. */}
             <Route path="*" element={<LoginScreen />} />
           </Routes>

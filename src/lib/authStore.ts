@@ -15,10 +15,10 @@ import { passkeysSupported, performAuthentication, performRegistration } from '@
 import { logger } from '@/lib/logger';
 
 export type AuthSubject = {
-  type: 'student' | 'admin';
+  type: 'student' | 'admin' | 'guardian';
   id: string;
   displayName: string;
-  role: 'student' | 'super_admin' | 'mentor' | 'viewer';
+  role: 'student' | 'super_admin' | 'mentor' | 'viewer' | 'guardian';
 };
 
 export type AuthSession = {
@@ -30,7 +30,7 @@ export type AuthSession = {
 };
 
 export type LoginInput = {
-  subjectType: 'student' | 'admin';
+  subjectType: 'student' | 'admin' | 'guardian';
   identifier: string;
   pin: string;
 };
@@ -90,10 +90,14 @@ function parseLoginResponse(raw: unknown): AuthSession {
   }
   const s = subject as { type?: unknown; id?: unknown; displayName?: unknown; role?: unknown };
   if (
-    (s.type !== 'student' && s.type !== 'admin') ||
+    (s.type !== 'student' && s.type !== 'admin' && s.type !== 'guardian') ||
     typeof s.id !== 'string' ||
     typeof s.displayName !== 'string' ||
-    (s.role !== 'student' && s.role !== 'super_admin' && s.role !== 'mentor' && s.role !== 'viewer')
+    (s.role !== 'student' &&
+      s.role !== 'super_admin' &&
+      s.role !== 'mentor' &&
+      s.role !== 'viewer' &&
+      s.role !== 'guardian')
   ) {
     throw new Error('login subject is malformed');
   }
@@ -182,7 +186,10 @@ function parseAuthenticationOptions(raw: unknown): PublicKeyCredentialRequestOpt
   return checkedCeremonyOptions(raw) as PublicKeyCredentialRequestOptionsJSON;
 }
 
-export type WelcomeCredentials = { crownCode: string; pin: string };
+/** Student claims reveal a crown code; guardian portal claims a login email. */
+export type WelcomeCredentials =
+  | { kind: 'student'; crownCode: string; pin: string }
+  | { kind: 'guardian'; loginEmail: string; pin: string };
 
 export type ClaimedWelcome = { session: AuthSession; credentials: WelcomeCredentials };
 
@@ -191,19 +198,31 @@ export type ClaimResult = { ok: true; claimed: ClaimedWelcome } | { ok: false; m
 function parseClaimResponse(raw: unknown): ClaimedWelcome {
   const session = parseLoginResponse(raw);
   const record = raw as { credentials?: unknown };
-  const credentials = record.credentials;
+  const credentials = record.credentials as Record<string, unknown> | null | undefined;
   if (
     typeof credentials !== 'object' ||
     credentials === null ||
-    !('crownCode' in credentials) ||
-    !('pin' in credentials) ||
-    typeof credentials.crownCode !== 'string' ||
     typeof credentials.pin !== 'string' ||
     !/^\d{4,8}$/.test(credentials.pin)
   ) {
     throw new Error('claim credentials are malformed');
   }
-  return { session, credentials: { crownCode: credentials.crownCode, pin: credentials.pin } };
+  if (session.subject.type === 'guardian') {
+    if (typeof credentials.loginEmail !== 'string' || credentials.loginEmail === '') {
+      throw new Error('claim credentials are malformed');
+    }
+    return {
+      session,
+      credentials: { kind: 'guardian', loginEmail: credentials.loginEmail, pin: credentials.pin },
+    };
+  }
+  if (typeof credentials.crownCode !== 'string' || credentials.crownCode === '') {
+    throw new Error('claim credentials are malformed');
+  }
+  return {
+    session,
+    credentials: { kind: 'student', crownCode: credentials.crownCode, pin: credentials.pin },
+  };
 }
 
 /**

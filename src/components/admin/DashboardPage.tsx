@@ -112,7 +112,7 @@ export function DashboardPage() {
 
   const { counts } = state;
   const role = session?.subject.role;
-  if (role === undefined || role === 'student') {
+  if (role === undefined || role === 'student' || role === 'guardian') {
     return null;
   }
   return (

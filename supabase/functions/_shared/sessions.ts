@@ -7,7 +7,7 @@ import type { SupabaseClient } from 'jsr:@supabase/supabase-js@2';
 import { generateOpaqueToken, sha256Hex } from './hash.ts';
 import { serverLog } from './logger.ts';
 
-export type SubjectType = 'student' | 'admin';
+export type SubjectType = 'student' | 'admin' | 'guardian';
 
 export type SessionSubject = {
   sessionId: string;
@@ -20,9 +20,11 @@ type SessionPolicy = { idleSeconds: number; absoluteSeconds: number };
 
 // Students: 12h idle / 24h absolute. Admins handle regulated data, so shorter:
 // 2h idle / 12h absolute, with re-auth for sensitive actions (CLAUDE.md §17.2).
+// Guardians view a minor's data through consent windows — shortest of all.
 const POLICIES: Readonly<Record<SubjectType, SessionPolicy>> = {
   student: { idleSeconds: 12 * 3600, absoluteSeconds: 24 * 3600 },
   admin: { idleSeconds: 2 * 3600, absoluteSeconds: 12 * 3600 },
+  guardian: { idleSeconds: 1 * 3600, absoluteSeconds: 8 * 3600 },
 };
 
 export type MintedSession = { token: string; expiresAt: string };
@@ -75,7 +77,7 @@ export async function verifySession(
   }
 
   const subjectType: unknown = data.subject_type;
-  if (subjectType !== 'student' && subjectType !== 'admin') {
+  if (subjectType !== 'student' && subjectType !== 'admin' && subjectType !== 'guardian') {
     return null;
   }
   const now = Date.now();

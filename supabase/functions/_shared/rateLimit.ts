@@ -76,6 +76,18 @@ export async function enforceLoginRateLimit(
 // needs to blunt online guessing/scraping, not carry the whole defense.
 const CLAIM_IP_POLICY: Policy = { maxAttempts: 10, windowSeconds: 900, lockoutSeconds: 900 };
 
+// Consent-code entry: 6 digits, 10-minute life, single-use — the limiter
+// (per guardian account, plus the IP net) makes online guessing hopeless.
+const CODE_ENTRY_POLICY: Policy = { maxAttempts: 5, windowSeconds: 600, lockoutSeconds: 900 };
+
+/** Records one consent-code attempt for this guardian account; fail closed. */
+export async function enforceCodeEntryRateLimit(
+  db: SupabaseClient,
+  accountId: string,
+): Promise<RateLimitOutcome> {
+  return recordAttempt(db, `gcode:acct:${accountId.toLowerCase()}`, CODE_ENTRY_POLICY);
+}
+
 /** Records one magic-link claim attempt for this IP; fail closed. */
 export async function enforceClaimRateLimit(
   db: SupabaseClient,

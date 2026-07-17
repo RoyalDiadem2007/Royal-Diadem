@@ -131,6 +131,35 @@ describe('welcome magic-link claim (OD-19)', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent('permission form');
   });
 
+  it('reveals guardian credentials (email + PIN) for a guardian portal claim', async () => {
+    window.history.replaceState(null, '', `/welcome#t=${LINK_TOKEN}`);
+    const stub: FetchStub = {
+      claimResponses: [
+        jsonResponse({
+          token: 'raw-guardian-token',
+          expiresAt: '2026-07-18T00:00:00.000Z',
+          webauthnRegistered: false,
+          subject: { type: 'guardian', id: 'acct-1', displayName: 'Rae Linked', role: 'guardian' },
+          credentials: { loginEmail: 'rae@example.com', pin: '135791' },
+        }),
+      ],
+      claimCalls: [],
+    };
+    stubFetch(stub);
+
+    render(<App />);
+    const user = userEvent.setup();
+    await user.click(screen.getByRole('button', { name: 'Get my sign-in code' }));
+
+    expect(await screen.findByText('rae@example.com')).toBeInTheDocument();
+    expect(screen.getByText('135791')).toBeInTheDocument();
+    // Guardian copy — the ceremony promise, not the Face ID pitch.
+    expect(screen.getByText(/a code she shares from her app/)).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'I saved them — take me in' }));
+    expect(await screen.findByRole('heading', { name: 'Hello, Rae Linked' })).toBeInTheDocument();
+  });
+
   it('asks for the email link when the page is opened without a token', () => {
     window.history.replaceState(null, '', '/welcome');
     stubFetch({ claimResponses: [], claimCalls: [] });

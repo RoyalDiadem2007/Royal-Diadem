@@ -27,9 +27,15 @@ type AccountRow = {
   id: string;
   pin_hash: string;
   display_name: string;
-  role: 'student' | 'super_admin' | 'mentor' | 'viewer';
+  role: 'student' | 'super_admin' | 'mentor' | 'viewer' | 'guardian';
   denyReason: string | null;
 };
+
+const ENTITY_BY_SUBJECT = {
+  student: 'student',
+  admin: 'admin_user',
+  guardian: 'guardian_account',
+} as const;
 
 async function lookupStudent(
   db: ReturnType<typeof createServiceClient>,
@@ -93,6 +99,33 @@ async function lookupAdmin(
   };
 }
 
+/** Guardian portal sign-in (OD-19): email + the PIN issued at link claim.
+ * pin_hash null = invited but never claimed — treated as no account. */
+async function lookupGuardian(
+  db: ReturnType<typeof createServiceClient>,
+  identifier: string,
+): Promise<AccountRow | null> {
+  const { data, error } = await db
+    .from('guardian_accounts')
+    .select('id, pin_hash, display_name')
+    .eq('email', identifier.toLowerCase())
+    .maybeSingle();
+  if (error !== null) {
+    serverLog.error('login.guardian_lookup_failed', {});
+    return null;
+  }
+  if (data === null || data.pin_hash === null) {
+    return null;
+  }
+  return {
+    id: String(data.id),
+    pin_hash: String(data.pin_hash),
+    display_name: String(data.display_name),
+    role: 'guardian',
+    denyReason: null,
+  };
+}
+
 Deno.serve(async (req) => {
   const preflight = handlePreflight(req);
   if (preflight !== null) {
@@ -121,7 +154,7 @@ Deno.serve(async (req) => {
       actorId: null,
       actorRole: null,
       action: 'login',
-      entityType: subjectType === 'student' ? 'student' : 'admin_user',
+      entityType: ENTITY_BY_SUBJECT[subjectType],
       entityId: null,
       outcome: 'denied',
       ip,
@@ -138,7 +171,7 @@ Deno.serve(async (req) => {
       actorId: null,
       actorRole: null,
       action: 'login',
-      entityType: subjectType === 'student' ? 'student' : 'admin_user',
+      entityType: ENTITY_BY_SUBJECT[subjectType],
       entityId: null,
       outcome: 'denied',
       ip,
@@ -151,9 +184,13 @@ Deno.serve(async (req) => {
 
   // 4. Credential check — constant-work whether or not the account exists.
   const account =
-    subjectType === 'student' ? await lookupStudent(db, identifier) : await lookupAdmin(db, identifier);
+    subjectType === 'student'
+      ? await lookupStudent(db, identifier)
+      : subjectType === 'admin'
+        ? await lookupAdmin(db, identifier)
+        : await lookupGuardian(db, identifier);
   const pinMatches = await bcrypt.compare(pin, account?.pin_hash ?? DUMMY_PIN_HASH);
-  const entityType = subjectType === 'student' ? 'student' : 'admin_user';
+  const entityType = ENTITY_BY_SUBJECT[subjectType];
 
   if (account === null || !pinMatches) {
     await writeAudit(db, {
