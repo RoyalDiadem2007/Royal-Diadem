@@ -1,10 +1,13 @@
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router';
 import { brand } from '@/config/branding.config';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { EnablePasskeyPrompt } from '@/components/ui/EnablePasskeyPrompt';
 import { LoginScreen } from '@/components/student/LoginScreen';
-import { logout, useAuth } from '@/lib/authStore';
+import { DashboardPage } from '@/components/admin/DashboardPage';
+import { AdminLayout } from '@/layouts/AdminLayout';
+import { logout, useAuth, type AuthSession } from '@/lib/authStore';
 
-function AuthenticatedHome() {
+function StudentHome() {
   const session = useAuth();
   if (session === null) {
     return null;
@@ -30,9 +33,34 @@ function AuthenticatedHome() {
   );
 }
 
+/**
+ * Routes for a signed-in user. The admin branch exists only for admin
+ * sessions, so a student hitting /admin falls through to the catch-all and
+ * lands home — a UX gate; the real boundary is server-side RBAC on every
+ * Edge Function.
+ */
+function AuthedRoutes({ session }: { session: AuthSession }) {
+  const isAdmin = session.subject.type === 'admin';
+  return (
+    <Routes>
+      <Route path="/" element={isAdmin ? <Navigate to="/admin" replace /> : <StudentHome />} />
+      {isAdmin && (
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<DashboardPage />} />
+        </Route>
+      )}
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  );
+}
+
 export function App() {
   const session = useAuth();
   return (
-    <ErrorBoundary>{session === null ? <LoginScreen /> : <AuthenticatedHome />}</ErrorBoundary>
+    <ErrorBoundary>
+      <BrowserRouter>
+        {session === null ? <LoginScreen /> : <AuthedRoutes session={session} />}
+      </BrowserRouter>
+    </ErrorBoundary>
   );
 }

@@ -43,6 +43,21 @@ export async function restInsert(
   return (await res.json()) as Record<string, unknown>[];
 }
 
+export async function restUpdate(
+  table: string,
+  filter: string,
+  patch: Readonly<Record<string, unknown>>,
+): Promise<void> {
+  const res = await fetch(`${API_URL}/rest/v1/${table}?${filter}`, {
+    method: 'PATCH',
+    headers: restHeaders(),
+    body: JSON.stringify(patch),
+  });
+  if (!res.ok) {
+    throw new Error(`update of ${table} failed: ${String(res.status)}`);
+  }
+}
+
 export async function restDelete(table: string, filter: string): Promise<void> {
   const res = await fetch(`${API_URL}/rest/v1/${table}?${filter}`, {
     method: 'DELETE',

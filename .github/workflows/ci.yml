@@ -52,7 +52,8 @@ jobs:
 
       - name: Type-check Edge Functions
         working-directory: supabase/functions
-        run: deno check auth-login/index.ts auth-logout/index.ts auth-session/index.ts
+        # Glob so newly added functions can never slip past unchecked.
+        run: deno check */index.ts
 
   e2e:
     name: E2E (real local stack)
