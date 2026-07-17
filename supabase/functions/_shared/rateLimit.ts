@@ -88,6 +88,15 @@ export async function enforceCodeEntryRateLimit(
   return recordAttempt(db, `gcode:acct:${accountId.toLowerCase()}`, CODE_ENTRY_POLICY);
 }
 
+// AI generation (OD-18 cost cap): the weekly batch needs ~1 call/week; 10/day
+// leaves room for retries and regenerations without runaway spend.
+const AI_GENERATION_POLICY: Policy = { maxAttempts: 10, windowSeconds: 86_400, lockoutSeconds: 3_600 };
+
+/** Records one AI generation attempt (global — cost is org-wide); fail closed. */
+export async function enforceAiGenerationRateLimit(db: SupabaseClient): Promise<RateLimitOutcome> {
+  return recordAttempt(db, 'aigen:global', AI_GENERATION_POLICY);
+}
+
 /** Records one magic-link claim attempt for this IP; fail closed. */
 export async function enforceClaimRateLimit(
   db: SupabaseClient,

@@ -82,7 +82,7 @@ can never happen again.
 | 4 | Student enrollment (CSV + individual, PIN distribution) | 🔄 | **4a merged (PR #8) + 4b merged (PR #9) 2026-07-17 — only the consent workflow remains (⏳ OD-10/OD-14).** Phase 4a on `feat/enrollment`: `admin-students` Edge Fn (list/create/reset-pin; super_admin only until OD-6), crown-code generation (`PREFIX-XXXX`, unambiguous alphabet, stored lowercase/shown uppercase, `CROWN_CODE_PREFIX` env for white-label), unbiased crypto 6-digit PIN → bcrypt(12), COPPA computed from DOB, PIN reset (OD-9) revokes sessions, shared `_shared/adminAuth.ts` RBAC gate (dashboard refactored onto it), Students UI (roster/add form/one-time PIN card/confirm-reset). E2E proves the credential circle: enroll → real login → reset → old PIN+session dead → new PIN works; COPPA gate holds. **Phase 4b built 2026-07-17 on `feat/enrollment-csv`:** CSV bulk import — own RFC4180 parser (no dep), heuristic header auto-map + admin-correctable mapping UI, client-side row validation by CSV line, chunked upload (≤10/req for Edge CPU), server per-row results with same-name+DOB duplicate guard (§7 idempotency), printable one-time PIN card sheet (print CSS); dashboard tiles now link into their sections via the registry (Active students → Students). AI-assisted field mapping = later layer on the same mapping UI (needs Anthropic key; headers only, never student data). Remaining: **guardian/consent verification workflow (needs OD-10/OD-14)**. **Phase 4c built 2026-07-17 on `feat/magic-link` (OD-19), PR pending:** enrollment collects emails (13+ student email, guardian name+email; under-13 student email rejected server-side), `magic_links` table (single-use hashed tokens, 72h, re-issue revokes), `admin-students/send-link` with the age matrix (11–12 → guardian inbox only after verified consent; 13+ → student inbox), Resend email transport (`EMAIL_TRANSPORT=log` locally; needs `RESEND_API_KEY` — KEYS_SETUP §3b), public `magic-link-claim` Edge Fn (Turnstile → rate limit → single-use token → **fresh PIN generated at claim**, prior sessions revoked → session minted), `/welcome` claim screen = one-time digital PIN card → existing Face ID prompt, CSV email columns, roster "Email link" button with precondition-specific errors. 12 unit + 11 E2E added (114/56 total). Guardian access portal (consent-code ceremony + Kenecia emergency override) = next build per OD-19 |
 | 5 | Crown Check (student + admin trends + AI flag) | ✅ | **Merged to main 2026-07-17 (PR #10, squash, all CI green first run).** Decisions (Maria, 2026-07-17): one check per program-local day (`check_date`, `PROGRAM_TIMEZONE` env, default America/Chicago), same-day resubmits edit in place; flag rule = last 3 checks all ≤2 → ONE high-severity AI flag, no re-flag while open, new episode after resolve; admin needs-review indicator = **discreet tilted crown** (calm, no alarm — so no one is scared into masking; students never see flag state at all, and it never crosses the student wire). New `_shared/studentAuth.ts` gate re-reads status+COPPA every call (mid-session deactivation locks out). Dashboard "today" count moved to the same program-local day (sibling fix). Mood scale default set in `crownCheck.config.ts` — pending Kenecia approval (Spec §12). 15 unit + 16 E2E tests added (102/45 total). Remaining: merge |
 | 6 | Journal (write + mentor review + AI flag) | 🔄 | **Built 2026-07-17 on `feat/journal`, PR pending.** OD-2 implemented for real: AES-256-GCM in the Edge Fn (`JOURNAL_ENCRYPTION_KEY` secret — KEYS_SETUP §1d; local/CI keys auto-generated), **E2E proves the DB row never contains plaintext**. Keyword flag = documented pattern list (`_shared/journalFlag.ts`: self-harm/abuse/crisis categories — a floor pending OD-3 clinical input), high-severity flag per entry, **reason = category only, never contents**. Student card carries the transparency line ("your mentor can read this"). Review = super_admin until OD-6 (Journals section + prompts manager). Guardians read entries ONLY inside an OD-19 grant window (wired into guardian-portal). 5 unit + 8 E2E added. **Merged 2026-07-17 (PR #16) — Phase 6 complete** (mentor-scoped review joins at OD-6; offline write-sync waits for Phase 15) |
-| 7 | Encouragement Engine (MCP server, draft/approve) | ⬜ | Claude-in-Claude; gateway design decided (OD-18); key in Supabase secrets 2026-07-17 |
+| 7 | Encouragement Engine (MCP server, draft/approve) | 🔄 | **Built 2026-07-17 on `feat/encouragement` — PR #18 open, MERGE WHEN CI GREEN (standing rule).** OD-18 gateway implemented: `_shared/aiGateway.ts` = the locked gate — **`claude-haiku-4-5` pinned** (Maria's choice), max_tokens 1500, locked Spec §10 system prompt + human-approved `ai_rules` appended, output validation (exactly 7, ≤280 chars, 66-book scripture-canon check on references), **plain fetch not the npm SDK** (SDK bundle blows Edge isolate CPU limits — documented in-file), `AI_TRANSPORT=canned` for local/CI (deterministic batch through the same validator), 10/day generation cap. `encouragement` fn (super_admin only, permanently): generate/list/approve/reject/replace/post + rules CRUD; **no auto-pass** — anon policy exposes only status=posted. Corrections recorded (`ai_corrections`: original+correction+reason+rule+reviewer+model+prompt_version). Admin UI: week view, 7 day cards, reject/replace with required reason, post-approved, rules manager. Migration `ai_gateway` (CLI-applied). 7 unit + 8 E2E added (139 unit / 86 E2E total). **Live-key smoke test on hosted = at first deploy** |
 | 8 | Daily Message display | ⬜ | |
 | 9 | Calendar + Announcements | ⬜ | |
 | 10 | Share page (posts, photos, comments, reactions, moderation, peer flag) | ⬜ | |
@@ -163,6 +163,22 @@ can never happen again.
 4. ⏳ **OD-3 human protocol, OD-12 full permission matrix, OD-6 mentor assignment model** — needed
    before mentors get real access to student data.
 
+**PICK UP HERE (next session, in order):**
+1. **PR #18 (Phase 7 Encouragement)** — check CI; if all green, squash-merge (standing rule:
+   merge-when-green, memory + this doc) + delete branch + post-merge refresh of this file.
+   If CI is red, the failure is real (local runs were green in groups) — fix on the branch.
+2. **Phase 8: Daily Message display** — now trivial: student card reading today's
+   `status=posted` row via the existing anon SELECT policy (publishable key, no Edge Fn
+   needed for reads). Pairs with a small "today's Crown Message" card on StudentHome.
+3. **Optional polish (Maria asked 2026-07-17):** route-based lazy loading — split the admin
+   bundle out of the student path with React.lazy/Suspense on the /admin routes. Current
+   bundle is ~93KB gzip + SW-precached, so latency is already fine; this is a cheap nicety,
+   not a need. Do it in a quiet moment, not before Phase 8.
+4. **Phases 9+ in spec order** (calendar, announcements, share, relaxation, about — Kenecia's
+   bio may have arrived → her profile/About page becomes buildable).
+5. **Humans:** Supabase access token (§1a — unlocks first deploy + live-Haiku smoke test),
+   Kenecia's landing-blurb approval + bio, OD-10/OD-14 consent decisions, ALLOWED_ORIGINS.
+
 **Build queue (all unblocked):**
 4c-next. ✅ **Guardian access portal** (OD-19 build B) — built 2026-07-17 on
    `feat/guardian-portal`, PR pending. Guardians = third session subject (`guardian_accounts`:
@@ -187,6 +203,13 @@ can never happen again.
    key-agnostic; wire the secret when it arrives.
 8. **Phases 8–13** as specced (daily message, calendar, announcements, share, relaxation, about,
    profiles) — About Us still ⏳ Kenecia photo + bio.
+
+**⚠️ Local E2E capacity ceiling (learned 2026-07-17 night):** this 2-core/8GB codespace can no
+longer complete all 10 E2E files in one run — the edge runtime hits per-isolate CPU soft limits
+partway and starts returning 502/503 (failures look like `expected 503 to be 200` on auth-login).
+**Every suite passes in isolation/small groups on a fresh `functions serve`.** Locally: run suites
+in halves and restart `functions serve` between runs; treat CI (4-core) as the full-matrix truth —
+it has been green on every PR. This is capacity, not code.
 
 **Session mechanics (every session):**
 - E2E locally: `npx supabase start -x studio,imgproxy,mailpit,realtime,storage-api,vector,logflare`

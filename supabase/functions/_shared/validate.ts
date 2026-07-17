@@ -88,6 +88,40 @@ export const togglePromptSchema = z
   .object({ promptId: z.uuid(), active: z.boolean() })
   .strict();
 
+/** Encouragement Engine (Phase 7). weekOf must be a Monday (checked in the
+ * handler — zod validates shape, the calendar rule is domain logic). */
+export const generateWeekSchema = z
+  .object({ weekOf: z.string().regex(ISO_DATE) })
+  .strict();
+
+export const approveMessageSchema = z.object({ messageId: z.uuid() }).strict();
+
+export const rejectMessageSchema = z
+  .object({
+    messageId: z.uuid(),
+    reason: z.string().trim().min(1).max(500),
+    ruleId: z.uuid().optional(),
+  })
+  .strict();
+
+export const replaceMessageSchema = z
+  .object({
+    messageId: z.uuid(),
+    text: z.string().trim().min(1).max(280),
+    reason: z.string().trim().min(1).max(500),
+  })
+  .strict();
+
+export const postWeekSchema = z.object({ weekOf: z.string().regex(ISO_DATE) }).strict();
+
+export const createAiRuleSchema = z
+  .object({ text: z.string().trim().min(1).max(500) })
+  .strict();
+
+export const toggleAiRuleSchema = z
+  .object({ ruleId: z.uuid(), active: z.boolean() })
+  .strict();
+
 /** Guardian enters the consent code the student shared with them. */
 export const enterCodeSchema = z
   .object({

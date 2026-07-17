@@ -27,6 +27,9 @@ export const ADMIN_SECTIONS: readonly AdminSection[] = [
   // Journal review is the most sensitive read in the app — super_admin only
   // until OD-6 mentor assignment scopes it.
   { id: 'journals', label: 'Journals', path: 'journals', roles: ['super_admin'] },
+  // The AI surface stays super_admin regardless of OD-12 (Spec §6.5:
+  // admin-gated; the human IS the gate).
+  { id: 'encouragement', label: 'Encouragement', path: 'encouragement', roles: ['super_admin'] },
 ];
 
 export function sectionsForRole(role: AdminRole): readonly AdminSection[] {
