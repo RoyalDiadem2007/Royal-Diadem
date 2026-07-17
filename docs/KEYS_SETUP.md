@@ -67,6 +67,9 @@ encouragement messages (admin-reviewed, never posted directly — Spec §6.5/§1
 
 ## 4. Vercel — needed at first deploy (end of Foundation / Phase 3)
 
+> Full launch runbook: **`docs/VERCEL_SETUP.md`** (settings, env vars, deploy order, and the
+> post-deploy wiring on the Supabase/Turnstile side). This section is just the account items.
+
 | # | What | Where to get it | Where it goes | Status |
 |---|------|-----------------|---------------|--------|
 | 4a | Vercel project | Claude can create it via the connected Vercel MCP when we first deploy — nothing for you to fetch | — | ⬜ |
