@@ -30,6 +30,13 @@ describe('admin section registry', () => {
     expect(new Set(paths).size).toBe(paths.length);
   });
 
+  it('keeps Students super_admin-only until mentor assignment exists (OD-6)', () => {
+    const students = ADMIN_SECTIONS.find((s) => s.id === 'students');
+    expect(students?.roles).toEqual(['super_admin']);
+    expect(sectionsForRole('mentor').some((s) => s.id === 'students')).toBe(false);
+    expect(sectionsForRole('viewer').some((s) => s.id === 'students')).toBe(false);
+  });
+
   it('builds /admin for the index section and nested urls otherwise', () => {
     expect(adminSectionUrl({ id: 'dashboard', label: 'Dashboard', path: '', roles: [] })).toBe(
       '/admin',

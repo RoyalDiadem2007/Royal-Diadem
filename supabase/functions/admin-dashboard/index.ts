@@ -1,39 +1,15 @@
 /**
  * admin-dashboard — at-a-glance counts for the admin panel (Spec §6.10
- * Dashboard). Server-side RBAC: requires a valid ADMIN session; the role is
- * re-read from admin_users on every call (never trusted from the client).
- * Returns aggregates only — no student contents ever cross this wire — and
- * every read (and every denied attempt) lands in the append-only audit log.
+ * Dashboard). Server-side RBAC via the shared requireAdmin gate (all three
+ * admin roles may read — aggregates only, no student contents cross this
+ * wire). Every read and every denied attempt lands in the audit log.
  */
 import type { SupabaseClient } from 'jsr:@supabase/supabase-js@2';
 import { createServiceClient } from '../_shared/db.ts';
-import {
-  bearerToken,
-  clientIp,
-  errorResponse,
-  handlePreflight,
-  jsonResponse,
-} from '../_shared/http.ts';
-import { verifySession } from '../_shared/sessions.ts';
+import { errorResponse, handlePreflight, jsonResponse } from '../_shared/http.ts';
+import { requireAdmin } from '../_shared/adminAuth.ts';
 import { writeAudit } from '../_shared/audit.ts';
 import { serverLog } from '../_shared/logger.ts';
-
-type AdminRole = 'super_admin' | 'mentor' | 'viewer';
-
-async function adminRole(db: SupabaseClient, adminId: string): Promise<AdminRole | null> {
-  const { data, error } = await db
-    .from('admin_users')
-    .select('role')
-    .eq('id', adminId)
-    .maybeSingle();
-  if (error !== null) {
-    serverLog.error('admin_dashboard.role_lookup_failed', {});
-    return null; // fail closed
-  }
-  const role: unknown = data?.role;
-  return role === 'super_admin' || role === 'mentor' || role === 'viewer' ? role : null;
-}
-
 type Counts = {
   activeStudents: number;
   newFlags: number;
@@ -82,46 +58,14 @@ Deno.serve(async (req) => {
     return errorResponse(req, 405, 'method_not_allowed');
   }
 
-  const token = bearerToken(req);
-  if (token === null) {
-    return errorResponse(req, 401, 'missing_token');
-  }
-
   const db = createServiceClient();
-  const ip = clientIp(req);
-
-  const subject = await verifySession(db, token);
-  if (subject === null) {
-    return errorResponse(req, 401, 'invalid_session');
-  }
-
-  if (subject.subjectType !== 'admin') {
-    await writeAudit(db, {
-      actorType: 'student',
-      actorId: subject.subjectId,
-      actorRole: 'student',
-      action: 'read',
-      entityType: 'admin_dashboard',
-      entityId: null,
-      outcome: 'denied',
-      ip,
-    });
-    return errorResponse(req, 403, 'forbidden');
-  }
-
-  const role = await adminRole(db, subject.subjectId);
-  if (role === null) {
-    await writeAudit(db, {
-      actorType: 'admin',
-      actorId: subject.subjectId,
-      actorRole: null,
-      action: 'read',
-      entityType: 'admin_dashboard',
-      entityId: null,
-      outcome: 'denied',
-      ip,
-    });
-    return errorResponse(req, 403, 'forbidden');
+  const auth = await requireAdmin(db, req, 'admin_dashboard', [
+    'super_admin',
+    'mentor',
+    'viewer',
+  ]);
+  if (!auth.ok) {
+    return auth.response;
   }
 
   const counts = await gatherCounts(db);
@@ -131,13 +75,13 @@ Deno.serve(async (req) => {
 
   await writeAudit(db, {
     actorType: 'admin',
-    actorId: subject.subjectId,
-    actorRole: role,
+    actorId: auth.ctx.subject.subjectId,
+    actorRole: auth.ctx.role,
     action: 'read',
     entityType: 'admin_dashboard',
     entityId: null,
     outcome: 'allowed',
-    ip,
+    ip: auth.ctx.ip,
   });
 
   return jsonResponse(req, 200, { ...counts });

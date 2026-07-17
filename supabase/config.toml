@@ -433,3 +433,6 @@ verify_jwt = false
 
 [functions.admin-dashboard]
 verify_jwt = false
+
+[functions.admin-students]
+verify_jwt = false
