@@ -3,8 +3,10 @@ import { brand } from '@/config/branding.config';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { EnablePasskeyPrompt } from '@/components/ui/EnablePasskeyPrompt';
 import { LoginScreen } from '@/components/student/LoginScreen';
+import { CrownCheck } from '@/components/student/CrownCheck';
 import { DashboardPage } from '@/components/admin/DashboardPage';
 import { StudentsPage } from '@/components/admin/StudentsPage';
+import { CrownChecksPage } from '@/components/admin/CrownChecksPage';
 import { AdminLayout } from '@/layouts/AdminLayout';
 import { logout, useAuth, type AuthSession } from '@/lib/authStore';
 
@@ -21,6 +23,7 @@ function StudentHome() {
         {brand.tagline !== '' && <p className="app-tagline">{brand.tagline}</p>}
       </header>
       <EnablePasskeyPrompt />
+      <CrownCheck />
       <button
         type="button"
         className="logout-button"
@@ -49,6 +52,7 @@ function AuthedRoutes({ session }: { session: AuthSession }) {
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<DashboardPage />} />
           <Route path="students" element={<StudentsPage />} />
+          <Route path="crown-checks" element={<CrownChecksPage />} />
         </Route>
       )}
       <Route path="*" element={<Navigate to="/" replace />} />

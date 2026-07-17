@@ -59,6 +59,20 @@ export const importStudentsSchema = z
 
 export type ImportStudentsRequest = z.infer<typeof importStudentsSchema>;
 
+/**
+ * Crown Check submission (Spec §6.2). The emoji is display data the client
+ * derived from the score's tier; it is bounded, never trusted as meaning.
+ */
+export const submitCrownCheckSchema = z
+  .object({
+    moodScore: z.number().int().min(1).max(5),
+    moodEmoji: z.string().trim().min(1).max(16),
+    note: z.string().trim().min(1).max(280).optional(),
+  })
+  .strict();
+
+export type SubmitCrownCheckRequest = z.infer<typeof submitCrownCheckSchema>;
+
 export async function parseJsonBody(req: Request, maxBytes = 10_000): Promise<unknown | null> {
   const lengthHeader = req.headers.get('content-length');
   if (lengthHeader !== null && Number(lengthHeader) > maxBytes) {

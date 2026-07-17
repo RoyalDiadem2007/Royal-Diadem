@@ -134,9 +134,13 @@ describe('admin shell routing and dashboard', () => {
 
     const tile = screen.getByRole('link', { name: /Active students/ });
     expect(tile).toHaveAttribute('href', '/admin/students');
+    // Crown Checks shipped with Phase 5, so its tile is live too.
+    expect(screen.getByRole('link', { name: /Crown Checks today/ })).toHaveAttribute(
+      'href',
+      '/admin/crown-checks',
+    );
     // Tiles without a live section stay plain cards for now.
     expect(screen.queryByRole('link', { name: /New flags/ })).not.toBeInTheDocument();
-    expect(screen.queryByRole('link', { name: /Crown Checks today/ })).not.toBeInTheDocument();
 
     await userEvent.setup().click(tile);
     expect(await screen.findByRole('heading', { name: 'Students' })).toBeInTheDocument();
