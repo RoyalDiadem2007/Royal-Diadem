@@ -44,6 +44,13 @@ describe('admin section registry', () => {
     expect(sectionsForRole('viewer').some((s) => s.id === 'crown-checks')).toBe(false);
   });
 
+  it('keeps Journals super_admin-only until mentor assignment exists (OD-6)', () => {
+    const journals = ADMIN_SECTIONS.find((s) => s.id === 'journals');
+    expect(journals?.roles).toEqual(['super_admin']);
+    expect(sectionsForRole('mentor').some((s) => s.id === 'journals')).toBe(false);
+    expect(sectionsForRole('viewer').some((s) => s.id === 'journals')).toBe(false);
+  });
+
   it('builds /admin for the index section and nested urls otherwise', () => {
     expect(adminSectionUrl({ id: 'dashboard', label: 'Dashboard', path: '', roles: [] })).toBe(
       '/admin',

@@ -28,6 +28,8 @@ Project: `RoyalDiadem2007's Project` — ref `luvthaezikvssnuegviu` (us-west-2)
 > (see `docs/SUPABASE_RULES.md` §1). If the dashboard offers to disable them, leave that
 > decision until the app is stable, then disable.
 
+| 1d | **Journal encryption key** (OD-2 — AES-256-GCM at rest for journal text) | Generate it yourself — run: `npx supabase secrets set JOURNAL_ENCRYPTION_KEY="$(openssl rand -base64 32)"` (once linked; or paste the generated value into Dashboard → Edge Functions → Secrets) | Supabase function secrets only. **Losing this key means existing journal entries become unreadable — store a copy in your password manager.** Rotation requires a re-encryption pass (ask Claude) | ⬜ |
+
 **Database password** (only if the CLI asks during `db push`): Dashboard → Project Settings →
 Database → you can reset it if unknown. Keep it in your password manager; Claude never needs it
 stored anywhere.

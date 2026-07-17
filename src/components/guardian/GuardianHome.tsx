@@ -133,7 +133,7 @@ export function GuardianHome() {
   };
 
   if (view.status === 'open') {
-    const { student, trend, accessExpiresAt } = view.view;
+    const { student, trend, journal, accessExpiresAt } = view.view;
     return (
       <div className="app-shell">
         <header className="app-header">
@@ -170,6 +170,16 @@ export function GuardianHome() {
               </li>
             ))}
           </ul>
+        </section>
+        <section className="guardian-view-card" aria-label="Journal entries">
+          <h2 className="crown-check-title">Journal</h2>
+          {journal.length === 0 && <p className="crown-check-note-text">No entries yet.</p>}
+          {journal.map((entry) => (
+            <article key={entry.createdAt} className="journal-review-entry">
+              <p className="admin-table-sub">{formatCheckDate(entry.createdAt.slice(0, 10))}</p>
+              <p className="journal-review-text">{entry.text}</p>
+            </article>
+          ))}
         </section>
         <button
           type="button"

@@ -451,3 +451,9 @@ verify_jwt = false
 
 [functions.student-guardian-requests]
 verify_jwt = false
+
+[functions.journal]
+verify_jwt = false
+
+[functions.admin-journal]
+verify_jwt = false

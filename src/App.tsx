@@ -6,12 +6,14 @@ import { LoginScreen } from '@/components/student/LoginScreen';
 import { LandingPage } from '@/components/student/LandingPage';
 import { WelcomeScreen } from '@/components/student/WelcomeScreen';
 import { CrownCheck } from '@/components/student/CrownCheck';
+import { Journal } from '@/components/student/Journal';
 import { GuardianRequestNotice } from '@/components/student/GuardianRequestNotice';
 import { GuardianHome } from '@/components/guardian/GuardianHome';
 import { GuardianLoginScreen } from '@/components/guardian/GuardianLoginScreen';
 import { DashboardPage } from '@/components/admin/DashboardPage';
 import { StudentsPage } from '@/components/admin/StudentsPage';
 import { CrownChecksPage } from '@/components/admin/CrownChecksPage';
+import { JournalsPage } from '@/components/admin/JournalsPage';
 import { AdminLayout } from '@/layouts/AdminLayout';
 import { logout, useAuth, type AuthSession } from '@/lib/authStore';
 
@@ -30,6 +32,7 @@ function StudentHome() {
       <EnablePasskeyPrompt />
       <GuardianRequestNotice />
       <CrownCheck />
+      <Journal />
       <button
         type="button"
         className="logout-button"
@@ -67,6 +70,7 @@ function AuthedRoutes({ session }: { session: AuthSession }) {
           <Route index element={<DashboardPage />} />
           <Route path="students" element={<StudentsPage />} />
           <Route path="crown-checks" element={<CrownChecksPage />} />
+          <Route path="journals" element={<JournalsPage />} />
         </Route>
       )}
       <Route path="*" element={<Navigate to="/" replace />} />
