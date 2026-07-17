@@ -140,8 +140,10 @@ can never happen again.
   (`ANTHROPIC_API_KEY`, via dashboard; project not yet CLI-linked). Gates only Phase 7 live generation
 - ⏳ **Keys/accounts per `docs/KEYS_SETUP.md`** — Supabase secret key + access token, Turnstile keys
 - ⏳ **Resend API key** (KEYS_SETUP §3b) — magic-link emails; local/CI run on the log transport until it lands
-- ✅ Pastor Kenecia Duncan **photo** received 2026-07-17 → `public/assets/kenecia-headshot.jpg`
-  (landing page OD-20 + About Us). **Bio text / short org write-up still ⏳**
+- ✅ Pastor Kenecia Duncan **photo** received 2026-07-17 → `public/assets/kenecia-headshot.jpg`.
+  **Placement decided (Maria 2026-07-17): her PROFILE page (About Us / pastor bio, Spec §6.9)**
+  — NOT the landing page. **Bio text: Kenecia submitting 2026-07-17/18** → unblocks building the
+  About Us / profile page (Phase 12 item, can ship early once the bio lands)
 - ⏳ Spec §12 items: tagline, About copy, fonts, scripture rotation, relaxation content, moderation
   preference (pre/post-approve), mood-scale approval, custom domain, age-range confirmation
 
