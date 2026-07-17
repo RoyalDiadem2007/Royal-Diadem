@@ -31,7 +31,8 @@ export type BrandFonts = {
 
 export type BrandFounder = {
   name: string;
-  /** e.g. "Founder" — shown under the photo on the landing page. */
+  /** e.g. "Founder" — used on the About Us page (Spec §6.9). Kenecia opted
+   * her photo OFF the landing page (2026-07-17); the logo carries it. */
   title: string;
   photo: string;
 };
