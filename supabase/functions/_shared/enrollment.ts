@@ -20,16 +20,27 @@ export function crownCodePrefix(): string {
   return configured !== undefined && configured !== '' ? configured : 'RD';
 }
 
-/**
- * e.g. RD-7F3K. The tiny modulo bias here is acceptable: the code is a
- * printed, non-secret identifier whose uniqueness the database enforces.
- */
-export function generateCrownCode(): string {
-  const bytes = crypto.getRandomValues(new Uint8Array(CODE_SUFFIX_LENGTH));
-  let suffix = '';
-  for (const b of bytes) {
-    suffix += CODE_ALPHABET[b % CODE_ALPHABET.length] ?? '';
+/** Unbiased random indexes below `range` via byte-level rejection sampling. */
+function unbiasedIndexes(count: number, range: number): number[] {
+  // Largest multiple of `range` inside byte space — reject bytes above it.
+  const limit = Math.floor(256 / range) * range;
+  const out: number[] = [];
+  while (out.length < count) {
+    const bytes = crypto.getRandomValues(new Uint8Array(count * 2));
+    for (const b of bytes) {
+      if (b < limit && out.length < count) {
+        out.push(b % range);
+      }
+    }
   }
+  return out;
+}
+
+/** e.g. RD-7F3K. Uniqueness is enforced by the database (retry on collision). */
+export function generateCrownCode(): string {
+  const suffix = unbiasedIndexes(CODE_SUFFIX_LENGTH, CODE_ALPHABET.length)
+    .map((i) => CODE_ALPHABET[i] ?? '')
+    .join('');
   return `${crownCodePrefix()}-${suffix}`;
 }
 
