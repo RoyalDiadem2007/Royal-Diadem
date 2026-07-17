@@ -21,6 +21,9 @@ export const ADMIN_SECTIONS: readonly AdminSection[] = [
   // Mentors join once the assignment model exists (OD-6): they see only their
   // assigned students, which this section cannot scope yet.
   { id: 'students', label: 'Students', path: 'students', roles: ['super_admin'] },
+  // Same OD-6 rule: trend views expose per-student regulated data, so mentors
+  // wait for assignment scoping.
+  { id: 'crown-checks', label: 'Crown Checks', path: 'crown-checks', roles: ['super_admin'] },
 ];
 
 export function sectionsForRole(role: AdminRole): readonly AdminSection[] {

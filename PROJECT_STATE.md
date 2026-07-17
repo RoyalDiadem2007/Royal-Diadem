@@ -80,9 +80,9 @@ can never happen again.
 | 2 | Auth: PIN gen/hash, login, WebAuthn, COPPA consent gate | ✅ | **WebAuthn merged to main 2026-07-17 (PR #6, squash, all CI green) — Phase 2 complete** (PIN/code *generation* ships with Phase 4 enrollment as planned). Detail: merged to main 2026-07-16: Edge Fn trust boundary, auth-login/logout/session (Turnstile→rate-limit→bcrypt→COPPA gate→opaque session→audit), client login flow. **WebAuthn added on `feat/webauthn`** (dep `@simplewebauthn` approved 2026-07-16): passkeys in own `webauthn_credentials` table (multi-device + signature counter — spec's single-credential columns superseded; **dropping them = pending §2 ask**), usernameless discoverable login, session-gated registration, counter-regression rejection, single-use 5-min challenges; client Face ID button + post-login enable prompt. **14 no-mock E2E tests** (8 auth + 6 webauthn) + 50 unit tests. Decisions: crown code + PIN identifiers; **no Turnstile on WebAuthn** (crypto challenge-response isn't brute-forceable; IP rate limit still applies). Remaining: full passkey ceremony E2E needs a browser virtual authenticator (Playwright, later); PIN reset (OD-9); real Turnstile keys; PIN/code generation in Phase 4 |
 | 3 | Admin panel shell (file-cabinet layout, sidebar, routing) | ✅ | **Merged to main 2026-07-17 (PR #7).** Built on `feat/admin-shell`: `react-router` (approved §2 ask, pinned 8.2.0), role-gated routing (student home vs `/admin`; client gate is UX only), `AdminLayout` file-cabinet sidebar driven by a section registry (`src/config/adminSections.ts` — sections register as phases ship), Dashboard with real counts via `admin-dashboard` Edge Fn (session-validated, role re-read server-side, allowed+denied reads audit-logged). 8 new unit + 5 new E2E tests (58 unit / 19 E2E total). Also fixed stale CI deno-check list → glob (`*/index.ts`). Remaining: merge |
 | 4 | Student enrollment (CSV + individual, PIN distribution) | 🔄 | **4a merged (PR #8) + 4b merged (PR #9) 2026-07-17 — only the consent workflow remains (⏳ OD-10/OD-14).** Phase 4a on `feat/enrollment`: `admin-students` Edge Fn (list/create/reset-pin; super_admin only until OD-6), crown-code generation (`PREFIX-XXXX`, unambiguous alphabet, stored lowercase/shown uppercase, `CROWN_CODE_PREFIX` env for white-label), unbiased crypto 6-digit PIN → bcrypt(12), COPPA computed from DOB, PIN reset (OD-9) revokes sessions, shared `_shared/adminAuth.ts` RBAC gate (dashboard refactored onto it), Students UI (roster/add form/one-time PIN card/confirm-reset). E2E proves the credential circle: enroll → real login → reset → old PIN+session dead → new PIN works; COPPA gate holds. **Phase 4b built 2026-07-17 on `feat/enrollment-csv`:** CSV bulk import — own RFC4180 parser (no dep), heuristic header auto-map + admin-correctable mapping UI, client-side row validation by CSV line, chunked upload (≤10/req for Edge CPU), server per-row results with same-name+DOB duplicate guard (§7 idempotency), printable one-time PIN card sheet (print CSS); dashboard tiles now link into their sections via the registry (Active students → Students). AI-assisted field mapping = later layer on the same mapping UI (needs Anthropic key; headers only, never student data). Remaining: **guardian/consent verification workflow (needs OD-10/OD-14)** |
-| 5 | Crown Check (student + admin trends + AI flag) | ⬜ | |
+| 5 | Crown Check (student + admin trends + AI flag) | 🔄 | **Built 2026-07-17 on `feat/crown-check`, PR pending.** Decisions (Maria, 2026-07-17): one check per program-local day (`check_date`, `PROGRAM_TIMEZONE` env, default America/Chicago), same-day resubmits edit in place; flag rule = last 3 checks all ≤2 → ONE high-severity AI flag, no re-flag while open, new episode after resolve; admin needs-review indicator = **discreet tilted crown** (calm, no alarm — so no one is scared into masking; students never see flag state at all, and it never crosses the student wire). New `_shared/studentAuth.ts` gate re-reads status+COPPA every call (mid-session deactivation locks out). Dashboard "today" count moved to the same program-local day (sibling fix). Mood scale default set in `crownCheck.config.ts` — pending Kenecia approval (Spec §12). 15 unit + 16 E2E tests added (102/45 total). Remaining: merge |
 | 6 | Journal (write + mentor review + AI flag) | ⬜ | OD-2 decided (AES-256-GCM in Edge Fn) |
-| 7 | Encouragement Engine (MCP server, draft/approve) | ⬜ | Claude-in-Claude |
+| 7 | Encouragement Engine (MCP server, draft/approve) | ⬜ | Claude-in-Claude; gateway design decided (OD-18); key in Supabase secrets 2026-07-17 |
 | 8 | Daily Message display | ⬜ | |
 | 9 | Calendar + Announcements | ⬜ | |
 | 10 | Share page (posts, photos, comments, reactions, moderation, peer flag) | ⬜ | |
@@ -126,6 +126,7 @@ can never happen again.
 | OD-15 | ⚪ | **Backups/DR**, staging/prod envs + seed data, **accessibility (WCAG)** target & color contrast | ⬜ open |
 | OD-16 | ⚪ | **SOC 2 / HIPAA org items** (CLAUDE.md §17.5 — human-side): Supabase HIPAA add-on + BAA, vendor BAAs, audit engagement, written policies, security officer | ⬜ open |
 | OD-17 | 🟡 | **AI journal analysis ("Journaling Coach")** — DECIDED 2026-07-17: buildable once the Anthropic BAA is signed (+ guardian-consent language + design review). Until then the spec's server-side keyword/pattern flag covers escalation signals. Maria is fully aware of the BAA requirement — **do not re-raise it**; when the BAA lands, just build | ⏳ awaiting BAA |
+| OD-18 | 🟡 | **AI gateway architecture** — DECIDED 2026-07-17 (Maria's design, confirmed): Phase 7 ships as a *governed AI response gateway*, built as a shared server module (`_shared/aiGateway`) so every AI layer routes through it. Edge Function is the locked gate: holds the key, pins Haiku + strict params, cost/rate caps, server-side output validation. **No auto-pass path** — all validated output → drafts table → human approve → publish (CLAUDE.md §1). Lean corrective loop: admin reject/edit records original + correction + reason + rule + reviewer + model/prompt version (`ai_corrections`); human-approved `ai_rules` feed the validator/prompt-builder on future calls — no auto-learning from raw feedback, no retraining claims. An MCP-protocol interface may layer on top later; enforcement never lives in it | ✅ decided |
 
 ---
 
@@ -133,7 +134,8 @@ can never happen again.
 
 - ✅ Royal Diadem **logo** received 2026-07-03 — `Royal Diadem Real Logo.png` in repo root
   (untracked; commit it, then generate PWA icons 192/512 + favicon from it)
-- ⏳ **Anthropic API key** (for the Claude-in-Claude Encouragement Engine) — Maria obtaining, expected 2026-07-17
+- ✅ **Anthropic API key** received 2026-07-17 — Maria added it to Supabase secrets
+  (`ANTHROPIC_API_KEY`, via dashboard; project not yet CLI-linked). Gates only Phase 7 live generation
 - ⏳ **Keys/accounts per `docs/KEYS_SETUP.md`** — Supabase secret key + access token, Turnstile keys
 - ⏳ Pastor Kenecia Duncan **photo + bio text** → About Us page
 - ⏳ Spec §12 items: tagline, About copy, fonts, scripture rotation, relaxation content, moderation
@@ -148,17 +150,16 @@ can never happen again.
    verified migrations to hosted project `luvthaezikvssnuegviu`, then
    `supabase functions deploy` (7 functions) + secrets (`TURNSTILE_SECRET_KEY`,
    `ALLOWED_ORIGINS`, optional `CROWN_CODE_PREFIX`) + Vercel link.
-2. ⏳ **Anthropic API key** (Maria obtaining) — `npx supabase secrets set ANTHROPIC_API_KEY=…`
-   once linked; gates only Phase 7's live generation (build everything else first).
+2. ✅ **Anthropic API key** — in Supabase secrets since 2026-07-17 (dashboard). After first link +
+   deploy, verify functions can see it (`npx supabase secrets list`).
 3. ⏳ **OD-10 + OD-14** (consent delivery method; guardian consent for all minors or under-13
    only) — the only remaining Phase 4 piece (guardian/consent verification workflow).
 4. ⏳ **OD-3 human protocol, OD-12 full permission matrix, OD-6 mentor assignment model** — needed
    before mentors get real access to student data.
 
 **Build queue (all unblocked, in spec order):**
-5. **Phase 5: Crown Check** — student daily mood check-in (1–5 + emoji + note), admin trend view,
-   pattern-based AI flag (consecutive low scores; server-side, no Claude call). Flag rows +
-   dashboard tile already exist — Flags section starts to become real here.
+5. ✅ **Phase 5: Crown Check** — built 2026-07-17 on `feat/crown-check` (see tracker row 5);
+   merge the PR, then continue below.
 6. **Phase 6: Journal** — write + mentor review + keyword flag; AES-256-GCM in the Edge Function
    (OD-2 decided). Mentor visibility needs OD-6 first, or ships super_admin-only like Students.
 7. **Phase 7: Encouragement Engine** — build the MCP server + weekly draft/approve workflow fully,

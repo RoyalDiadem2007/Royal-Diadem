@@ -668,3 +668,178 @@ button {
 .admin-stat-card-link:focus-visible {
   border-color: var(--color-primary);
 }
+
+/* Crown Check — student daily check-in (Spec §6.2: < 30s, zero friction). */
+.crown-check-card {
+  background-color: var(--color-card-surface);
+  border: 1px solid var(--color-accent);
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  margin: 1.5rem auto;
+  max-width: 26rem;
+  text-align: left;
+}
+
+.crown-check-title {
+  font-family: var(--font-display);
+  color: var(--color-primary);
+  font-size: 1.2rem;
+  margin: 0 0 0.5rem;
+}
+
+.crown-check-question {
+  color: var(--color-text-secondary);
+  margin: 0 0 0.75rem;
+}
+
+.crown-check-scale {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.crown-check-mood {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  flex: 1;
+  padding: 0.5rem 0.25rem;
+  background-color: var(--color-background);
+  color: var(--color-text-secondary);
+  border: 1px solid var(--color-accent);
+  border-radius: 0.75rem;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.75rem;
+}
+
+.crown-check-mood-emoji {
+  font-size: 1.5rem;
+}
+
+.crown-check-mood-selected {
+  border-color: var(--color-primary);
+  background-color: var(--color-card-surface);
+  color: var(--color-text-primary);
+  outline: 2px solid var(--color-primary);
+}
+
+.crown-check-note {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 1rem;
+}
+
+.crown-check-note-label {
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+}
+
+.crown-check-note input {
+  font: inherit;
+  padding: 0.55rem 0.75rem;
+  border: 1px solid var(--color-accent);
+  border-radius: 0.5rem;
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
+}
+
+.crown-check-note-text {
+  color: var(--color-text-secondary);
+  margin: 0 0 0.75rem;
+}
+
+.crown-check-error {
+  color: var(--color-danger);
+  margin: 0 0 0.75rem;
+}
+
+.crown-check-submit {
+  font: inherit;
+  width: 100%;
+  padding: 0.65rem 1rem;
+  border: none;
+  border-radius: 0.5rem;
+  background-color: var(--color-primary);
+  color: var(--color-text-primary);
+  cursor: pointer;
+}
+
+.crown-check-submit:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.crown-check-done {
+  color: var(--color-text-primary);
+  margin: 0 0 0.5rem;
+}
+
+.crown-check-done-emoji {
+  font-size: 1.5rem;
+  margin-right: 0.5rem;
+}
+
+.crown-check-edit,
+.crown-check-retry {
+  font: inherit;
+  padding: 0.5rem 0.9rem;
+  background-color: var(--color-card-surface);
+  color: var(--color-text-secondary);
+  border: 1px solid var(--color-accent);
+  border-radius: 0.5rem;
+  cursor: pointer;
+}
+
+/*
+ * The discreet needs-review mark (client decision 2026-07-17): a tilted
+ * crown in calm brand gold — an invitation to check in gently, never a red
+ * alarm. Admin panel only; students never see flag state anywhere.
+ */
+.crown-flag {
+  display: inline-block;
+  transform: rotate(-28deg);
+  font-size: 1.1rem;
+  margin-left: 0.35rem;
+  filter: saturate(0.85);
+}
+
+/* Mini mood-trend strip: one bar per check-in, height = score. */
+.crown-trend {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 1.5rem;
+}
+
+.crown-trend-bar {
+  width: 0.45rem;
+  border-radius: 2px 2px 0 0;
+  background-color: var(--color-accent);
+}
+
+.crown-trend-bar-1 {
+  height: 20%;
+  background-color: var(--color-warning);
+}
+
+.crown-trend-bar-2 {
+  height: 40%;
+  background-color: var(--color-warning);
+}
+
+.crown-trend-bar-3 {
+  height: 60%;
+}
+
+.crown-trend-bar-4 {
+  height: 80%;
+}
+
+.crown-trend-bar-5 {
+  height: 100%;
+  background-color: var(--color-crown-gold);
+}

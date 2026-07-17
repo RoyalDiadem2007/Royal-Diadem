@@ -10,6 +10,8 @@ import { errorResponse, handlePreflight, jsonResponse } from '../_shared/http.ts
 import { requireAdmin } from '../_shared/adminAuth.ts';
 import { writeAudit } from '../_shared/audit.ts';
 import { serverLog } from '../_shared/logger.ts';
+import { programToday } from '../_shared/crownCheck.ts';
+
 type Counts = {
   activeStudents: number;
   newFlags: number;
@@ -18,9 +20,6 @@ type Counts = {
 };
 
 async function gatherCounts(db: SupabaseClient): Promise<Counts | null> {
-  const todayStart = new Date();
-  todayStart.setUTCHours(0, 0, 0, 0);
-
   const [students, flags, highFlags, crownChecks] = await Promise.all([
     db.from('students').select('id', { count: 'exact', head: true }).eq('status', 'active'),
     db.from('flags').select('id', { count: 'exact', head: true }).eq('status', 'new'),
@@ -29,10 +28,12 @@ async function gatherCounts(db: SupabaseClient): Promise<Counts | null> {
       .select('id', { count: 'exact', head: true })
       .eq('status', 'new')
       .eq('severity', 'high'),
+    // "Today" is the program-local day the checks themselves are keyed to
+    // (check_date), so this tile flips at the girls' midnight, not UTC's.
     db
       .from('crown_checks')
       .select('id', { count: 'exact', head: true })
-      .gte('created_at', todayStart.toISOString()),
+      .eq('check_date', programToday(new Date())),
   ]);
 
   for (const result of [students, flags, highFlags, crownChecks]) {
