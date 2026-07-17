@@ -4,7 +4,7 @@
 > decisions. Update it as work progresses. For *what* we build see `Royal_Diadem_Master_Spec.md`;
 > for *how* we build see `CLAUDE.md`; for backend rules see `docs/SUPABASE_RULES.md`.
 >
-> _Last updated: 2026-07-17 · Branches: `main` (Foundation + full Phase 2 incl. WebAuthn merged, CI green) + `feat/admin-shell` (Phase 3, in review)_
+> _Last updated: 2026-07-17 (after PR #9) · Branch: `main` — Phases 0–3 complete + Phase 4a/4b merged, all CI green. No unmerged feature branches._
 
 **Legend:** ✅ done · 🔄 in progress · ⬜ not started · ⏳ blocked/awaiting input
 
@@ -12,15 +12,20 @@
 
 ## 1. Where we are right now
 
-**2026-07-16 was the rebuild day.** Phase 1 (Foundation) is complete and merged to `main`:
-strict-gated Vite+React+TS scaffold, branding config as single source of truth, client audit
-logger, PWA base (brand-generated manifest, icons, static-only service worker), 5 Docker-verified
-migrations (17 tables, RLS everywhere, anon locked to 4 public tables), CI/CodeQL/gitleaks/
-Dependabot all live and green. Phase 2 (Auth) is built and pushed on **`feat/auth`**: the full
-Edge-Function trust boundary, PIN login (crown code + PIN), COPPA gate, opaque sessions, atomic
-rate limiting, client login flow — validated by **8 no-mock E2E tests against the real local
-stack** plus 38 unit tests. Nothing has been pushed to the *hosted* Supabase project yet (waiting
-on the access token). See §6 for the morning pickup list.
+**2026-07-17: four PRs merged in one day** (#6 WebAuthn, #7 admin shell, #8 enrollment+PIN reset,
+#9 CSV import), all CI-gated. `main` now holds: Foundation; **complete Phase 2 auth** (PIN login,
+COPPA gate, opaque sessions, rate limiting, Turnstile, passkeys/Face ID); **Phase 3 admin shell**
+(file-cabinet layout, role-gated routing, registry-driven sidebar, dashboard with live audited
+counts whose tiles link into their sections); **Phase 4a+4b enrollment** (individual add + CSV bulk
+import with printable one-time PIN card sheets, crown-code/PIN generation, COPPA computed from DOB,
+admin-initiated PIN reset that revokes sessions, same-name+DOB duplicate guard). Test floor:
+**87 unit + 29 no-mock E2E** against the real local stack, including the credential circle
+(enroll → real login → reset → old PIN+session dead). Server-side RBAC + append-only audit rows on
+every admin endpoint, denials included. Still true: **nothing deployed to hosted Supabase/Vercel**
+(waiting on the access token — KEYS_SETUP §1a) and the Anthropic key only gates Phase 7's live
+generation, nothing else. Known CI quirk: the E2E job's Turnstile round-trip to Cloudflare can
+transiently fail (fail-closed 403s on every login) — a re-run/retrigger clears it (seen once,
+PR #9).
 
 **Historical note:** the original code repo was lost 2026-06-20 (unpushed codespace auto-deleted);
 only the Master Spec survived. Recovery concluded 2026-07-03 → rebuilt from scratch. Push at every
@@ -57,6 +62,12 @@ can never happen again.
 - ✅ **Phase 2 Auth** on `feat/auth` (commit `92bcb56`, pushed): trust-boundary layer, 3 auth
   Edge Functions, auth migration, client login, 38 unit + **8 no-mock E2E tests** (real stack)
 - ✅ `docs/KEYS_SETUP.md` — human key-provisioning checklist (Supabase, Turnstile, Anthropic, Vercel)
+- ✅ **PR #6** merged 2026-07-17 — WebAuthn/passkeys (Phase 2 complete)
+- ✅ **PR #7** merged 2026-07-17 — Phase 3 admin shell + audited dashboard (+ CI deno-check glob fix)
+- ✅ **PR #8** merged 2026-07-17 — Phase 4a individual enrollment + PIN reset (OD-9); CodeQL
+  modulo-bias finding fixed with rejection sampling
+- ✅ **PR #9** merged 2026-07-17 — Phase 4b CSV bulk import + printable PIN card sheet + dashboard
+  tiles linked to sections
 
 ---
 
@@ -67,8 +78,8 @@ can never happen again.
 | 0 | Governance & guardrails (CLAUDE.md, Supabase rules, hook, gitignore) | ✅ | This session |
 | 1 | Foundation: scaffold, branding.config, **schema + RLS + grants**, PWA base | 🔄 | `feat/foundation` 2026-07-16: scaffold + strict gates ✅, branding config + shell + tests ✅, audit logger ✅, PWA base ✅, 4 migrations authored + Docker-verified ✅. Remaining: `supabase db push` (needs access token — KEYS_SETUP §1a), Vercel link, merge to main |
 | 2 | Auth: PIN gen/hash, login, WebAuthn, COPPA consent gate | ✅ | **WebAuthn merged to main 2026-07-17 (PR #6, squash, all CI green) — Phase 2 complete** (PIN/code *generation* ships with Phase 4 enrollment as planned). Detail: merged to main 2026-07-16: Edge Fn trust boundary, auth-login/logout/session (Turnstile→rate-limit→bcrypt→COPPA gate→opaque session→audit), client login flow. **WebAuthn added on `feat/webauthn`** (dep `@simplewebauthn` approved 2026-07-16): passkeys in own `webauthn_credentials` table (multi-device + signature counter — spec's single-credential columns superseded; **dropping them = pending §2 ask**), usernameless discoverable login, session-gated registration, counter-regression rejection, single-use 5-min challenges; client Face ID button + post-login enable prompt. **14 no-mock E2E tests** (8 auth + 6 webauthn) + 50 unit tests. Decisions: crown code + PIN identifiers; **no Turnstile on WebAuthn** (crypto challenge-response isn't brute-forceable; IP rate limit still applies). Remaining: full passkey ceremony E2E needs a browser virtual authenticator (Playwright, later); PIN reset (OD-9); real Turnstile keys; PIN/code generation in Phase 4 |
-| 3 | Admin panel shell (file-cabinet layout, sidebar, routing) | 🔄 | Built 2026-07-17 on `feat/admin-shell` (PR open): `react-router` (approved §2 ask, pinned 8.2.0), role-gated routing (student home vs `/admin`; client gate is UX only), `AdminLayout` file-cabinet sidebar driven by a section registry (`src/config/adminSections.ts` — sections register as phases ship), Dashboard with real counts via `admin-dashboard` Edge Fn (session-validated, role re-read server-side, allowed+denied reads audit-logged). 8 new unit + 5 new E2E tests (58 unit / 19 E2E total). Also fixed stale CI deno-check list → glob (`*/index.ts`). Remaining: merge |
-| 4 | Student enrollment (CSV + individual, PIN distribution) | 🔄 | **Phase 4a built 2026-07-17 on `feat/enrollment`:** `admin-students` Edge Fn (list/create/reset-pin; super_admin only until OD-6), crown-code generation (`PREFIX-XXXX`, unambiguous alphabet, stored lowercase/shown uppercase, `CROWN_CODE_PREFIX` env for white-label), unbiased crypto 6-digit PIN → bcrypt(12), COPPA computed from DOB, PIN reset (OD-9) revokes sessions, shared `_shared/adminAuth.ts` RBAC gate (dashboard refactored onto it), Students UI (roster/add form/one-time PIN card/confirm-reset). E2E proves the credential circle: enroll → real login → reset → old PIN+session dead → new PIN works; COPPA gate holds. **Phase 4b built 2026-07-17 on `feat/enrollment-csv`:** CSV bulk import — own RFC4180 parser (no dep), heuristic header auto-map + admin-correctable mapping UI, client-side row validation by CSV line, chunked upload (≤10/req for Edge CPU), server per-row results with same-name+DOB duplicate guard (§7 idempotency), printable one-time PIN card sheet (print CSS); dashboard tiles now link into their sections via the registry (Active students → Students). AI-assisted field mapping = later layer on the same mapping UI (needs Anthropic key; headers only, never student data). Remaining: **guardian/consent verification workflow (needs OD-10/OD-14)** |
+| 3 | Admin panel shell (file-cabinet layout, sidebar, routing) | ✅ | **Merged to main 2026-07-17 (PR #7).** Built on `feat/admin-shell`: `react-router` (approved §2 ask, pinned 8.2.0), role-gated routing (student home vs `/admin`; client gate is UX only), `AdminLayout` file-cabinet sidebar driven by a section registry (`src/config/adminSections.ts` — sections register as phases ship), Dashboard with real counts via `admin-dashboard` Edge Fn (session-validated, role re-read server-side, allowed+denied reads audit-logged). 8 new unit + 5 new E2E tests (58 unit / 19 E2E total). Also fixed stale CI deno-check list → glob (`*/index.ts`). Remaining: merge |
+| 4 | Student enrollment (CSV + individual, PIN distribution) | 🔄 | **4a merged (PR #8) + 4b merged (PR #9) 2026-07-17 — only the consent workflow remains (⏳ OD-10/OD-14).** Phase 4a on `feat/enrollment`: `admin-students` Edge Fn (list/create/reset-pin; super_admin only until OD-6), crown-code generation (`PREFIX-XXXX`, unambiguous alphabet, stored lowercase/shown uppercase, `CROWN_CODE_PREFIX` env for white-label), unbiased crypto 6-digit PIN → bcrypt(12), COPPA computed from DOB, PIN reset (OD-9) revokes sessions, shared `_shared/adminAuth.ts` RBAC gate (dashboard refactored onto it), Students UI (roster/add form/one-time PIN card/confirm-reset). E2E proves the credential circle: enroll → real login → reset → old PIN+session dead → new PIN works; COPPA gate holds. **Phase 4b built 2026-07-17 on `feat/enrollment-csv`:** CSV bulk import — own RFC4180 parser (no dep), heuristic header auto-map + admin-correctable mapping UI, client-side row validation by CSV line, chunked upload (≤10/req for Edge CPU), server per-row results with same-name+DOB duplicate guard (§7 idempotency), printable one-time PIN card sheet (print CSS); dashboard tiles now link into their sections via the registry (Active students → Students). AI-assisted field mapping = later layer on the same mapping UI (needs Anthropic key; headers only, never student data). Remaining: **guardian/consent verification workflow (needs OD-10/OD-14)** |
 | 5 | Crown Check (student + admin trends + AI flag) | ⬜ | |
 | 6 | Journal (write + mentor review + AI flag) | ⬜ | OD-2 decided (AES-256-GCM in Edge Fn) |
 | 7 | Encouragement Engine (MCP server, draft/approve) | ⬜ | Claude-in-Claude |
@@ -130,29 +141,30 @@ can never happen again.
 
 ---
 
-## 6. Next-session startup checklist (morning of 2026-07-17)
+## 6. Next-session startup checklist (updated 2026-07-17 after PR #9)
 
-**Human decisions/inputs needed first:**
-1. ⏳ **Approve `@simplewebauthn/server` + `@simplewebauthn/browser`** (CLAUDE.md §2 dependency
-   ask) — unblocks WebAuthn/Face ID, the last piece of Phase 2.
-2. ⏳ **Anthropic API key** (expected today) — set via `npx supabase secrets set ANTHROPIC_API_KEY=…`
-   once the project is linked; needed for Phase 7 Encouragement Engine (Claude-in-Claude).
-3. ⏳ **Supabase access token** (KEYS_SETUP §1a) — unblocks `supabase link` + `supabase db push`
-   of the 5 verified migrations to the hosted project `luvthaezikvssnuegviu`.
-4. Decide: merge `feat/auth` → `main` (CI is the gate; same flow as Foundation).
+**Human decisions/inputs needed (none block the build queue below):**
+1. ⏳ **Supabase access token** (KEYS_SETUP §1a) — unblocks `supabase link` + `db push` of the 6
+   verified migrations to hosted project `luvthaezikvssnuegviu`, then
+   `supabase functions deploy` (7 functions) + secrets (`TURNSTILE_SECRET_KEY`,
+   `ALLOWED_ORIGINS`, optional `CROWN_CODE_PREFIX`) + Vercel link.
+2. ⏳ **Anthropic API key** (Maria obtaining) — `npx supabase secrets set ANTHROPIC_API_KEY=…`
+   once linked; gates only Phase 7's live generation (build everything else first).
+3. ⏳ **OD-10 + OD-14** (consent delivery method; guardian consent for all minors or under-13
+   only) — the only remaining Phase 4 piece (guardian/consent verification workflow).
+4. ⏳ **OD-3 human protocol, OD-12 full permission matrix, OD-6 mentor assignment model** — needed
+   before mentors get real access to student data.
 
-**Then the build continues, in order:**
-5. **WebAuthn** (after #1): registration at first PIN login, credential storage per spec schema,
-   `auth-webauthn-*` Edge Functions, E2E where feasible (needs virtual authenticator — may be
-   unit + Deno tests instead).
-6. **PIN reset flow (OD-9)** — admin-initiated regenerate + reprint card; decide before Phase 4.
-7. **Phase 3: Admin panel shell** — file-cabinet layout, sidebar, routing (`react-router` will be
-   a §2 dependency ask), role-gated by the session subject.
-8. **Phase 4: Enrollment** — CSV + individual add, PIN + crown-code generation (bcrypt cost 12),
-   COPPA consent workflow; this is where login_code/PIN issuance actually happens.
-9. After db push (#3): deploy the three auth functions (`supabase functions deploy`), set
-   `TURNSTILE_SECRET_KEY` (test secret until real keys) + `ALLOWED_ORIGINS`, and re-run the E2E
-   suite pointed at a Supabase preview branch if desired.
+**Build queue (all unblocked, in spec order):**
+5. **Phase 5: Crown Check** — student daily mood check-in (1–5 + emoji + note), admin trend view,
+   pattern-based AI flag (consecutive low scores; server-side, no Claude call). Flag rows +
+   dashboard tile already exist — Flags section starts to become real here.
+6. **Phase 6: Journal** — write + mentor review + keyword flag; AES-256-GCM in the Edge Function
+   (OD-2 decided). Mentor visibility needs OD-6 first, or ships super_admin-only like Students.
+7. **Phase 7: Encouragement Engine** — build the MCP server + weekly draft/approve workflow fully,
+   key-agnostic; wire the secret when it arrives.
+8. **Phases 8–13** as specced (daily message, calendar, announcements, share, relaxation, about,
+   profiles) — About Us still ⏳ Kenecia photo + bio.
 
 **Session mechanics (every session):**
 - E2E locally: `npx supabase start -x studio,imgproxy,mailpit,realtime,storage-api,vector,logflare`
