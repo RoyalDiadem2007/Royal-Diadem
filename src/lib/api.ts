@@ -66,7 +66,11 @@ export async function callEdgeFunction<T>(
     };
   }
 
-  if (response.status === 401 || response.status === 403) {
+  // Statuses whose body carries an actionable machine code: auth denials
+  // (401/403) and refusals with a specific missing precondition (409 e.g.
+  // no_guardian_email, 503 email_not_configured). Everything else stays a
+  // generic server failure.
+  if ([401, 403, 409, 503].includes(response.status)) {
     let raw: unknown = null;
     try {
       raw = await response.json();

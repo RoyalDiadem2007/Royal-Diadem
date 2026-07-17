@@ -16,6 +16,9 @@ export const STUDENT_FIELDS = [
   'gradeLevel',
   'schoolName',
   'phase',
+  'studentEmail',
+  'guardianName',
+  'guardianEmail',
 ] as const;
 
 export type StudentField = (typeof STUDENT_FIELDS)[number];
@@ -28,6 +31,9 @@ export const FIELD_LABELS: Readonly<Record<StudentField, string>> = {
   gradeLevel: 'Grade level',
   schoolName: 'School',
   phase: 'Phase',
+  studentEmail: 'Student email (13+)',
+  guardianName: 'Guardian name',
+  guardianEmail: 'Guardian email',
 };
 
 // displayName is not required in the mapping: mapRows falls back to the
@@ -45,6 +51,9 @@ const HEADER_ALIASES: Readonly<Record<StudentField, readonly string[]>> = {
   gradeLevel: ['gradelevel', 'grade'],
   schoolName: ['schoolname', 'school'],
   phase: ['phase', 'cohort'],
+  studentEmail: ['studentemail', 'email', 'emailaddress'],
+  guardianName: ['guardianname', 'guardian', 'parentname', 'parent', 'parentguardian'],
+  guardianEmail: ['guardianemail', 'parentemail', 'guardianemailaddress'],
 };
 
 function normalizeHeader(header: string): string {
@@ -101,6 +110,56 @@ export function mapRows(dataRows: readonly string[][], mapping: ColumnMapping): 
     if (cell(mapping.phase) !== '') {
       input.phase = cell(mapping.phase);
     }
+
+    const studentEmail = cell(mapping.studentEmail);
+    if (studentEmail !== '') {
+      if (!looksLikeEmail(studentEmail)) {
+        return { ok: false, line, problem: 'Student email is not a valid address' };
+      }
+      // OD-19: an under-13's own email is never collected — the server would
+      // reject the row; catching it here gives the admin the line number.
+      if (isUnder13(dateOfBirth)) {
+        return {
+          ok: false,
+          line,
+          problem: 'Under-13 students use the guardian email, not their own',
+        };
+      }
+      input.studentEmail = studentEmail;
+    }
+
+    const guardianName = cell(mapping.guardianName);
+    const guardianEmail = cell(mapping.guardianEmail);
+    if (guardianName !== '' || guardianEmail !== '') {
+      if (guardianName === '' || guardianEmail === '') {
+        return { ok: false, line, problem: 'Guardian name and email must both be filled in' };
+      }
+      if (!looksLikeEmail(guardianEmail)) {
+        return { ok: false, line, problem: 'Guardian email is not a valid address' };
+      }
+      input.guardianName = guardianName;
+      input.guardianEmail = guardianEmail;
+    }
     return { ok: true, line, input };
   });
+}
+
+/** UX-grade check only — the Edge Function re-validates with a real schema. */
+function looksLikeEmail(value: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) && value.length <= 254;
+}
+
+/** Age check for the OD-19 email rule (client-side courtesy of the same
+ * server-enforced boundary). */
+function isUnder13(isoDob: string): boolean {
+  const dob = new Date(`${isoDob}T00:00:00Z`);
+  const now = new Date();
+  let age = now.getUTCFullYear() - dob.getUTCFullYear();
+  const beforeBirthday =
+    now.getUTCMonth() < dob.getUTCMonth() ||
+    (now.getUTCMonth() === dob.getUTCMonth() && now.getUTCDate() < dob.getUTCDate());
+  if (beforeBirthday) {
+    age -= 1;
+  }
+  return age < 13;
 }

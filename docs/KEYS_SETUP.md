@@ -57,11 +57,24 @@ encouragement messages (admin-reviewed, never posted directly — Spec §6.5/§1
 
 | # | What | Where to get it | Where it goes | Status |
 |---|------|-----------------|---------------|--------|
-| 3a | **Anthropic API key** | [console.anthropic.com](https://console.anthropic.com) → API Keys → Create key, name it `royal-diadem-encouragement` | `npx supabase secrets set ANTHROPIC_API_KEY=…` — server-only, never `VITE_*`, never the repo | ⬜ _(expected 2026-07-17)_ |
+| 3a | **Anthropic API key** | [console.anthropic.com](https://console.anthropic.com) → API Keys → Create key, name it `royal-diadem-encouragement` | `npx supabase secrets set ANTHROPIC_API_KEY=…` — server-only, never `VITE_*`, never the repo | ✅ set in Supabase secrets 2026-07-17 (dashboard) |
 | 3b | **Spending limit** | Console → Settings → Limits — set a low monthly cap (e.g. $10–20; generation is 1 small call/week) | — | ⬜ |
 
 > Reminder from `CLAUDE.md` §17.4: this key powers generic message generation only — **no student
 > data ever goes to the Claude API** (no BAA with Anthropic).
+
+---
+
+## 3b. Resend — needed for magic-link onboarding (Phase 4c, OD-19)
+
+Transactional email for enrollment magic links (and later the consent workflow). Approved
+vendor 2026-07-17; handles guardian/student names + emails → tracked on the CLAUDE.md §17.5
+vendor list.
+
+| # | What | Where to get it | Where it goes | Status |
+|---|------|-----------------|---------------|--------|
+| R1 | **Resend account + API key** | [resend.com](https://resend.com) → API Keys → create `royal-diadem-links` | `npx supabase secrets set RESEND_API_KEY=…` — server-only, never `VITE_*`, never the repo | ✅ set in Supabase secrets 2026-07-17 (dashboard) |
+| R2 | **Sending domain** (later; test address works day one) | Resend → Domains → verify a domain, then set `npx supabase secrets set EMAIL_FROM="Royal Diadem <hello@yourdomain.org>"` | Until then the code falls back to Resend's onboarding sender (only delivers to your own inbox — fine for testing, not launch) | ⬜ |
 
 ---
 
@@ -72,7 +85,7 @@ encouragement messages (admin-reviewed, never posted directly — Spec §6.5/§1
 
 | # | What | Where to get it | Where it goes | Status |
 |---|------|-----------------|---------------|--------|
-| 4a | Vercel project | Claude can create it via the connected Vercel MCP when we first deploy — nothing for you to fetch | — | ⬜ |
+| 4a | Vercel project | Claude can create it via the connected Vercel MCP when we first deploy — nothing for you to fetch | — | ✅ repo connected 2026-07-17 (preview checks reporting on PRs) |
 | 4b | Env vars on Vercel | Claude will list the exact `VITE_*` values (1b, 2c) to add in Vercel → Project → Settings → Environment Variables | — | ⬜ |
 | 4c | Custom domain (optional, client decision — Spec §12) | If Kenecia wants one | Vercel → Domains | ⬜ |
 

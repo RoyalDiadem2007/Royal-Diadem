@@ -843,3 +843,44 @@ button {
   height: 100%;
   background-color: var(--color-crown-gold);
 }
+
+/* /welcome — the one-time credential reveal (the digital PIN card). */
+.welcome-credentials {
+  background-color: var(--color-card-surface);
+  border: 2px dashed var(--color-crown-gold);
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  margin: 1rem 0 1.5rem;
+  max-width: 22rem;
+  text-align: left;
+}
+
+.welcome-keep-safe {
+  color: var(--color-text-secondary);
+  margin: 0 0 1rem;
+}
+
+.welcome-credential-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  margin: 0 0 0.5rem;
+}
+
+.welcome-credential-label {
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+}
+
+.welcome-credential-value {
+  color: var(--color-text-primary);
+  font-size: 1.4rem;
+  letter-spacing: 0.12em;
+}
+
+.welcome-hint {
+  color: var(--color-text-secondary);
+  max-width: 22rem;
+  margin: 0.5rem 0 1rem;
+}

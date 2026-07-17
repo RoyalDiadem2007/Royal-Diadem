@@ -50,6 +50,8 @@ const MESSAGES: Readonly<Record<string, string>> = {
   passkey_cancelled: 'Face ID sign-in was cancelled. Try again, or use your PIN.',
   account_unavailable: 'This account cannot sign in right now. Talk to your mentor or an admin.',
   invalid_challenge: 'That sign-in attempt expired. Try again.',
+  invalid_link:
+    'This welcome link has already been used or has expired. Ask your mentor to send a fresh one.',
 };
 
 function failureMessage(failure: ApiFailure): string {
@@ -178,6 +180,61 @@ function parseRegistrationOptions(raw: unknown): PublicKeyCredentialCreationOpti
 
 function parseAuthenticationOptions(raw: unknown): PublicKeyCredentialRequestOptionsJSON {
   return checkedCeremonyOptions(raw) as PublicKeyCredentialRequestOptionsJSON;
+}
+
+export type WelcomeCredentials = { crownCode: string; pin: string };
+
+export type ClaimedWelcome = { session: AuthSession; credentials: WelcomeCredentials };
+
+export type ClaimResult = { ok: true; claimed: ClaimedWelcome } | { ok: false; message: string };
+
+function parseClaimResponse(raw: unknown): ClaimedWelcome {
+  const session = parseLoginResponse(raw);
+  const record = raw as { credentials?: unknown };
+  const credentials = record.credentials;
+  if (
+    typeof credentials !== 'object' ||
+    credentials === null ||
+    !('crownCode' in credentials) ||
+    !('pin' in credentials) ||
+    typeof credentials.crownCode !== 'string' ||
+    typeof credentials.pin !== 'string' ||
+    !/^\d{4,8}$/.test(credentials.pin)
+  ) {
+    throw new Error('claim credentials are malformed');
+  }
+  return { session, credentials: { crownCode: credentials.crownCode, pin: credentials.pin } };
+}
+
+/**
+ * First login through an emailed magic link (OD-19). Deliberately does NOT
+ * install the session: the welcome screen shows the one-time credentials
+ * first, then calls installSession when she taps continue.
+ */
+export async function claimMagicLink(linkToken: string): Promise<ClaimResult> {
+  let turnstileToken: string;
+  try {
+    turnstileToken = await getTurnstileToken();
+  } catch {
+    return { ok: false, message: MESSAGES.turnstile ?? '' };
+  }
+
+  const result = await callEdgeFunction('magic-link-claim', {
+    method: 'POST',
+    body: { token: linkToken, turnstileToken },
+    parse: parseClaimResponse,
+  });
+  if (!result.ok) {
+    return { ok: false, message: failureMessage(result.failure) };
+  }
+  logger.info('auth.magic_link_claimed', { subjectId: result.data.session.subject.id });
+  return { ok: true, claimed: result.data };
+}
+
+/** Activates a session minted by a claim (the welcome screen's continue). */
+export function installSession(next: AuthSession): void {
+  session = next;
+  notify();
 }
 
 /** Usernameless passkey sign-in (Face ID / Touch ID). */

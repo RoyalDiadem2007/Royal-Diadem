@@ -3,6 +3,7 @@ import { brand } from '@/config/branding.config';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { EnablePasskeyPrompt } from '@/components/ui/EnablePasskeyPrompt';
 import { LoginScreen } from '@/components/student/LoginScreen';
+import { WelcomeScreen } from '@/components/student/WelcomeScreen';
 import { CrownCheck } from '@/components/student/CrownCheck';
 import { DashboardPage } from '@/components/admin/DashboardPage';
 import { StudentsPage } from '@/components/admin/StudentsPage';
@@ -65,7 +66,15 @@ export function App() {
   return (
     <ErrorBoundary>
       <BrowserRouter>
-        {session === null ? <LoginScreen /> : <AuthedRoutes session={session} />}
+        {session === null ? (
+          <Routes>
+            {/* Emailed magic links land here (OD-19); everything else signs in. */}
+            <Route path="/welcome" element={<WelcomeScreen />} />
+            <Route path="*" element={<LoginScreen />} />
+          </Routes>
+        ) : (
+          <AuthedRoutes session={session} />
+        )}
       </BrowserRouter>
     </ErrorBoundary>
   );

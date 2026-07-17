@@ -234,4 +234,37 @@ describe('Students section', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent('Couldn’t load the roster.');
     expect(screen.getByRole('button', { name: 'Try again' })).toBeInTheDocument();
   });
+
+  it('emails a welcome link and reports whose inbox it went to (OD-19)', async () => {
+    stubFetch(SUPER_ADMIN_SESSION, {
+      'admin-students?page=1': () => jsonResponse(rosterBody([STUDENT_ZOE])),
+      'admin-students/send-link': () =>
+        jsonResponse({ sent: true, recipient: 'guardian', expiresAt: '2026-07-20T00:00:00.000Z' }),
+    });
+    render(<App />);
+    await openStudentsSection();
+    await screen.findByText(/Little, Zoe/);
+
+    await userEvent.setup().click(screen.getByRole('button', { name: 'Email link' }));
+
+    const notice = await screen.findByRole('status');
+    expect(notice).toHaveTextContent('Welcome link for Zoe sent to the guardian');
+    expect(notice).toHaveTextContent('expires in 72 hours');
+  });
+
+  it('explains exactly why a link cannot be sent', async () => {
+    stubFetch(SUPER_ADMIN_SESSION, {
+      'admin-students?page=1': () => jsonResponse(rosterBody([STUDENT_ZOE])),
+      'admin-students/send-link': () => jsonResponse({ error: 'no_guardian_email' }, 409),
+    });
+    render(<App />);
+    await openStudentsSection();
+    await screen.findByText(/Little, Zoe/);
+
+    await userEvent.setup().click(screen.getByRole('button', { name: 'Email link' }));
+
+    expect(await screen.findByRole('status')).toHaveTextContent(
+      'No guardian email on file — add the guardian first.',
+    );
+  });
 });

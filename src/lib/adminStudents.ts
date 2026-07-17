@@ -16,6 +16,7 @@ export type AdminStudent = {
   coppaConsentStatus: string;
   phase: string | null;
   enrollmentDate: string;
+  email: string | null;
 };
 
 export type StudentRoster = {
@@ -38,6 +39,11 @@ export type CreateStudentInput = {
   gradeLevel?: string;
   schoolName?: string;
   phase?: string;
+  /** 13+ only (OD-19); the server rejects it for under-13 enrollments. */
+  studentEmail?: string;
+  guardianName?: string;
+  guardianEmail?: string;
+  guardianRelationship?: 'parent' | 'legal_guardian' | 'other';
 };
 
 function requireString(record: Record<string, unknown>, key: string): string {
@@ -78,6 +84,7 @@ function parseStudent(raw: unknown): AdminStudent {
     coppaConsentStatus: requireString(record, 'coppaConsentStatus'),
     phase: optionalString(record, 'phase'),
     enrollmentDate: requireString(record, 'enrollmentDate'),
+    email: optionalString(record, 'email'),
   };
 }
 
@@ -230,5 +237,39 @@ export async function resetStudentPin(
     sessionToken,
     body: { studentId },
     parse: parseIssued,
+  });
+}
+
+export type SentLink = {
+  /** Whose inbox it went to — decided server-side by age (OD-19). */
+  recipient: 'student' | 'guardian';
+  expiresAt: string;
+};
+
+function parseSentLink(raw: unknown): SentLink {
+  if (typeof raw !== 'object' || raw === null) {
+    throw new Error('send-link response is not an object');
+  }
+  const record = raw as Record<string, unknown>;
+  if (
+    record.sent !== true ||
+    (record.recipient !== 'student' && record.recipient !== 'guardian') ||
+    typeof record.expiresAt !== 'string'
+  ) {
+    throw new Error('send-link response is malformed');
+  }
+  return { recipient: record.recipient, expiresAt: record.expiresAt };
+}
+
+/** (Re)sends the first-login magic link; earlier links are revoked. */
+export async function sendMagicLink(
+  sessionToken: string,
+  studentId: string,
+): Promise<ApiResult<SentLink>> {
+  return callEdgeFunction('admin-students/send-link', {
+    method: 'POST',
+    sessionToken,
+    body: { studentId },
+    parse: parseSentLink,
   });
 }
