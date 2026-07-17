@@ -7,17 +7,35 @@ import { brand } from './src/config/branding.config.ts';
 // white-label rule holds: rebranding never requires touching a static JSON file.
 const manifestJson = JSON.stringify(
   {
+    id: '/',
     name: brand.name,
     short_name: brand.name,
     description: brand.appDescription,
+    lang: 'en',
+    dir: 'ltr',
     start_url: '/',
+    scope: '/',
     display: 'standalone',
     background_color: brand.colors.background,
     theme_color: brand.colors.primary,
     orientation: 'any',
     icons: [
-      { src: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
-      { src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png' },
+      { src: '/icons/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+      { src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+      // Android adaptive icons crop to a circle/squircle — these keep the
+      // crown and script inside the safe zone (inner 80%).
+      {
+        src: '/icons/icon-maskable-192.png',
+        sizes: '192x192',
+        type: 'image/png',
+        purpose: 'maskable',
+      },
+      {
+        src: '/icons/icon-maskable-512.png',
+        sizes: '512x512',
+        type: 'image/png',
+        purpose: 'maskable',
+      },
     ],
   },
   null,
