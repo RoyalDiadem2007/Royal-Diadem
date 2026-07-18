@@ -278,6 +278,7 @@ export function StudentsPage() {
                     <td>
                       {student.lastName}, {student.firstName}
                       <span className="admin-table-sub"> ({student.displayName})</span>
+                      {student.isStaff && <span className="staff-badge">STAFF</span>}
                     </td>
                     <td>{student.loginCode ?? '—'}</td>
                     <td>{student.status}</td>

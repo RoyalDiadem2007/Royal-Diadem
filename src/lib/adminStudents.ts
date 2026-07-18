@@ -17,6 +17,8 @@ export type AdminStudent = {
   phase: string | null;
   enrollmentDate: string;
   email: string | null;
+  /** Student Mode test identity owned by an admin — labeled, never a real girl. */
+  isStaff: boolean;
 };
 
 export type StudentRoster = {
@@ -85,6 +87,7 @@ function parseStudent(raw: unknown): AdminStudent {
     phase: optionalString(record, 'phase'),
     enrollmentDate: requireString(record, 'enrollmentDate'),
     email: optionalString(record, 'email'),
+    isStaff: record.isStaff === true,
   };
 }
 

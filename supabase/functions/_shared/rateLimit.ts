@@ -97,6 +97,19 @@ export async function enforceAiGenerationRateLimit(db: SupabaseClient): Promise<
   return recordAttempt(db, 'aigen:global', AI_GENERATION_POLICY);
 }
 
+// Student Mode entry (admin-gated already): generous — entering is a routine
+// admin action — but still bounded per admin so a leaked admin token can't
+// mint student sessions without limit.
+const STUDENT_MODE_POLICY: Policy = { maxAttempts: 30, windowSeconds: 3600, lockoutSeconds: 900 };
+
+/** Records one Student Mode entry for this admin; fail closed. */
+export async function enforceStudentModeRateLimit(
+  db: SupabaseClient,
+  adminId: string,
+): Promise<RateLimitOutcome> {
+  return recordAttempt(db, `smode:admin:${adminId.toLowerCase()}`, STUDENT_MODE_POLICY);
+}
+
 /** Records one magic-link claim attempt for this IP; fail closed. */
 export async function enforceClaimRateLimit(
   db: SupabaseClient,
