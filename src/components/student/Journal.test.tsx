@@ -114,6 +114,13 @@ describe('student journal (Phase 6)', () => {
     // The transparency line — she knows her mentor reads this.
     expect(await screen.findByText(/Your mentor can read what you write here/)).toBeInTheDocument();
 
+    // Writing support: on-device spelling help enabled, dictation nudge shown.
+    const journalBox = screen.getByLabelText(/What’s in your heart today\?/);
+    expect(journalBox).toHaveAttribute('spellcheck', 'true');
+    expect(journalBox).toHaveAttribute('autocorrect', 'on');
+    expect(journalBox).toHaveAttribute('autocapitalize', 'sentences');
+    expect(screen.getByText(/Tap the microphone on your keyboard/)).toBeInTheDocument();
+
     const user = userEvent.setup();
     await user.selectOptions(
       await screen.findByLabelText(/Want a prompt/),

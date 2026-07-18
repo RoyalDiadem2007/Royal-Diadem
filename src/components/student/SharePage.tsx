@@ -100,6 +100,9 @@ export function SharePage() {
             maxLength={1000}
             rows={3}
             disabled={busy}
+            spellCheck={true}
+            autoCorrect="on"
+            autoCapitalize="sentences"
             onChange={(e) => {
               setDraft(e.target.value);
             }}
@@ -260,6 +263,9 @@ export function SharePage() {
                   placeholder="Hype her up…"
                   aria-label={`Comment on ${post.authorName}'s post`}
                   disabled={busy}
+                  spellCheck={true}
+                  autoCorrect="on"
+                  autoCapitalize="sentences"
                   onChange={(e) => {
                     setCommentDrafts((d) => ({ ...d, [post.id]: e.target.value }));
                   }}
