@@ -13,6 +13,7 @@ import { UpcomingEvents } from '@/components/student/UpcomingEvents';
 import { JournalPage } from '@/components/student/JournalPage';
 import { GuardianRequestNotice } from '@/components/student/GuardianRequestNotice';
 import { SharePage } from '@/components/student/SharePage';
+import { RelaxPage } from '@/components/student/RelaxPage';
 import { GuardianHome } from '@/components/guardian/GuardianHome';
 import { GuardianLoginScreen } from '@/components/guardian/GuardianLoginScreen';
 import { DashboardPage } from '@/components/admin/DashboardPage';
@@ -23,6 +24,7 @@ import { EncouragementPage } from '@/components/admin/EncouragementPage';
 import { CalendarPage } from '@/components/admin/CalendarPage';
 import { AnnouncementsPage } from '@/components/admin/AnnouncementsPage';
 import { ShareModerationPage } from '@/components/admin/ShareModerationPage';
+import { RelaxationPage } from '@/components/admin/RelaxationPage';
 import { AdminLayout } from '@/layouts/AdminLayout';
 import { exitStudentMode, logout, useAuth, type AuthSession } from '@/lib/authStore';
 
@@ -86,6 +88,12 @@ function StudentHome() {
           </span>
           <span className="door-sub">Celebrate each other</span>
         </Link>
+        <Link to="/relax" className="door-card">
+          <span className="door-title">
+            <span aria-hidden="true">🕊️</span> Relax
+          </span>
+          <span className="door-sub">Breathe, ground, be still</span>
+        </Link>
       </nav>
       <UpcomingEvents />
       <button
@@ -122,6 +130,7 @@ function AuthedRoutes({ session }: { session: AuthSession }) {
       <Route path="/" element={isAdmin ? <Navigate to="/admin" replace /> : <StudentHome />} />
       {!isAdmin && <Route path="/share" element={<SharePage />} />}
       {!isAdmin && <Route path="/journal" element={<JournalPage />} />}
+      {!isAdmin && <Route path="/relax" element={<RelaxPage />} />}
       {isAdmin && (
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<DashboardPage />} />
@@ -132,6 +141,7 @@ function AuthedRoutes({ session }: { session: AuthSession }) {
           <Route path="calendar" element={<CalendarPage />} />
           <Route path="announcements" element={<AnnouncementsPage />} />
           <Route path="share" element={<ShareModerationPage />} />
+          <Route path="relaxation" element={<RelaxationPage />} />
         </Route>
       )}
       <Route path="*" element={<Navigate to="/" replace />} />

@@ -484,3 +484,6 @@ verify_jwt = false
 
 [functions.admin-share]
 verify_jwt = false
+
+[functions.admin-relaxation]
+verify_jwt = false
