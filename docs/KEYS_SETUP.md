@@ -20,17 +20,17 @@ Project: `RoyalDiadem2007's Project` — ref `luvthaezikvssnuegviu` (us-west-2)
 
 | # | What | Where to get it | Where it goes | Status |
 |---|------|-----------------|---------------|--------|
-| 1a | **Personal access token** (for the CLI to push migrations) | [supabase.com/dashboard/account/tokens](https://supabase.com/dashboard/account/tokens) → "Generate new token", name it `royal-diadem-cli` | Tell Claude it's ready, then run `! npx supabase login` in the session (it will prompt for the token) — or set it as a Codespaces secret named `SUPABASE_ACCESS_TOKEN` | ⬜ |
-| 1b | **Publishable key** (`sb_publishable_…`) — public, safe for the browser | Dashboard → Project Settings → **API Keys** → "Publishable key" (create if none exists) | `.env.local` in the repo (gitignored) as `VITE_SUPABASE_PUBLISHABLE_KEY=…`, and later Vercel env (all environments) | ⬜ |
+| 1a | **Personal access token** (for the CLI to push migrations) | [supabase.com/dashboard/account/tokens](https://supabase.com/dashboard/account/tokens) → "Generate new token", name it `royal-diadem-cli` | Tell Claude it's ready, then run `! npx supabase login` in the session (it will prompt for the token) — or set it as a Codespaces secret named `SUPABASE_ACCESS_TOKEN` | ✅ 2026-07-18 — Codespaces user secret (survives rebuilds), CLI verified. **Rotate at launch prep** (golden rule 4: value was pasted in chat 2026-07-18; Maria deferred rotation until the app is finished) |
+| 1b | **Publishable key** (`sb_publishable_…`) — public, safe for the browser | Dashboard → Project Settings → **API Keys** → "Publishable key" (create if none exists) | `.env.local` in the repo (gitignored) as `VITE_SUPABASE_PUBLISHABLE_KEY=…`, and later Vercel env (all environments) | ✅ in `.env.local`; Vercel env at 4b |
 | 1c | **Secret key** (`sb_secret_…`) — server only, bypasses RLS | Same page → "Secret keys" → create one named `default` | Nowhere yet — Edge Functions receive it automatically as `SUPABASE_SECRET_KEYS`. Only needed manually if we add a non-Supabase server later. **Never** in `VITE_*`, never in the repo | ⬜ |
 
 > ⚠️ Ignore the legacy `anon` / `service_role` JWT keys on that page — we do not use them
 > (see `docs/SUPABASE_RULES.md` §1). If the dashboard offers to disable them, leave that
 > decision until the app is stable, then disable.
 
-| 1d | **Journal encryption key** (OD-2 — AES-256-GCM at rest for journal text) | Generate it yourself — run: `npx supabase secrets set JOURNAL_ENCRYPTION_KEY="$(openssl rand -base64 32)"` (once linked; or paste the generated value into Dashboard → Edge Functions → Secrets) | Supabase function secrets only. **Losing this key means existing journal entries become unreadable — store a copy in your password manager.** Rotation requires a re-encryption pass (ask Claude) | ⬜ |
+| 1d | **Journal encryption key** (OD-2 — AES-256-GCM at rest for journal text) | Generate it yourself — run: `npx supabase secrets set JOURNAL_ENCRYPTION_KEY="$(openssl rand -base64 32)"` (once linked; or paste the generated value into Dashboard → Edge Functions → Secrets) | Supabase function secrets only. **Losing this key means existing journal entries become unreadable — store a copy in your password manager.** Rotation requires a re-encryption pass (ask Claude) | ✅ set on hosted 2026-07-18 (CLI). Copy from `SECRETS-BACKUP-copy-to-password-manager.local` → password manager, then delete the file |
 
-| 1e | **VAPID web-push keys** (phone notifications, e.g. the guardian-request nudge) | Generate: `npx web-push generate-vapid-keys` → set THREE secrets: `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, and `VAPID_SUBJECT=mailto:you@yourdomain.org` (dashboard → Edge Functions → Secrets, or `npx supabase secrets set …` once linked) | Supabase function secrets. The public key is safe anywhere; the private key is server-only. Rotating logs everyone out of notifications (they re-enable in-app) | ⬜ |
+| 1e | **VAPID web-push keys** (phone notifications, e.g. the guardian-request nudge) | Generate: `npx web-push generate-vapid-keys` → set THREE secrets: `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, and `VAPID_SUBJECT=mailto:you@yourdomain.org` (dashboard → Edge Functions → Secrets, or `npx supabase secrets set …` once linked) | Supabase function secrets. The public key is safe anywhere; the private key is server-only. Rotating logs everyone out of notifications (they re-enable in-app) | ✅ all three set on hosted 2026-07-18 (`VAPID_SUBJECT=mailto:keneciaduncan@gmail.com`); backup in the same `.local` file |
 
 **Database password** (only if the CLI asks during `db push`): Dashboard → Project Settings →
 Database → you can reset it if unknown. Keep it in your password manager; Claude never needs it
@@ -90,8 +90,8 @@ vendor list.
 | # | What | Where to get it | Where it goes | Status |
 |---|------|-----------------|---------------|--------|
 | 4a | Vercel project | Claude can create it via the connected Vercel MCP when we first deploy — nothing for you to fetch | — | ✅ repo connected 2026-07-17 (preview checks reporting on PRs) |
-| 4b | Env vars on Vercel | Claude will list the exact `VITE_*` values (1b, 2c) to add in Vercel → Project → Settings → Environment Variables | — | ⬜ |
-| 4c | Custom domain (optional, client decision — Spec §12) | If Kenecia wants one | Vercel → Domains | ⬜ |
+| 4b | Env vars on Vercel | Claude will list the exact `VITE_*` values (1b, 2c) to add in Vercel → Project → Settings → Environment Variables | — | ✅ 2026-07-18 — `VITE_SUPABASE_URL` + `VITE_SUPABASE_PUBLISHABLE_KEY` set, redeployed, verified baked into the live bundle. `VITE_TURNSTILE_SITE_KEY` still pending (2c) |
+| 4c | Custom domain (optional, client decision — Spec §12) | If Kenecia wants one | Vercel → Domains | ✅ **royaldiademrise.org** live 2026-07-18 (apex → www redirect); `ALLOWED_ORIGINS` on Supabase = `https://www.royaldiademrise.org,https://royaldiademrise.org` (www first = canonical for emailed links), CORS verified |
 
 ---
 
@@ -109,8 +109,8 @@ In `github.com/RoyalDiadem2007/Royal-Diadem` → Settings:
 
 ## Quick checklist (in order of need)
 
-- [ ] 1a Supabase access token → unblocks pushing the database schema
-- [ ] 1b Supabase publishable key → unblocks the app talking to Supabase
+- [x] 1a Supabase access token → done 2026-07-18; schema + functions deployed (rotate at launch prep — deferred 2026-07-18)
+- [x] 1b Supabase publishable key → in `.env.local` (Vercel env still pending, 4b)
 - [ ] 1c Supabase secret key named `default` created in dashboard
 - [ ] 5a–5c GitHub security switches (5 minutes, do anytime)
 - [ ] 2a–2d Turnstile (before Phase 2 auth is finished)

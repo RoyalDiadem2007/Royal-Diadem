@@ -50,7 +50,7 @@ Create via the connected Vercel MCP or dashboard → "Import Git Repository" →
 | Build command | `npm run build` (runs `tsc -b` first — type errors fail the build, on purpose) |
 | Output directory | `dist` |
 | Install command | `npm ci` |
-| Node.js version | **22.x** (matches `package.json` `engines`) |
+| Node.js version | **24.x** (LTS; matches CI `node-version: 24` and `engines` `>=22` — keep CI and Vercel on the same major) |
 | Root directory | repo root |
 
 **Git integration:** every push to `main` = production deploy; every PR = preview deploy.

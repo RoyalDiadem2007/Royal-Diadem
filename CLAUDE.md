@@ -345,7 +345,7 @@ in a related area. (Empty until the first repeat is recorded.)
 
 | # | Mistake (seen 2×) | Correct approach | Why / trigger to watch |
 |---|-------------------|------------------|------------------------|
-| _ | _(none logged yet)_ | | |
+| 1 | Quoted/acted on a config value from a derived doc instead of the source of truth (wrote "Node 22.x" in VERCEL_SETUP by inferring from `engines >=22` while `ci.yml` pinned 24 since Foundation; next session advised flipping Vercel to 22 by trusting that doc) | Before writing or acting on any version/setting, `grep` the real pin (workflow files, `package.json`, dashboard state) — docs are derived, code/config is truth; when they disagree, fix the doc | Trigger: any time a doc states a version, flag, or setting — verify it against the code in the same pass (2026-07-18) |
 
 ---
 

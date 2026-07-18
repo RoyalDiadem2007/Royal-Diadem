@@ -4,7 +4,7 @@
 > decisions. Update it as work progresses. For *what* we build see `Royal_Diadem_Master_Spec.md`;
 > for *how* we build see `CLAUDE.md`; for backend rules see `docs/SUPABASE_RULES.md`.
 >
-> _Last updated: 2026-07-18 · **Phases 0–7 all merged** (PR #18 squash-merged after a real CI fix: the workflow's Edge Function env never set `AI_TRANSPORT=canned`, so the encouragement E2E had never run green in CI — one line added to `ci.yml`; local dev `.env` always had it, which is why local runs passed). Repo housekeeping 2026-07-18: all 15 merged `feat/*` branches deleted local + origin (each tip verified against its PR's merged head first); local `supabase/config.toml` now disables unused storage/realtime (one-line re-enable each if a future feature needs them — CI already excluded both via `-x`). Still nothing deployed to hosted Supabase (access token, KEYS_SETUP §1a). Next: Phase 8 Daily Message display._
+> _Last updated: 2026-07-18 · **Phases 0–7 all merged** (PR #18 squash-merged after a real CI fix: the workflow's Edge Function env never set `AI_TRANSPORT=canned`, so the encouragement E2E had never run green in CI — one line added to `ci.yml`; local dev `.env` always had it, which is why local runs passed). Repo housekeeping 2026-07-18: all 15 merged `feat/*` branches deleted local + origin (each tip verified against its PR's merged head first); local `supabase/config.toml` now disables unused storage/realtime (one-line re-enable each if a future feature needs them — CI already excluded both via `-x`). **Hosted Supabase is live 2026-07-18:** all 11 migrations applied + all 16 Edge Functions deployed (verified via CLI 2026-07-18 after a Codespaces rebuild — the `SUPABASE_ACCESS_TOKEN` Codespaces user secret survived); function secrets set: `ANTHROPIC_API_KEY`, `RESEND_API_KEY`, `ALLOWED_ORIGINS`, and (2026-07-18) `JOURNAL_ENCRYPTION_KEY` + `VAPID_PUBLIC_KEY`/`VAPID_PRIVATE_KEY`/`VAPID_SUBJECT`. **Production frontend is live 2026-07-18: https://www.royaldiademrise.org** (Vercel project `royal-diadem`, team `royal-diadems-projects`; custom domain attached, `VITE_SUPABASE_*` env vars set + verified in the live bundle; `ALLOWED_ORIGINS` updated to www+apex, CORS + auth-login round-trip verified from the prod origin). **Sole blocker to live logins:** `TURNSTILE_SECRET_KEY` unset on hosted → Turnstile verification fails closed by design (KEYS_SETUP §2 — create the Cloudflare widget, then set the secret + `VITE_TURNSTILE_SITE_KEY` on Vercel). Also pending: `EMAIL_FROM` (needs a verified Resend domain, §3b R2). Key backup copied to password manager + file deleted (verified 2026-07-18). **Deferred (Maria's call 2026-07-18): rotate the `royal-diadem-cli` access token** (pasted in chat — golden rule 4) **when the app is finished** — do it at launch prep, not later. Next: Phase 8 Daily Message display._
 
 **Legend:** ✅ done · 🔄 in progress · ⬜ not started · ⏳ blocked/awaiting input
 
@@ -138,8 +138,10 @@ can never happen again.
   (untracked; commit it, then generate PWA icons 192/512 + favicon from it)
 - ✅ **Anthropic API key** received 2026-07-17 — Maria added it to Supabase secrets
   (`ANTHROPIC_API_KEY`, via dashboard; project not yet CLI-linked). Gates only Phase 7 live generation
-- ⏳ **Keys/accounts per `docs/KEYS_SETUP.md`** — Supabase secret key + access token, Turnstile keys
-- ⏳ **Resend API key** (KEYS_SETUP §3b) — magic-link emails; local/CI run on the log transport until it lands
+- ⏳ **Keys/accounts per `docs/KEYS_SETUP.md`** — access token ✅ 2026-07-18 (Codespaces secret,
+  CLI verified; rotate it — pasted in chat); remaining: real Turnstile keys (§2), `EMAIL_FROM` (§3b R2)
+- ✅ **Resend API key** (KEYS_SETUP §3b) — in Supabase secrets since 2026-07-17; local/CI still use
+  the log transport by design
 - ✅ Pastor Kenecia Duncan **photo** received 2026-07-17 → `public/assets/kenecia-headshot.jpg`.
   **Placement decided (Maria 2026-07-17): her PROFILE page (About Us / pastor bio, Spec §6.9)**
   — NOT the landing page. **Bio text: Kenecia submitting 2026-07-17/18** → unblocks building the
@@ -152,10 +154,10 @@ can never happen again.
 ## 6. Next-session startup checklist (updated 2026-07-17 after PR #9)
 
 **Human decisions/inputs needed (none block the build queue below):**
-1. ⏳ **Supabase access token** (KEYS_SETUP §1a) — unblocks `supabase link` + `db push` of the 6
-   verified migrations to hosted project `luvthaezikvssnuegviu`, then
-   `supabase functions deploy` (7 functions) + secrets (`TURNSTILE_SECRET_KEY`,
-   `ALLOWED_ORIGINS`, optional `CROWN_CODE_PREFIX`) + Vercel link.
+1. ✅ **Supabase access token** (KEYS_SETUP §1a) — done 2026-07-18: linked, all 11 migrations
+   pushed, all 16 functions deployed, secrets set (see header). Hosted still needs
+   `TURNSTILE_SECRET_KEY` (real Cloudflare widget) + optional `CROWN_CODE_PREFIX`; then Vercel link.
+   Rotate the `royal-diadem-cli` token (pasted in chat 2026-07-18).
 2. ✅ **Anthropic API key** — in Supabase secrets since 2026-07-17 (dashboard). After first link +
    deploy, verify functions can see it (`npx supabase secrets list`).
 3. ⏳ **OD-10 + OD-14** (consent delivery method; guardian consent for all minors or under-13
