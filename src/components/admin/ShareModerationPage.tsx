@@ -87,7 +87,14 @@ export function ShareModerationPage() {
           </span>
         )}
       </p>
-      <p className="announcement-body">{item.text}</p>
+      {item.text !== '' && <p className="announcement-body">{item.text}</p>}
+      {item.imageUrl !== null && (
+        <img
+          className="share-photo"
+          src={item.imageUrl}
+          alt={`Pending photo from ${item.authorName}`}
+        />
+      )}
       {removal?.entityId === item.id ? (
         <div className="encouragement-editor">
           <label className="crown-check-note">

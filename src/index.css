@@ -1339,6 +1339,29 @@ textarea:focus-visible {
   font-size: 0.85rem;
 }
 
+.share-photo {
+  display: block;
+  max-width: 100%;
+  border-radius: var(--radius-control);
+  border: 1px solid var(--hairline);
+  margin: 0.5rem 0;
+}
+
+.share-photo-pick input {
+  display: block;
+  color: var(--color-text-secondary);
+  font-size: 0.85rem;
+  margin-top: 0.25rem;
+}
+
+.share-photo-preview img {
+  display: block;
+  max-width: 10rem;
+  border-radius: var(--radius-control);
+  border: 1px solid var(--hairline-strong);
+  margin-bottom: 0.25rem;
+}
+
 /* Calendar + Announcements (Phase 9): student cards + admin editors. */
 .events-card,
 .announcements-card {

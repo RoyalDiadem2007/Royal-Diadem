@@ -12,6 +12,8 @@ export type QueuedPost = {
   id: string;
   authorName: string;
   text: string;
+  /** Short-lived signed URL for a pending photo (posts only), or null. */
+  imageUrl: string | null;
   createdAt: string;
   flag: QueuedFlag | null;
 };
@@ -60,6 +62,8 @@ function parseQueuedPost(raw: unknown): QueuedPost {
     id: r.id,
     authorName: r.authorName,
     text: r.text,
+    // Comments carry no photo; their rows simply omit the field.
+    imageUrl: typeof r.imageUrl === 'string' ? r.imageUrl : null,
     createdAt: r.createdAt,
     flag: parseFlag(r.flag),
   };

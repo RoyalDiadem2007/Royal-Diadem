@@ -26,6 +26,7 @@ const QUEUE_BODY = {
       id: 'post-1',
       authorName: 'Jada',
       text: 'I finished my first week!',
+      imageUrl: 'https://example.supabase.co/storage/v1/object/sign/share-media/jada.jpg?token=t',
       createdAt: '2026-07-18T15:00:00Z',
       flag: null,
     },
@@ -33,6 +34,7 @@ const QUEUE_BODY = {
       id: 'post-2',
       authorName: 'Amber',
       text: 'Something a peer worried about.',
+      imageUrl: null,
       createdAt: '2026-07-18T14:00:00Z',
       flag: { flaggedBy: 'Nia', flaggedAt: '2026-07-18T14:30:00Z' },
     },
@@ -140,6 +142,10 @@ describe('admin Share Moderation section', () => {
     expect(screen.getByText('Something a peer worried about.')).toBeInTheDocument();
     expect(screen.getByText(/Peer-flagged by Nia/)).toBeInTheDocument();
     expect(screen.getByText(/Pending posts \(2\)/)).toBeInTheDocument();
+
+    // The pending photo is visible to the reviewer via its signed URL.
+    const img = screen.getByRole('img', { name: 'Pending photo from Jada' });
+    expect(img).toHaveAttribute('src', expect.stringContaining('/object/sign/share-media/'));
   });
 
   it('approves a pending post', async () => {
