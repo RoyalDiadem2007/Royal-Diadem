@@ -21,6 +21,8 @@ export type SharePost = {
   authorName: string;
   mine: boolean;
   contentText: string | null;
+  /** Short-lived signed URL for the post photo, or null. */
+  imageUrl: string | null;
   status: 'approved' | 'pending';
   createdAt: string;
   comments: ShareComment[];
@@ -78,6 +80,7 @@ function parsePost(raw: unknown): SharePost {
     typeof r.authorName !== 'string' ||
     typeof r.mine !== 'boolean' ||
     (r.contentText !== null && typeof r.contentText !== 'string') ||
+    (r.imageUrl !== null && typeof r.imageUrl !== 'string') ||
     typeof r.createdAt !== 'string' ||
     !Array.isArray(r.comments) ||
     typeof r.reactions !== 'object' ||
@@ -98,6 +101,7 @@ function parsePost(raw: unknown): SharePost {
     authorName: r.authorName,
     mine: r.mine,
     contentText: r.contentText,
+    imageUrl: r.imageUrl,
     status: parseStatus(r.status),
     createdAt: r.createdAt,
     comments: r.comments.map(parseComment),
@@ -144,22 +148,36 @@ export async function fetchFeed(sessionToken: string, page: number): Promise<Api
   });
 }
 
+export type NewPost = { contentText?: string; photo?: File };
+
 export async function createPost(
   sessionToken: string,
-  contentText: string,
+  post: NewPost,
 ): Promise<ApiResult<{ id: string; status: 'approved' | 'pending' }>> {
   const turnstileToken = await getTurnstileToken();
+  const parse = (raw: unknown) => {
+    const created = asRecord(asRecord(raw, 'post response').post, 'post');
+    if (typeof created.id !== 'string') {
+      throw new Error('post response is malformed');
+    }
+    return { id: created.id, status: parseStatus(created.status) };
+  };
+
+  if (post.photo !== undefined) {
+    const formData = new FormData();
+    formData.append('turnstileToken', turnstileToken);
+    if (post.contentText !== undefined) {
+      formData.append('contentText', post.contentText);
+    }
+    formData.append('photo', post.photo);
+    return callEdgeFunction('share/post', { method: 'POST', sessionToken, formData, parse });
+  }
+
   return callEdgeFunction('share/post', {
     method: 'POST',
     sessionToken,
-    body: { contentText, turnstileToken },
-    parse: (raw) => {
-      const post = asRecord(asRecord(raw, 'post response').post, 'post');
-      if (typeof post.id !== 'string') {
-        throw new Error('post response is malformed');
-      }
-      return { id: post.id, status: parseStatus(post.status) };
-    },
+    body: { contentText: post.contentText ?? '', turnstileToken },
+    parse,
   });
 }
 

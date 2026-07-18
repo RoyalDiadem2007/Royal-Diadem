@@ -28,6 +28,7 @@ const FEED_BODY = {
       authorName: 'Jada',
       mine: true,
       contentText: 'I finished my first week!',
+      imageUrl: null,
       status: 'pending',
       createdAt: '2026-07-18T15:00:00Z',
       comments: [],
@@ -39,6 +40,7 @@ const FEED_BODY = {
       authorName: 'Amber',
       mine: false,
       contentText: 'Crowned and confident today.',
+      imageUrl: 'https://example.supabase.co/storage/v1/object/sign/share-media/amber.jpg?token=t',
       status: 'approved',
       createdAt: '2026-07-17T15:00:00Z',
       comments: [
@@ -184,6 +186,55 @@ describe('Royal Diadem Share page', () => {
       .find((b) => b.getAttribute('aria-pressed') === 'true');
     expect(crown).toBeDefined();
     expect(amberPost).toHaveTextContent('2');
+
+    // Amber's photo renders from its short-lived signed URL.
+    const img = screen.getByRole('img', { name: 'Photo shared by Amber' });
+    expect(img).toHaveAttribute('src', expect.stringContaining('/object/sign/share-media/'));
+  });
+
+  it('sends a photo post as multipart with the Turnstile token', async () => {
+    const stub: FetchStub = { feedResponses: [], writes: [] };
+    stubFetch(stub);
+    // jsdom has no object-URL support; add the two statics without touching
+    // the URL constructor itself.
+    Object.defineProperty(URL, 'createObjectURL', {
+      value: vi.fn(() => 'blob:preview'),
+      configurable: true,
+      writable: true,
+    });
+    Object.defineProperty(URL, 'revokeObjectURL', {
+      value: vi.fn(),
+      configurable: true,
+      writable: true,
+    });
+
+    render(<App />);
+    await signInAndOpenShare();
+    await screen.findByText('Crowned and confident today.');
+
+    const user = userEvent.setup();
+    const file = new File([new Uint8Array([0xff, 0xd8, 0xff, 0xe0])], 'crown.jpg', {
+      type: 'image/jpeg',
+    });
+    await user.upload(screen.getByLabelText('Add a photo (optional)'), file);
+    expect(screen.getByRole('img', { name: 'Your photo, ready to share' })).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Share it' }));
+    await screen.findByText(/An admin will take a quick look/);
+
+    const sent = firstWrite(stub).init.body;
+    if (!(sent instanceof FormData)) {
+      throw new Error('photo post was not multipart');
+    }
+    expect(sent.get('turnstileToken')).toBe('turnstile-token-0123456789');
+    const sentFile = sent.get('photo');
+    if (!(sentFile instanceof File)) {
+      throw new Error('photo missing from the form');
+    }
+    expect(sentFile.name).toBe('crown.jpg');
+    // No Content-Type header — the browser must set the boundary itself.
+    const headers = new Headers(firstWrite(stub).init.headers);
+    expect(headers.get('content-type')).toBeNull();
   });
 
   it('sends a post with the Turnstile token and shows the review notice', async () => {

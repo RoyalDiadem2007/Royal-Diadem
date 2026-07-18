@@ -19,6 +19,7 @@ import { errorResponse, handlePreflight, jsonResponse } from '../_shared/http.ts
 import { requireAdmin, type AdminContext } from '../_shared/adminAuth.ts';
 import { writeAudit } from '../_shared/audit.ts';
 import { serverLog } from '../_shared/logger.ts';
+import { imagePathsOf, signedUrlsFor } from '../_shared/shareMedia.ts';
 
 const PAGE_SIZE = 25;
 
@@ -77,7 +78,9 @@ async function handleQueue(db: SupabaseClient, req: Request, ctx: AdminContext):
 
   const { data: posts, error: postsError, count: postCount } = await db
     .from('share_posts')
-    .select('id, content_text, created_at, students!inner(display_name)', { count: 'exact' })
+    .select('id, content_text, image_url, created_at, students!inner(display_name)', {
+      count: 'exact',
+    })
     .eq('moderation_status', 'pending')
     .order('created_at', { ascending: true })
     .range(from, from + PAGE_SIZE - 1);
@@ -102,6 +105,7 @@ async function handleQueue(db: SupabaseClient, req: Request, ctx: AdminContext):
   type QueueRow = {
     id: string;
     content_text?: string | null;
+    image_url?: string | null;
     comment_text?: string;
     post_id?: string;
     created_at: string;
@@ -113,6 +117,15 @@ async function handleQueue(db: SupabaseClient, req: Request, ctx: AdminContext):
   const postFlags = await openFlagsFor(db, 'share_post', postRows.map((p) => p.id));
   const commentFlags = await openFlagsFor(db, 'share_comment', commentRows.map((c) => c.id));
   if (postFlags === null || commentFlags === null) {
+    return errorResponse(req, 500, 'server_error');
+  }
+
+  // The reviewer must see the photo she's judging — signed like the feed.
+  const photoUrls = await signedUrlsFor(
+    db,
+    imagePathsOf(postRows.map((p) => ({ image_url: p.image_url ?? null }))),
+  );
+  if (photoUrls === null) {
     return errorResponse(req, 500, 'server_error');
   }
 
@@ -144,6 +157,7 @@ async function handleQueue(db: SupabaseClient, req: Request, ctx: AdminContext):
       id: p.id,
       authorName: p.students.display_name,
       text: p.content_text ?? '',
+      imageUrl: p.image_url == null ? null : (photoUrls.get(p.image_url) ?? null),
       createdAt: p.created_at,
       flag: postFlags.get(p.id) ?? null,
     })),

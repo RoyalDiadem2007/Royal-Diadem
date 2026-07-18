@@ -6,7 +6,16 @@
  * secret, exactly like login.
  */
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { callFunction, restDelete, restInsert, restSelect, restUpdate, API_URL } from './stack.ts';
+import {
+  anonKey,
+  callFunction,
+  restDelete,
+  restInsert,
+  restSelect,
+  restUpdate,
+  serviceKey,
+  API_URL,
+} from './stack.ts';
 
 // bcrypt(12) of '123456' — fixture PIN for the E2E accounts (local stack only).
 const PIN_HASH_123456 = '$2b$12$6dESXMU6poUgaUoSTSce.ezSDJsy6vs4Pn4Ho5DFPOxoaxxXpRjMq';
@@ -53,11 +62,19 @@ type FeedPost = {
   authorName: string;
   mine: boolean;
   contentText: string | null;
+  imageUrl: string | null;
   status: string;
   comments: { id: string; text: string; status: string; mine: boolean }[];
   reactions: Record<string, number>;
   myReactions: string[];
 };
+
+/** The raw feed (no MARK filter) — for photo-only posts with null text. */
+async function rawFeedFor(token: string): Promise<FeedPost[]> {
+  const res = await callFunction('share?page=1', { method: 'GET', bearer: token });
+  expect(res.status).toBe(200);
+  return ((await res.json()) as { posts: FeedPost[] }).posts;
+}
 
 async function feedFor(token: string): Promise<FeedPost[]> {
   const res = await callFunction('share?page=1', { method: 'GET', bearer: token });
@@ -76,9 +93,79 @@ async function setMode(mode: 'pre' | 'post'): Promise<void> {
   expect(res.status).toBe(200);
 }
 
+// A real, valid 1x1 PNG — the smallest honest image for the upload path.
+const TINY_PNG = Uint8Array.from(
+  atob(
+    'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
+  ),
+  (c) => c.charCodeAt(0),
+);
+
+/** Posts multipart to the share function exactly as the browser would. */
+async function postMultipart(
+  token: string,
+  fields: { contentText?: string; photo?: { bytes: Uint8Array; name: string; type: string } },
+): Promise<Response> {
+  const form = new FormData();
+  form.append('turnstileToken', TURNSTILE_TOKEN);
+  if (fields.contentText !== undefined) {
+    form.append('contentText', fields.contentText);
+  }
+  if (fields.photo !== undefined) {
+    // Copy into a fresh buffer: File wants Uint8Array<ArrayBuffer>, and a
+    // plain copy satisfies it without any type assertion.
+    const copy = new Uint8Array(fields.photo.bytes.length);
+    copy.set(fields.photo.bytes);
+    form.append('photo', new File([copy], fields.photo.name, { type: fields.photo.type }));
+  }
+  return fetch(`${API_URL}/functions/v1/share/post`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}` },
+    body: form,
+  });
+}
+
+/**
+ * Signed URLs minted inside the functions container use its internal
+ * SUPABASE_URL (kong) — unreachable from the test host. Same path, local
+ * origin. Hosted deployments have a public SUPABASE_URL, so this rewrite is
+ * a local-stack accommodation only.
+ */
+function toLocalUrl(signedUrl: string): string {
+  const parsed = new URL(signedUrl);
+  return `${API_URL}${parsed.pathname}${parsed.search}`;
+}
+
+async function deleteStorageObjects(paths: readonly string[]): Promise<void> {
+  for (const path of paths) {
+    const res = await fetch(`${API_URL}/storage/v1/object/share-media/${path}`, {
+      method: 'DELETE',
+      headers: { apikey: serviceKey(), Authorization: `Bearer ${serviceKey()}` },
+    });
+    if (!res.ok && res.status !== 404 && res.status !== 400) {
+      throw new Error(`storage cleanup failed for ${path}: ${String(res.status)}`);
+    }
+  }
+}
+
 async function cleanup(): Promise<void> {
+  const fixtureStudents = await restSelect('students', 'login_code=like.rd-e2esh-%&select=id');
+  if (fixtureStudents.length > 0) {
+    const owned = await restSelect(
+      'share_posts',
+      `student_id=in.(${fixtureStudents.map((s) => String(s.id)).join(',')})&image_url=not.is.null&select=image_url`,
+    );
+    await deleteStorageObjects(owned.map((p) => String(p.image_url)));
+  }
   const posts = await restSelect('share_posts', `content_text=like.${MARK}%&select=id`);
-  const postIds = posts.map((p) => String(p.id));
+  const photoPosts =
+    fixtureStudents.length > 0
+      ? await restSelect(
+          'share_posts',
+          `student_id=in.(${fixtureStudents.map((s) => String(s.id)).join(',')})&select=id`,
+        )
+      : [];
+  const postIds = [...new Set([...posts, ...photoPosts].map((p) => String(p.id)))];
   if (postIds.length > 0) {
     const comments = await restSelect(
       'share_comments',
@@ -381,6 +468,103 @@ describe('share Edge Function (E2E, no mocks)', () => {
     await setMode('pre');
     const setting = await restSelect('app_settings', 'key=eq.share_moderation_mode&select=value');
     expect(setting[0]?.value).toBe('pre');
+  });
+
+  it('carries a photo end-to-end: upload → review → approval → signed bytes', async () => {
+    const res = await postMultipart(posterToken, {
+      contentText: `${MARK} Look at my crown!`,
+      photo: { bytes: TINY_PNG, name: 'crown.png', type: 'image/png' },
+    });
+    expect(res.status).toBe(201);
+    const body = (await res.json()) as { post: { id: string; status: string } };
+    expect(body.post.status).toBe('pending');
+    const photoPostId = body.post.id;
+
+    // The row records the type and the private storage path convention.
+    const rows = await restSelect('share_posts', `id=eq.${photoPostId}&select=post_type,image_url`);
+    expect(rows[0]?.post_type).toBe('photo_text');
+    expect(rows[0]?.image_url).toBe(`${posterId}/${photoPostId}.png`);
+
+    // The author sees her pending photo through a signed URL serving the
+    // exact bytes she uploaded.
+    const posterFeed = await feedFor(posterToken);
+    const mine = posterFeed.find((p) => p.id === photoPostId);
+    expect(mine?.imageUrl).not.toBeNull();
+    const img = await fetch(toLocalUrl(String(mine?.imageUrl)));
+    expect(img.status).toBe(200);
+    expect(new Uint8Array(await img.arrayBuffer())).toEqual(TINY_PNG);
+
+    // Invisible to peers while pending; visible in the admin queue WITH the
+    // photo the reviewer must judge.
+    const peerFeed = await feedFor(peerToken);
+    expect(peerFeed.some((p) => p.id === photoPostId)).toBe(false);
+    const queueRes = await callFunction('admin-share?page=1', {
+      method: 'GET',
+      bearer: superToken,
+    });
+    const queue = (await queueRes.json()) as { posts: { id: string; imageUrl: string | null }[] };
+    expect(queue.posts.find((p) => p.id === photoPostId)?.imageUrl).not.toBeNull();
+
+    // Approval publishes it, signed URL intact.
+    const approve = await callFunction('admin-share/moderate', {
+      method: 'POST',
+      bearer: superToken,
+      body: { entityType: 'post', entityId: photoPostId, action: 'approve' },
+    });
+    expect(approve.status).toBe(200);
+    const peerAfter = await feedFor(peerToken);
+    expect(peerAfter.find((p) => p.id === photoPostId)?.imageUrl).not.toBeNull();
+
+    // The bucket stays private: no signature, no bytes — with the anon key
+    // or with none at all.
+    const path = `${posterId}/${photoPostId}.png`;
+    const direct = await fetch(`${API_URL}/storage/v1/object/share-media/${path}`, {
+      headers: { apikey: anonKey(), Authorization: `Bearer ${anonKey()}` },
+    });
+    expect(direct.status).not.toBe(200);
+    const publicUrl = await fetch(`${API_URL}/storage/v1/object/public/share-media/${path}`);
+    expect(publicUrl.status).not.toBe(200);
+  });
+
+  it('accepts a photo-only post and types it correctly', async () => {
+    const res = await postMultipart(posterToken, {
+      photo: { bytes: TINY_PNG, name: 'just-a-photo.png', type: 'image/png' },
+    });
+    expect(res.status).toBe(201);
+    const body = (await res.json()) as { post: { id: string } };
+    const rows = await restSelect(
+      'share_posts',
+      `id=eq.${body.post.id}&select=post_type,content_text`,
+    );
+    expect(rows[0]?.post_type).toBe('photo');
+    expect(rows[0]?.content_text).toBeNull();
+
+    // Photo-only posts still ride the feed (null text, working image).
+    const feed = await rawFeedFor(posterToken);
+    expect(feed.find((p) => p.id === body.post.id)?.imageUrl).not.toBeNull();
+  });
+
+  it('rejects impostor bytes and oversize files by content, not by name', async () => {
+    // HTML dressed as a PNG — magic bytes expose it.
+    const impostor = await postMultipart(posterToken, {
+      photo: {
+        bytes: new TextEncoder().encode('<html>not a picture</html>'),
+        name: 'innocent.png',
+        type: 'image/png',
+      },
+    });
+    expect(impostor.status).toBe(400);
+    expect(((await impostor.json()) as { error: string }).error).toBe('unsupported_image');
+
+    // One byte over the cap, real JPEG magic — size check catches it.
+    const oversize = new Uint8Array(5 * 1024 * 1024 + 1);
+    oversize[0] = 0xff;
+    oversize[1] = 0xd8;
+    oversize[2] = 0xff;
+    const tooBig = await postMultipart(posterToken, {
+      photo: { bytes: oversize, name: 'huge.jpg', type: 'image/jpeg' },
+    });
+    expect(tooBig.status).toBe(400);
   });
 
   it('enforces the boundaries: roles, bad targets, malformed posts', async () => {

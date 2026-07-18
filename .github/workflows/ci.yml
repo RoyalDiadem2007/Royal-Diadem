@@ -74,7 +74,7 @@ jobs:
         run: npm ci
 
       - name: Start local Supabase stack (applies migrations)
-        run: supabase start -x studio,imgproxy,mailpit,realtime,storage-api,vector,logflare
+        run: supabase start -x studio,imgproxy,mailpit,realtime,vector,logflare
 
       - name: Serve Edge Functions (Turnstile always-pass TEST secret; log email transport; canned AI transport)
         run: |

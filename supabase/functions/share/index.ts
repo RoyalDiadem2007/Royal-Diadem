@@ -26,6 +26,7 @@ import { errorResponse, handlePreflight, jsonResponse } from '../_shared/http.ts
 import { requireStudent, type StudentContext } from '../_shared/studentAuth.ts';
 import { verifyTurnstile } from '../_shared/turnstile.ts';
 import { enforceShareWriteRateLimit, type ShareWriteKind } from '../_shared/rateLimit.ts';
+import { imagePathsOf, MAX_PHOTO_BYTES, MEDIA_BUCKET, signedUrlsFor } from '../_shared/shareMedia.ts';
 import { writeAudit } from '../_shared/audit.ts';
 import { serverLog } from '../_shared/logger.ts';
 
@@ -40,6 +41,42 @@ const postSchema = z
     turnstileToken: z.string().min(10).max(2048),
   })
   .strict();
+
+type PhotoUpload = { bytes: Uint8Array; ext: string; contentType: string };
+
+/**
+ * Identifies the image by its magic bytes — the client's claimed MIME type
+ * is never trusted. Anything but JPEG/PNG/WebP is rejected.
+ */
+function sniffImage(bytes: Uint8Array): { ext: string; contentType: string } | null {
+  if (bytes.length > 3 && bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff) {
+    return { ext: 'jpg', contentType: 'image/jpeg' };
+  }
+  if (
+    bytes.length > 8 &&
+    bytes[0] === 0x89 &&
+    bytes[1] === 0x50 &&
+    bytes[2] === 0x4e &&
+    bytes[3] === 0x47
+  ) {
+    return { ext: 'png', contentType: 'image/png' };
+  }
+  if (
+    bytes.length > 12 &&
+    bytes[0] === 0x52 &&
+    bytes[1] === 0x49 &&
+    bytes[2] === 0x46 &&
+    bytes[3] === 0x46 &&
+    bytes[8] === 0x57 &&
+    bytes[9] === 0x45 &&
+    bytes[10] === 0x42 &&
+    bytes[11] === 0x50
+  ) {
+    return { ext: 'webp', contentType: 'image/webp' };
+  }
+  return null;
+}
+
 
 const commentSchema = z
   .object({ postId: z.uuid(), commentText: z.string().trim().min(1).max(500) })
@@ -88,6 +125,7 @@ type PostRow = {
   id: string;
   student_id: string;
   content_text: string | null;
+  image_url: string | null;
   moderation_status: string;
   created_at: string;
   students: { display_name: string };
@@ -113,9 +151,10 @@ async function handleFeed(db: SupabaseClient, req: Request, ctx: StudentContext)
 
   const { data: posts, error, count } = await db
     .from('share_posts')
-    .select('id, student_id, content_text, moderation_status, created_at, students!inner(display_name)', {
-      count: 'exact',
-    })
+    .select(
+      'id, student_id, content_text, image_url, moderation_status, created_at, students!inner(display_name)',
+      { count: 'exact' },
+    )
     .or(`moderation_status.eq.approved,and(student_id.eq.${self},moderation_status.eq.pending)`)
     .order('created_at', { ascending: false })
     .range(from, from + PAGE_SIZE - 1);
@@ -152,6 +191,11 @@ async function handleFeed(db: SupabaseClient, req: Request, ctx: StudentContext)
     reactionRows = reactions as ReactionRow[];
   }
 
+  const photoUrls = await signedUrlsFor(db, imagePathsOf(postRows));
+  if (photoUrls === null) {
+    return errorResponse(req, 500, 'server_error');
+  }
+
   const feed = postRows.map((post) => {
     const postReactions = reactionRows.filter((r) => r.post_id === post.id);
     const counts: Record<string, number> = {};
@@ -163,6 +207,7 @@ async function handleFeed(db: SupabaseClient, req: Request, ctx: StudentContext)
       authorName: post.students.display_name,
       mine: post.student_id === self,
       contentText: post.content_text,
+      imageUrl: post.image_url === null ? null : (photoUrls.get(post.image_url) ?? null),
       // Only 'approved' or (own) 'pending' rows can be here; the client uses
       // pending to show the author her "waiting for review" label.
       status: post.moderation_status === 'approved' ? 'approved' : 'pending',
@@ -209,13 +254,52 @@ async function handlePost(
   ctx: StudentContext,
   body: unknown,
 ): Promise<Response> {
-  const parsed = postSchema.safeParse(body);
-  if (!parsed.success) {
-    return errorResponse(req, 400, 'invalid_request');
+  // Two request shapes: JSON (text-only) and multipart (photo, optional
+  // text). Both funnel into the same validated {contentText, photo, token}.
+  let contentText: string | null = null;
+  let photo: PhotoUpload | null = null;
+  let turnstileToken = '';
+
+  if (body !== undefined) {
+    const parsed = postSchema.safeParse(body);
+    if (!parsed.success) {
+      return errorResponse(req, 400, 'invalid_request');
+    }
+    contentText = parsed.data.contentText;
+    turnstileToken = parsed.data.turnstileToken;
+  } else {
+    let form: FormData;
+    try {
+      form = await req.formData();
+    } catch {
+      return errorResponse(req, 400, 'invalid_request');
+    }
+    const rawText = form.get('contentText');
+    const rawToken = form.get('turnstileToken');
+    const rawPhoto = form.get('photo');
+    if (typeof rawToken !== 'string' || rawToken.length < 10 || rawToken.length > 2048) {
+      return errorResponse(req, 400, 'invalid_request');
+    }
+    turnstileToken = rawToken;
+    if (rawText !== null) {
+      if (typeof rawText !== 'string' || rawText.trim() === '' || rawText.length > 1000) {
+        return errorResponse(req, 400, 'invalid_request');
+      }
+      contentText = rawText.trim();
+    }
+    if (!(rawPhoto instanceof File) || rawPhoto.size === 0 || rawPhoto.size > MAX_PHOTO_BYTES) {
+      return errorResponse(req, 400, 'invalid_request');
+    }
+    const bytes = new Uint8Array(await rawPhoto.arrayBuffer());
+    const sniffed = sniffImage(bytes);
+    if (sniffed === null) {
+      return errorResponse(req, 400, 'unsupported_image');
+    }
+    photo = { bytes, ext: sniffed.ext, contentType: sniffed.contentType };
   }
 
   // Turnstile first (Spec §3: gates who can attempt), then the rate limit.
-  const turnstile = await verifyTurnstile(parsed.data.turnstileToken, ctx.ip);
+  const turnstile = await verifyTurnstile(turnstileToken, ctx.ip);
   if (!turnstile.ok) {
     return errorResponse(req, 403, 'turnstile_failed');
   }
@@ -225,18 +309,43 @@ async function handlePost(
   }
 
   const status = (await moderationMode(db)) === 'post' ? 'approved' : 'pending';
+  const postType = photo === null ? 'text' : contentText === null ? 'photo' : 'photo_text';
+  const postId = crypto.randomUUID();
+
+  // Photo first, row second: a row never points at an object that isn't
+  // there, and an orphaned object (row insert fails below) is removed.
+  let imagePath: string | null = null;
+  if (photo !== null) {
+    imagePath = `${ctx.subject.subjectId}/${postId}.${photo.ext}`;
+    const { error: uploadError } = await db.storage
+      .from(MEDIA_BUCKET)
+      .upload(imagePath, photo.bytes, { contentType: photo.contentType, upsert: false });
+    if (uploadError !== null) {
+      serverLog.error('share.photo_upload_failed', {});
+      return errorResponse(req, 500, 'server_error');
+    }
+  }
+
   const { data, error } = await db
     .from('share_posts')
     .insert({
+      id: postId,
       student_id: ctx.subject.subjectId,
-      post_type: 'text',
-      content_text: parsed.data.contentText,
+      post_type: postType,
+      content_text: contentText,
+      image_url: imagePath,
       moderation_status: status,
     })
     .select('id, moderation_status, created_at')
     .single();
   if (error !== null) {
     serverLog.error('share.post_insert_failed', {});
+    if (imagePath !== null) {
+      const { error: removeError } = await db.storage.from(MEDIA_BUCKET).remove([imagePath]);
+      if (removeError !== null) {
+        serverLog.error('share.photo_orphan_cleanup_failed', {});
+      }
+    }
     return errorResponse(req, 500, 'server_error');
   }
 
@@ -249,7 +358,7 @@ async function handlePost(
     entityId: String(data.id),
     outcome: 'allowed',
     ip: ctx.ip,
-    metadata: { moderationStatus: status },
+    metadata: { moderationStatus: status, postType },
   });
 
   return jsonResponse(req, 201, {
@@ -508,6 +617,12 @@ Deno.serve(async (req) => {
     return action === 'share'
       ? handleFeed(db, req, auth.ctx)
       : errorResponse(req, 404, 'not_found');
+  }
+
+  // Photo posts arrive as multipart; handlePost parses those itself.
+  const isMultipart = (req.headers.get('content-type') ?? '').includes('multipart/form-data');
+  if (action === 'post' && isMultipart) {
+    return handlePost(db, req, auth.ctx, undefined);
   }
 
   let body: unknown = null;

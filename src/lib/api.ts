@@ -16,8 +16,10 @@ export type ApiResult<T> = { ok: true; data: T } | { ok: false; failure: ApiFail
 
 type CallOptions<T> = {
   method: 'GET' | 'POST';
-  /** JSON-serialized as-is. */
+  /** JSON-serialized as-is. Mutually exclusive with formData. */
   body?: unknown;
+  /** Multipart body (file uploads); the browser sets the boundary header. */
+  formData?: FormData;
   sessionToken?: string;
   /** Validates/narrows the response body; throw to reject an unexpected shape. */
   parse: (raw: unknown) => T;
@@ -34,10 +36,12 @@ export async function callEdgeFunction<T>(
   name: string,
   options: CallOptions<T>,
 ): Promise<ApiResult<T>> {
-  const headers: Record<string, string> = {
-    apikey: publishableKey(),
-    'Content-Type': 'application/json',
-  };
+  const headers: Record<string, string> = { apikey: publishableKey() };
+  if (options.formData === undefined) {
+    // Multipart requests must NOT set Content-Type — the browser adds the
+    // boundary itself; everything else is JSON.
+    headers['Content-Type'] = 'application/json';
+  }
   if (options.sessionToken !== undefined) {
     headers.Authorization = `Bearer ${options.sessionToken}`;
   }
@@ -47,7 +51,7 @@ export async function callEdgeFunction<T>(
     response = await fetch(`${supabaseUrl()}/functions/v1/${name}`, {
       method: options.method,
       headers,
-      body: options.body === undefined ? null : JSON.stringify(options.body),
+      body: options.formData ?? (options.body === undefined ? null : JSON.stringify(options.body)),
     });
   } catch {
     // Recovery = report a retryable network failure; the UI tells the user.

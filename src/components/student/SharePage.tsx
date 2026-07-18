@@ -5,7 +5,7 @@
  * doesn't feel right") quietly hides content for admin review and stays
  * anonymous to other students. Photos arrive in Phase 10b.
  */
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router';
 import {
   addComment,
@@ -32,6 +32,9 @@ export function SharePage() {
 
   const [state, setState] = useState<ViewState>({ status: 'loading' });
   const [draft, setDraft] = useState('');
+  const [photo, setPhoto] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const photoInputRef = useRef<HTMLInputElement>(null);
   const [commentDrafts, setCommentDrafts] = useState<Record<string, string>>({});
   const [confirmFlagId, setConfirmFlagId] = useState<string | null>(null);
   const [notice, setNotice] = useState('');
@@ -54,6 +57,16 @@ export function SharePage() {
     };
   }, [token, reload]);
 
+  // Object URLs hold memory until revoked; release each one on replacement
+  // and on unmount.
+  useEffect(() => {
+    return () => {
+      if (photoPreview !== null) {
+        URL.revokeObjectURL(photoPreview);
+      }
+    };
+  }, [photoPreview]);
+
   if (token === undefined) {
     return null;
   }
@@ -61,6 +74,14 @@ export function SharePage() {
   const refresh = (): void => {
     setConfirmFlagId(null);
     setReload((n) => n + 1);
+  };
+
+  const clearPhoto = (): void => {
+    setPhoto(null);
+    setPhotoPreview(null);
+    if (photoInputRef.current !== null) {
+      photoInputRef.current.value = '';
+    }
   };
 
   const run = (work: Promise<{ ok: boolean }>, successNotice: string): void => {
@@ -108,16 +129,48 @@ export function SharePage() {
             }}
           />
         </label>
+        <label className="share-photo-pick">
+          <span className="crown-check-note-label">Add a photo (optional)</span>
+          <input
+            ref={photoInputRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            disabled={busy}
+            onChange={(e) => {
+              const file = e.target.files?.[0] ?? null;
+              setPhoto(file);
+              setPhotoPreview(file === null ? null : URL.createObjectURL(file));
+            }}
+          />
+        </label>
+        {photoPreview !== null && (
+          <div className="share-photo-preview">
+            <img src={photoPreview} alt="Your photo, ready to share" />
+            <button
+              type="button"
+              className="share-flag-button"
+              disabled={busy}
+              onClick={clearPhoto}
+            >
+              Remove photo
+            </button>
+          </div>
+        )}
         <button
           type="button"
           className="crown-check-submit"
-          disabled={busy || draft.trim() === ''}
+          disabled={busy || (draft.trim() === '' && photo === null)}
           onClick={() => {
             const text = draft.trim();
+            const file = photo;
             setDraft('');
+            clearPhoto();
             setBusy(true);
             setNotice('');
-            void createPost(token, text)
+            void createPost(token, {
+              ...(text === '' ? {} : { contentText: text }),
+              ...(file === null ? {} : { photo: file }),
+            })
               .then((result) => {
                 if (result.ok) {
                   // Pre-approval mode: tell her it's sent, not lost.
@@ -179,6 +232,13 @@ export function SharePage() {
               )}
             </p>
             {post.contentText !== null && <p className="announcement-body">{post.contentText}</p>}
+            {post.imageUrl !== null && (
+              <img
+                className="share-photo"
+                src={post.imageUrl}
+                alt={`Photo shared by ${post.authorName}`}
+              />
+            )}
 
             <div className="share-reactions" role="group" aria-label="Reactions">
               {state.feed.reactionSet.map((emoji) => {
