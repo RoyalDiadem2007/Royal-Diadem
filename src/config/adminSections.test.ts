@@ -44,6 +44,13 @@ describe('admin section registry', () => {
     expect(sectionsForRole('viewer').some((s) => s.id === 'crown-checks')).toBe(false);
   });
 
+  it('keeps Encouragement (the AI surface) super_admin-only permanently', () => {
+    const encouragement = ADMIN_SECTIONS.find((s) => s.id === 'encouragement');
+    expect(encouragement?.roles).toEqual(['super_admin']);
+    expect(sectionsForRole('mentor').some((s) => s.id === 'encouragement')).toBe(false);
+    expect(sectionsForRole('viewer').some((s) => s.id === 'encouragement')).toBe(false);
+  });
+
   it('keeps Journals super_admin-only until mentor assignment exists (OD-6)', () => {
     const journals = ADMIN_SECTIONS.find((s) => s.id === 'journals');
     expect(journals?.roles).toEqual(['super_admin']);

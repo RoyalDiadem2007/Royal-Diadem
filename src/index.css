@@ -1060,6 +1060,46 @@ button {
   text-decoration: line-through;
 }
 
+/* Encouragement Engine (Phase 7): weekly day cards + gateway rules. */
+.encouragement-day {
+  background-color: var(--color-card-surface);
+  border: 1px solid var(--color-accent);
+  border-radius: 0.75rem;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1rem;
+  max-width: 48rem;
+}
+
+.encouragement-text {
+  color: var(--color-text-primary);
+  margin: 0.5rem 0 0.75rem;
+}
+
+.encouragement-status {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.encouragement-status-draft {
+  color: var(--color-warning);
+}
+
+.encouragement-status-approved {
+  color: var(--color-success);
+}
+
+.encouragement-status-posted {
+  color: var(--color-crown-gold);
+}
+
+.encouragement-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
 /* Guardian consent ceremony (OD-19 build B). */
 .guardian-request-card {
   background-color: var(--color-card-surface);

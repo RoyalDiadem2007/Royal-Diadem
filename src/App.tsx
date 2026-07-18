@@ -15,6 +15,7 @@ import { DashboardPage } from '@/components/admin/DashboardPage';
 import { StudentsPage } from '@/components/admin/StudentsPage';
 import { CrownChecksPage } from '@/components/admin/CrownChecksPage';
 import { JournalsPage } from '@/components/admin/JournalsPage';
+import { EncouragementPage } from '@/components/admin/EncouragementPage';
 import { AdminLayout } from '@/layouts/AdminLayout';
 import { logout, useAuth, type AuthSession } from '@/lib/authStore';
 
@@ -73,6 +74,7 @@ function AuthedRoutes({ session }: { session: AuthSession }) {
           <Route path="students" element={<StudentsPage />} />
           <Route path="crown-checks" element={<CrownChecksPage />} />
           <Route path="journals" element={<JournalsPage />} />
+          <Route path="encouragement" element={<EncouragementPage />} />
         </Route>
       )}
       <Route path="*" element={<Navigate to="/" replace />} />
