@@ -466,3 +466,12 @@ verify_jwt = false
 
 [functions.encouragement]
 verify_jwt = false
+
+[functions.admin-calendar]
+verify_jwt = false
+
+[functions.admin-announcements]
+verify_jwt = false
+
+[functions.announcement-reads]
+verify_jwt = false

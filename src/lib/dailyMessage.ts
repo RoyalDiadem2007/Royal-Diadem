@@ -1,12 +1,11 @@
 /**
- * Daily Crown Message read (Spec §6.5 step 7, Phase 8). The one table the
- * client reads straight from the Data API: RLS exposes only status = posted
- * rows to anon (core_schema migration), so no Edge Function sits in front.
- * Everything student-facing upstream of "posted" is admin-approved (OD-18).
+ * Daily Crown Message read (Spec §6.5 step 7, Phase 8). A direct Data API
+ * read: RLS exposes only status = posted rows to anon (core_schema
+ * migration), so no Edge Function sits in front. Everything student-facing
+ * upstream of "posted" is admin-approved (OD-18).
  */
-import { publishableKey, supabaseUrl } from '@/config/env.config';
 import type { ApiResult } from '@/lib/api';
-import { logger } from '@/lib/logger';
+import { readDataApi } from '@/lib/dataApi';
 
 export type DailyMessage = { text: string; scheduledDate: string };
 
@@ -51,41 +50,5 @@ export async function fetchDailyMessage(todayIso: string): Promise<ApiResult<Dai
     'select=message_text,scheduled_date' +
     `&status=eq.posted&scheduled_date=eq.${todayIso}` +
     '&order=posted_at.desc&limit=1';
-
-  let response: Response;
-  try {
-    response = await fetch(`${supabaseUrl()}/rest/v1/encouragement_messages?${query}`, {
-      headers: {
-        apikey: publishableKey(),
-        Authorization: `Bearer ${publishableKey()}`,
-      },
-    });
-  } catch {
-    logger.warn('dailyMessage.network_error');
-    return { ok: false, failure: { kind: 'network' } };
-  }
-
-  if (response.status === 429) {
-    const retryAfter = Number(response.headers.get('retry-after') ?? '900');
-    return {
-      ok: false,
-      failure: {
-        kind: 'rate_limited',
-        retryAfterSeconds: Number.isFinite(retryAfter) && retryAfter > 0 ? retryAfter : 900,
-      },
-    };
-  }
-
-  if (!response.ok) {
-    logger.error('dailyMessage.server_error', { httpStatus: response.status });
-    return { ok: false, failure: { kind: 'server' } };
-  }
-
-  try {
-    const raw: unknown = await response.json();
-    return { ok: true, data: parseRows(raw) };
-  } catch {
-    logger.error('dailyMessage.bad_response_shape');
-    return { ok: false, failure: { kind: 'server' } };
-  }
+  return readDataApi(`encouragement_messages?${query}`, { parse: parseRows });
 }

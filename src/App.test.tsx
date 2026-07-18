@@ -52,8 +52,8 @@ describe('App auth gate (white-label)', () => {
             }),
           );
         }
-        if (target.includes('/rest/v1/encouragement_messages')) {
-          // No message posted today — the daily card stays hidden.
+        if (target.includes('/rest/v1/')) {
+          // Empty Data API reads — the passive content cards stay hidden.
           return Promise.resolve(
             new Response('[]', { status: 200, headers: { 'Content-Type': 'application/json' } }),
           );

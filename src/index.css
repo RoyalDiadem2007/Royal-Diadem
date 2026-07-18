@@ -1171,6 +1171,133 @@ textarea:focus-visible {
   border-color: var(--color-crown-gold);
 }
 
+/* Calendar + Announcements (Phase 9): student cards + admin editors. */
+.events-card,
+.announcements-card {
+  background-color: var(--color-card-surface);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-card);
+  padding: 1.25rem;
+  margin: 1.5rem auto;
+  max-width: 26rem;
+  text-align: left;
+}
+
+.events-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: var(--color-primary);
+  font-size: 1.2rem;
+  margin: 0 0 0.75rem;
+}
+
+.events-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.events-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.events-date {
+  color: var(--color-crown-gold);
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.events-time {
+  color: var(--color-text-secondary);
+  font-weight: 400;
+}
+
+.events-name {
+  color: var(--color-text-primary);
+  font-weight: 600;
+}
+
+.events-detail {
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+}
+
+.announcement-item {
+  border-top: 1px solid var(--hairline);
+  padding: 0.75rem 0 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.announcement-item:first-of-type {
+  border-top: none;
+  margin-top: 0;
+  padding-top: 0;
+}
+
+.announcement-item-urgent {
+  border-left: 3px solid var(--color-crown-gold);
+  padding-left: 0.75rem;
+}
+
+.announcement-meta {
+  color: var(--color-text-secondary);
+  font-size: 0.85rem;
+  margin: 0 0 0.25rem;
+}
+
+.announcement-urgent-tag {
+  color: var(--color-crown-gold);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.75rem;
+}
+
+.announcement-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  font-size: 1.05rem;
+  margin: 0 0 0.25rem;
+}
+
+.announcement-body {
+  color: var(--color-text-secondary);
+  margin: 0 0 0.5rem;
+  white-space: pre-wrap;
+}
+
+.calendar-editor {
+  background-color: var(--color-card-surface);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-card);
+  padding: 1rem;
+  margin: 1rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.calendar-editor-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: end;
+}
+
+.calendar-repeat-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+}
+
 /* Journal (Phase 6): student card + admin review + prompts manager. */
 .journal-transparency {
   color: var(--color-text-secondary);
