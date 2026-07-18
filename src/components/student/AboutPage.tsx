@@ -46,7 +46,7 @@ export function AboutPage() {
   const bio = sectionFor('pastor_bio');
 
   return (
-    <div className="app-shell page-glow">
+    <div>
       <header className="share-header">
         <Link to="/" className="share-back">
           ← Back

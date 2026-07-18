@@ -1,5 +1,4 @@
-import { BrowserRouter, Link, Navigate, Route, Routes } from 'react-router';
-import { brand } from '@/config/branding.config';
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { EnablePasskeyPrompt } from '@/components/ui/EnablePasskeyPrompt';
 import { EnablePushPrompt } from '@/components/ui/EnablePushPrompt';
@@ -29,6 +28,7 @@ import { RelaxationPage } from '@/components/admin/RelaxationPage';
 import { AboutAdminPage } from '@/components/admin/AboutAdminPage';
 import { FlagsPage } from '@/components/admin/FlagsPage';
 import { AdminLayout } from '@/layouts/AdminLayout';
+import { StudentShell } from '@/components/student/StudentShell';
 import { exitStudentMode, logout, useAuth, type AuthSession } from '@/lib/authStore';
 
 /**
@@ -62,15 +62,20 @@ function StudentHome() {
   if (session === null) {
     return null;
   }
+  const firstInitial = session.subject.displayName.slice(0, 1).toUpperCase() || '♛';
   return (
     <div className="app-shell">
       {session.staffMode && <StudentModeBanner />}
       <header className="app-header">
-        <img src={brand.logo} alt={`${brand.name} logo`} className="app-logo" />
+        {/* Her page opens with HER mark (Maria 2026-07-18) — the brand logo
+            lives in the shell's app bar. The coin becomes her photo when
+            Phase 13 profiles arrive. */}
+        <span className="avatar-coin avatar-coin-hero" aria-hidden="true">
+          {firstInitial}
+        </span>
         <h1 className="app-title">
           Welcome, <span className="app-title-accent">{session.subject.displayName}</span>
         </h1>
-        {brand.tagline !== '' && <p className="app-tagline">{brand.tagline}</p>}
       </header>
       <EnablePasskeyPrompt />
       <EnablePushPrompt />
@@ -78,26 +83,6 @@ function StudentHome() {
       <DailyMessage />
       <Announcements />
       <CrownCheck />
-      <nav className="door-grid" aria-label="Your spaces">
-        <Link to="/journal" className="door-card">
-          <span className="door-title">
-            <span aria-hidden="true">📖</span> My Journal
-          </span>
-          <span className="door-sub">Write what&rsquo;s in your heart</span>
-        </Link>
-        <Link to="/share" className="door-card">
-          <span className="door-title">
-            <span aria-hidden="true">👑</span> Royal Diadem Share
-          </span>
-          <span className="door-sub">Celebrate each other</span>
-        </Link>
-        <Link to="/relax" className="door-card">
-          <span className="door-title">
-            <span aria-hidden="true">🕊️</span> Relax
-          </span>
-          <span className="door-sub">Breathe, ground, be still</span>
-        </Link>
-      </nav>
       <UpcomingEvents />
       <button
         type="button"
@@ -130,12 +115,57 @@ function AuthedRoutes({ session }: { session: AuthSession }) {
   const isAdmin = session.subject.type === 'admin';
   return (
     <Routes>
-      <Route path="/" element={isAdmin ? <Navigate to="/admin" replace /> : <StudentHome />} />
-      {!isAdmin && <Route path="/share" element={<SharePage />} />}
-      {!isAdmin && <Route path="/journal" element={<JournalPage />} />}
-      {!isAdmin && <Route path="/relax" element={<RelaxPage />} />}
+      <Route
+        path="/"
+        element={
+          isAdmin ? (
+            <Navigate to="/admin" replace />
+          ) : (
+            <StudentShell>
+              <StudentHome />
+            </StudentShell>
+          )
+        }
+      />
+      {!isAdmin && (
+        <Route
+          path="/share"
+          element={
+            <StudentShell>
+              <SharePage />
+            </StudentShell>
+          }
+        />
+      )}
+      {!isAdmin && (
+        <Route
+          path="/journal"
+          element={
+            <StudentShell>
+              <JournalPage />
+            </StudentShell>
+          }
+        />
+      )}
+      {!isAdmin && (
+        <Route
+          path="/relax"
+          element={
+            <StudentShell>
+              <RelaxPage />
+            </StudentShell>
+          }
+        />
+      )}
       {/* About stays reachable signed-in too (students and admins alike). */}
-      <Route path="/about" element={<AboutPage />} />
+      <Route
+        path="/about"
+        element={
+          <StudentShell>
+            <AboutPage />
+          </StudentShell>
+        }
+      />
       {isAdmin && (
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<DashboardPage />} />
@@ -163,16 +193,52 @@ export function App() {
       <BrowserRouter>
         {session === null ? (
           <Routes>
-            {/* The public front door (OD-20): landing → arrow → sign-in. */}
-            <Route path="/" element={<LandingPage />} />
+            {/* The public front door (OD-20): landing → arrow → sign-in.
+                The hero carries the logo, so the shell's bar stays out. */}
+            <Route
+              path="/"
+              element={
+                <StudentShell hideBar>
+                  <LandingPage />
+                </StudentShell>
+              }
+            />
             {/* Emailed magic links land here (OD-19). */}
-            <Route path="/welcome" element={<WelcomeScreen />} />
+            <Route
+              path="/welcome"
+              element={
+                <StudentShell>
+                  <WelcomeScreen />
+                </StudentShell>
+              }
+            />
             {/* Guardian portal sign-in (OD-19 build B). */}
-            <Route path="/guardian" element={<GuardianLoginScreen />} />
+            <Route
+              path="/guardian"
+              element={
+                <StudentShell>
+                  <GuardianLoginScreen />
+                </StudentShell>
+              }
+            />
             {/* The public About page (Spec §6.9) — no session needed. */}
-            <Route path="/about" element={<AboutPage />} />
+            <Route
+              path="/about"
+              element={
+                <StudentShell>
+                  <AboutPage />
+                </StudentShell>
+              }
+            />
             {/* /login and any deep link (e.g. /admin) go to sign-in. */}
-            <Route path="*" element={<LoginScreen />} />
+            <Route
+              path="*"
+              element={
+                <StudentShell>
+                  <LoginScreen />
+                </StudentShell>
+              }
+            />
           </Routes>
         ) : (
           <AuthedRoutes session={session} />

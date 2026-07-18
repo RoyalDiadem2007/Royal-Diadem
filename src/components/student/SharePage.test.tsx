@@ -135,7 +135,7 @@ async function signInAndOpenShare(): Promise<void> {
   await user.type(screen.getByLabelText('Crown code'), 'RD-7F3K');
   await user.type(screen.getByLabelText('PIN'), '123456');
   await user.click(screen.getByRole('button', { name: 'Sign in' }));
-  await user.click(await screen.findByRole('link', { name: /Royal Diadem Share/ }));
+  await user.click(await screen.findByRole('link', { name: 'Share' }));
 }
 
 function sentBody(init: RequestInit): Record<string, unknown> {

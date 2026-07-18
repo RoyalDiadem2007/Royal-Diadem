@@ -25,10 +25,6 @@ export function LandingPage() {
         </span>
         <span className="landing-enter-text">Sign in</span>
       </Link>
-
-      <Link to="/about" className="landing-about-link">
-        About {brand.name}
-      </Link>
     </div>
   );
 }
