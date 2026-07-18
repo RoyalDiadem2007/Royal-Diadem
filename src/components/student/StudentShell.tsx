@@ -70,6 +70,17 @@ export function StudentShell({
         <Link to="/about" className="app-footer-link">
           About {brand.name}
         </Link>
+        <span className="app-footer-credit">
+          Built by {brand.builtBy.name}
+          {brand.builtBy.email !== '' && (
+            <>
+              {' · '}
+              <a className="app-footer-link" href={`mailto:${brand.builtBy.email}`}>
+                {brand.builtBy.email}
+              </a>
+            </>
+          )}
+        </span>
       </footer>
 
       {showTabs && (

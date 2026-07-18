@@ -43,6 +43,18 @@ describe('public landing page (OD-20)', () => {
 
     // No sign-in form here — the landing page is content only.
     expect(screen.queryByRole('form', { name: 'Sign in' })).not.toBeInTheDocument();
+
+    // The footer credits the builder (Maria, 2026-07-18); the contact link
+    // appears only once the exact address is configured — never guessed.
+    expect(screen.getByText(new RegExp(`Built by ${brand.builtBy.name}`))).toBeInTheDocument();
+    if (brand.builtBy.email === '') {
+      expect(screen.queryByRole('link', { name: /@/ })).not.toBeInTheDocument();
+    } else {
+      expect(screen.getByRole('link', { name: brand.builtBy.email })).toHaveAttribute(
+        'href',
+        `mailto:${brand.builtBy.email}`,
+      );
+    }
   });
 
   it('leads to the sign-in page through the bottom arrow', async () => {
