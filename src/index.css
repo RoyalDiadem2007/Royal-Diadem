@@ -1381,6 +1381,31 @@ textarea:focus-visible {
   padding-top: 0;
 }
 
+.landing-about-link {
+  display: inline-block;
+  margin-top: 1.25rem;
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+  text-decoration: none;
+  border-bottom: 1px solid var(--hairline-strong);
+}
+
+.landing-about-link:hover {
+  color: var(--color-crown-gold);
+  border-bottom-color: var(--color-crown-gold);
+}
+
+/* About Us (Phase 12): Pastor Kenecia's portrait, framed in brand gold. */
+.about-portrait {
+  display: block;
+  width: 11rem;
+  height: 11rem;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 2px solid color-mix(in srgb, var(--color-crown-gold) 60%, transparent);
+  margin: 0.25rem auto 1rem;
+}
+
 /* The queen's seal: a small monogram coin marking every voice in the feed. */
 .avatar-coin {
   display: inline-flex;
