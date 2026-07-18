@@ -60,8 +60,26 @@ self.addEventListener('fetch', (event) => {
 
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) {
-    // Cross-origin (Supabase, Turnstile, Edge Functions): never intercepted,
-    // never cached — the no-PHI-client-side rule depends on this.
+    // THE ONE cross-origin exception (CLAUDE.md §3 names relaxation content
+    // as permitted offline cache material): the calming library, so the
+    // Relax room still comforts with no signal. Public, non-PHI rows only —
+    // the anon RLS policy serves nothing else on this path.
+    if (url.pathname.startsWith('/rest/v1/relaxation_content')) {
+      event.respondWith(
+        fetch(request)
+          .then((response) => {
+            if (response.ok) {
+              const copy = response.clone();
+              event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.put(request, copy)));
+            }
+            return response;
+          })
+          .catch(() => caches.match(request).then((cached) => cached ?? Response.error())),
+      );
+      return;
+    }
+    // All other cross-origin (Supabase, Turnstile, Edge Functions): never
+    // intercepted, never cached — the no-PHI-client-side rule depends on this.
     return;
   }
 
