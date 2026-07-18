@@ -120,6 +120,27 @@ export async function enforceClaimRateLimit(
   return recordAttempt(db, `claim:ip:${(ip ?? 'unknown').toLowerCase()}`, CLAIM_IP_POLICY);
 }
 
+// Share writes (Spec §6.8 + CLAUDE.md §10): per-student budgets sized for a
+// person hyping her friends, not a script. Every kind is bounded; the
+// limiter dying still fails closed.
+export type ShareWriteKind = 'post' | 'comment' | 'react' | 'flag';
+
+const SHARE_POLICIES: Readonly<Record<ShareWriteKind, Policy>> = {
+  post: { maxAttempts: 10, windowSeconds: 3600, lockoutSeconds: 900 },
+  comment: { maxAttempts: 30, windowSeconds: 3600, lockoutSeconds: 900 },
+  react: { maxAttempts: 120, windowSeconds: 3600, lockoutSeconds: 300 },
+  flag: { maxAttempts: 10, windowSeconds: 3600, lockoutSeconds: 900 },
+};
+
+/** Records one share write of `kind` for this student; fail closed. */
+export async function enforceShareWriteRateLimit(
+  db: SupabaseClient,
+  kind: ShareWriteKind,
+  studentId: string,
+): Promise<RateLimitOutcome> {
+  return recordAttempt(db, `share:${kind}:${studentId.toLowerCase()}`, SHARE_POLICIES[kind]);
+}
+
 /** On successful login: clear the identifier counter (IP counter stays). */
 export async function clearIdentifierAttempts(db: SupabaseClient, identifier: string): Promise<void> {
   const { error } = await db.rpc('clear_auth_attempts', {

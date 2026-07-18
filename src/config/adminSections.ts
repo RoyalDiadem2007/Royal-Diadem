@@ -33,6 +33,8 @@ export const ADMIN_SECTIONS: readonly AdminSection[] = [
   // Program content sections: super_admin until OD-12 assigns these rights.
   { id: 'calendar', label: 'Calendar', path: 'calendar', roles: ['super_admin'] },
   { id: 'announcements', label: 'Announcements', path: 'announcements', roles: ['super_admin'] },
+  // The safe-space gate (Spec §6.8): super_admin until OD-12.
+  { id: 'share-moderation', label: 'Share Moderation', path: 'share', roles: ['super_admin'] },
 ];
 
 export function sectionsForRole(role: AdminRole): readonly AdminSection[] {
