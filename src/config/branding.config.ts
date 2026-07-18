@@ -103,8 +103,6 @@ export const brand: BrandConfig = {
   reactions: ['👑', '💎', '🦩', '👏', '✨', '💪', '🌹', '🎉', '💖', '🔥'],
   builtBy: {
     name: 'Envision VirtualEdge Group, LLC',
-    // Awaiting the exact @envisionvirtualedge.org address from Maria — the
-    // footer link appears the moment this is filled in.
-    email: '',
+    email: 'accountabletechnology@envisionvirtualedge.org',
   },
 };
