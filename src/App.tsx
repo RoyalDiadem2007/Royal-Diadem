@@ -14,6 +14,7 @@ import { JournalPage } from '@/components/student/JournalPage';
 import { GuardianRequestNotice } from '@/components/student/GuardianRequestNotice';
 import { SharePage } from '@/components/student/SharePage';
 import { RelaxPage } from '@/components/student/RelaxPage';
+import { AboutPage } from '@/components/student/AboutPage';
 import { GuardianHome } from '@/components/guardian/GuardianHome';
 import { GuardianLoginScreen } from '@/components/guardian/GuardianLoginScreen';
 import { DashboardPage } from '@/components/admin/DashboardPage';
@@ -25,6 +26,7 @@ import { CalendarPage } from '@/components/admin/CalendarPage';
 import { AnnouncementsPage } from '@/components/admin/AnnouncementsPage';
 import { ShareModerationPage } from '@/components/admin/ShareModerationPage';
 import { RelaxationPage } from '@/components/admin/RelaxationPage';
+import { AboutAdminPage } from '@/components/admin/AboutAdminPage';
 import { AdminLayout } from '@/layouts/AdminLayout';
 import { exitStudentMode, logout, useAuth, type AuthSession } from '@/lib/authStore';
 
@@ -131,6 +133,8 @@ function AuthedRoutes({ session }: { session: AuthSession }) {
       {!isAdmin && <Route path="/share" element={<SharePage />} />}
       {!isAdmin && <Route path="/journal" element={<JournalPage />} />}
       {!isAdmin && <Route path="/relax" element={<RelaxPage />} />}
+      {/* About stays reachable signed-in too (students and admins alike). */}
+      <Route path="/about" element={<AboutPage />} />
       {isAdmin && (
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<DashboardPage />} />
@@ -142,6 +146,7 @@ function AuthedRoutes({ session }: { session: AuthSession }) {
           <Route path="announcements" element={<AnnouncementsPage />} />
           <Route path="share" element={<ShareModerationPage />} />
           <Route path="relaxation" element={<RelaxationPage />} />
+          <Route path="about" element={<AboutAdminPage />} />
         </Route>
       )}
       <Route path="*" element={<Navigate to="/" replace />} />
@@ -162,6 +167,8 @@ export function App() {
             <Route path="/welcome" element={<WelcomeScreen />} />
             {/* Guardian portal sign-in (OD-19 build B). */}
             <Route path="/guardian" element={<GuardianLoginScreen />} />
+            {/* The public About page (Spec §6.9) — no session needed. */}
+            <Route path="/about" element={<AboutPage />} />
             {/* /login and any deep link (e.g. /admin) go to sign-in. */}
             <Route path="*" element={<LoginScreen />} />
           </Routes>

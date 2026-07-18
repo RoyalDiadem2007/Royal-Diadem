@@ -36,6 +36,8 @@ export const ADMIN_SECTIONS: readonly AdminSection[] = [
   // The safe-space gate (Spec §6.8): super_admin until OD-12.
   { id: 'share-moderation', label: 'Share Moderation', path: 'share', roles: ['super_admin'] },
   { id: 'relaxation', label: 'Relaxation', path: 'relaxation', roles: ['super_admin'] },
+  // The public About page's editor (Spec §6.9): super_admin until OD-12.
+  { id: 'about', label: 'About Page', path: 'about', roles: ['super_admin'] },
 ];
 
 export function sectionsForRole(role: AdminRole): readonly AdminSection[] {
