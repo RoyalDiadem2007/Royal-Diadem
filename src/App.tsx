@@ -17,7 +17,33 @@ import { CrownChecksPage } from '@/components/admin/CrownChecksPage';
 import { JournalsPage } from '@/components/admin/JournalsPage';
 import { EncouragementPage } from '@/components/admin/EncouragementPage';
 import { AdminLayout } from '@/layouts/AdminLayout';
-import { logout, useAuth, type AuthSession } from '@/lib/authStore';
+import { exitStudentMode, logout, useAuth, type AuthSession } from '@/lib/authStore';
+
+/**
+ * Shown only during an admin's Student Mode session: names the mode plainly
+ * so staff activity can never be mistaken for (or mixed into) a real
+ * student's account, and carries the way back to the admin panel.
+ */
+function StudentModeBanner() {
+  return (
+    <div className="staff-mode-banner" role="status">
+      <p className="staff-mode-banner-text">
+        <strong>Student Mode.</strong> This is your own space in the student experience — check in
+        and journal right along with the girls. Everything you save is yours, never a real
+        student&apos;s.
+      </p>
+      <button
+        type="button"
+        className="staff-mode-exit"
+        onClick={() => {
+          void exitStudentMode();
+        }}
+      >
+        Back to admin panel
+      </button>
+    </div>
+  );
+}
 
 function StudentHome() {
   const session = useAuth();
@@ -26,6 +52,7 @@ function StudentHome() {
   }
   return (
     <div className="app-shell">
+      {session.staffMode && <StudentModeBanner />}
       <header className="app-header">
         <img src={brand.logo} alt={`${brand.name} logo`} className="app-logo" />
         <h1 className="app-title">

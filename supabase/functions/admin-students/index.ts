@@ -57,10 +57,11 @@ type StudentRow = {
   phase: string | null;
   enrollment_date: string;
   email: string | null;
+  staff_owner_admin_id: string | null;
 };
 
 const LIST_COLUMNS =
-  'id, first_name, last_name, display_name, login_code, status, coppa_required, coppa_consent_status, phase, enrollment_date, email';
+  'id, first_name, last_name, display_name, login_code, status, coppa_required, coppa_consent_status, phase, enrollment_date, email, staff_owner_admin_id';
 
 function toWire(row: StudentRow) {
   return {
@@ -77,6 +78,8 @@ function toWire(row: StudentRow) {
     phase: row.phase,
     enrollmentDate: row.enrollment_date,
     email: row.email,
+    // Student Mode test identity (owned by an admin) — labeled in the roster.
+    isStaff: row.staff_owner_admin_id !== null,
   };
 }
 

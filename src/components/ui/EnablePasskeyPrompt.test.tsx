@@ -19,6 +19,7 @@ function sessionWith(webauthnRegistered: boolean): AuthSession {
     token: 't',
     expiresAt: '2026-07-17T00:00:00.000Z',
     webauthnRegistered,
+    staffMode: false,
     subject: { type: 'student', id: 'stu-1', displayName: 'Jada', role: 'student' },
   };
 }

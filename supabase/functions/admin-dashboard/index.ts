@@ -20,8 +20,16 @@ type Counts = {
 };
 
 async function gatherCounts(db: SupabaseClient): Promise<Counts | null> {
+  // Student Mode test identities (staff_owner_admin_id set) are excluded from
+  // the population tiles — they aren't real girls. Flag counts stay inclusive
+  // on purpose: an admin testing the flag pipeline should see the tile react,
+  // and the queue rows self-label via the "(Staff)" display name.
   const [students, flags, highFlags, crownChecks] = await Promise.all([
-    db.from('students').select('id', { count: 'exact', head: true }).eq('status', 'active'),
+    db
+      .from('students')
+      .select('id', { count: 'exact', head: true })
+      .eq('status', 'active')
+      .is('staff_owner_admin_id', null),
     db.from('flags').select('id', { count: 'exact', head: true }).eq('status', 'new'),
     db
       .from('flags')
@@ -32,8 +40,9 @@ async function gatherCounts(db: SupabaseClient): Promise<Counts | null> {
     // (check_date), so this tile flips at the girls' midnight, not UTC's.
     db
       .from('crown_checks')
-      .select('id', { count: 'exact', head: true })
-      .eq('check_date', programToday(new Date())),
+      .select('id, students!inner(id)', { count: 'exact', head: true })
+      .eq('check_date', programToday(new Date()))
+      .is('students.staff_owner_admin_id', null),
   ]);
 
   for (const result of [students, flags, highFlags, crownChecks]) {

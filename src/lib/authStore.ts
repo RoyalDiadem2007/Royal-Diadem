@@ -27,6 +27,8 @@ export type AuthSession = {
   subject: AuthSubject;
   /** Whether this account already has a passkey — drives the enable prompt. */
   webauthnRegistered: boolean;
+  /** True only for an admin's Student Mode session (test identity writes). */
+  staffMode: boolean;
 };
 
 export type LoginInput = {
@@ -78,6 +80,7 @@ function parseLoginResponse(raw: unknown): AuthSession {
     expiresAt?: unknown;
     subject?: unknown;
     webauthnRegistered?: unknown;
+    staffMode?: unknown;
   };
   const subject = record.subject;
   if (
@@ -106,10 +109,13 @@ function parseLoginResponse(raw: unknown): AuthSession {
     expiresAt: record.expiresAt,
     subject: { type: s.type, id: s.id, displayName: s.displayName, role: s.role },
     webauthnRegistered: record.webauthnRegistered === true,
+    staffMode: record.staffMode === true,
   };
 }
 
 let session: AuthSession | null = null;
+/** The admin session parked while its owner is in Student Mode (memory only). */
+let adminReturnSession: AuthSession | null = null;
 const listeners = new Set<() => void>();
 
 function notify(): void {
@@ -335,9 +341,61 @@ export async function registerPasskey(): Promise<LoginResult> {
   return { ok: true };
 }
 
+/**
+ * Student Mode (Maria, 2026-07-18): swaps the signed-in admin onto their
+ * server-provisioned STAFF student identity — a real student session, so the
+ * whole student surface works and every write lands on the test profile.
+ * The admin session is parked in memory for exitStudentMode.
+ */
+export async function enterStudentMode(): Promise<LoginResult> {
+  const current = session;
+  if (current?.subject.type !== 'admin') {
+    return { ok: false, message: MESSAGES.server ?? '' };
+  }
+
+  const result = await callEdgeFunction('student-mode', {
+    method: 'POST',
+    sessionToken: current.token,
+    parse: parseLoginResponse,
+  });
+  if (!result.ok) {
+    return { ok: false, message: failureMessage(result.failure) };
+  }
+
+  adminReturnSession = current;
+  session = result.data;
+  logger.info('auth.student_mode_entered', { subjectId: result.data.subject.id });
+  notify();
+  return { ok: true };
+}
+
+/** Revokes the Student Mode session and resumes the parked admin session. */
+export async function exitStudentMode(): Promise<void> {
+  const current = session;
+  if (current?.staffMode !== true) {
+    return;
+  }
+  const parked = adminReturnSession;
+  adminReturnSession = null;
+  // Resume only a still-valid admin session; an expired one means re-login.
+  session = parked !== null && new Date(parked.expiresAt).getTime() > Date.now() ? parked : null;
+  notify();
+  logger.info('auth.student_mode_exited', { subjectId: current.subject.id });
+  // Best-effort server revocation, same contract as logout below.
+  const result = await callEdgeFunction('auth-logout', {
+    method: 'POST',
+    sessionToken: current.token,
+    parse: () => null,
+  });
+  if (!result.ok) {
+    logger.warn('auth.student_mode_revoke_failed', { failureKind: result.failure.kind });
+  }
+}
+
 export async function logout(): Promise<void> {
   const current = session;
   session = null;
+  adminReturnSession = null;
   notify();
   if (current === null) {
     return;
@@ -362,5 +420,6 @@ export function useAuth(): AuthSession | null {
 /** Test-only escape hatch to reset module state between tests. */
 export function resetAuthForTests(): void {
   session = null;
+  adminReturnSession = null;
   notify();
 }
