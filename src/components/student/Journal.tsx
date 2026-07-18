@@ -154,11 +154,20 @@ export function Journal() {
           maxLength={TEXT_MAX}
           rows={4}
           disabled={submitting}
+          // Writing support: the device keyboard's own spelling help, all
+          // on-device (CLAUDE.md §17.4 — no journal text leaves the phone).
+          spellCheck={true}
+          autoCorrect="on"
+          autoCapitalize="sentences"
           onChange={(e) => {
             setText(e.target.value);
           }}
         />
       </label>
+      <p className="journal-dictation-hint">
+        <span aria-hidden="true">🎤</span> Typing a lot today feels like too much? Tap the
+        microphone on your keyboard and just talk — your phone types your words for you.
+      </p>
 
       {notice !== '' && (
         <p role="status" className="crown-check-note-text">

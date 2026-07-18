@@ -188,6 +188,9 @@ export function CrownCheck() {
           value={note}
           maxLength={NOTE_MAX_LENGTH}
           disabled={submitting}
+          spellCheck={true}
+          autoCorrect="on"
+          autoCapitalize="sentences"
           onChange={(e) => {
             setNote(e.target.value);
           }}

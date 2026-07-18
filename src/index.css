@@ -1171,6 +1171,13 @@ textarea:focus-visible {
   border-color: var(--color-crown-gold);
 }
 
+/* Journal writing support: the on-device dictation nudge. */
+.journal-dictation-hint {
+  color: var(--color-text-secondary);
+  font-size: 0.85rem;
+  margin: 0.35rem 0 0.75rem;
+}
+
 /* Royal Diadem Share (Phase 10a): feed, composer, reactions, peer flag. */
 .share-link-card {
   display: block;
