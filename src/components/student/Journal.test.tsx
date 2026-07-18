@@ -66,8 +66,8 @@ async function signIn(): Promise<void> {
   await user.type(screen.getByLabelText('PIN'), '123456');
   await user.click(screen.getByRole('button', { name: 'Sign in' }));
   await screen.findByRole('heading', { name: 'Welcome, Maya' });
-  // The journal lives in its own room now — step through the home door.
-  await user.click(screen.getByRole('link', { name: /My Journal/ }));
+  // The journal lives in its own room — one tap on the tab bar.
+  await user.click(screen.getByRole('link', { name: 'Journal' }));
   await screen.findByRole('heading', { name: 'My Journal' });
 }
 

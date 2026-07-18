@@ -1180,6 +1180,168 @@ textarea:focus-visible {
 
 /* Royal Diadem Share (Phase 10a): feed, composer, reactions, peer flag. */
 
+/* The app chrome: one house for every page (Maria's direction 2026-07-18).
+   Crown band → brand bar → wallpapered content in a royal frame → footer →
+   (students) the bottom tab bar. The admin file cabinet keeps its own shell. */
+.app-frame {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.crown-band {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--color-crown-gold) 18%,
+    var(--color-crown-gold) 82%,
+    transparent
+  );
+  flex: none;
+}
+
+.app-bar {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.6rem 1rem;
+  border-bottom: 1px solid var(--hairline);
+  background-color: color-mix(in srgb, var(--color-card-surface) 72%, transparent);
+  backdrop-filter: blur(6px);
+}
+
+.app-bar-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+}
+
+.app-bar-logo {
+  width: 1.9rem;
+  height: 1.9rem;
+  object-fit: contain;
+}
+
+.app-bar-name {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.05rem;
+  color: var(--color-text-primary);
+  letter-spacing: 0.01em;
+}
+
+.app-bar-user {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+}
+
+.app-content {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  width: 100%;
+  max-width: 30rem;
+  margin: 0 auto;
+  padding: 0 0.75rem 1.5rem;
+}
+
+/* Room for the fixed tab bar (plus phone safe areas). */
+.app-content-tabbed {
+  padding-bottom: calc(4.5rem + env(safe-area-inset-bottom, 0px));
+}
+
+/* The royal frame: on wider screens the content column sits inside a
+   hairline gold-tinted border instead of floating loose. */
+@media (min-width: 48rem) {
+  .app-content {
+    border-left: 1px solid color-mix(in srgb, var(--color-crown-gold) 22%, transparent);
+    border-right: 1px solid color-mix(in srgb, var(--color-crown-gold) 22%, transparent);
+  }
+}
+
+.app-footer {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem 0.75rem;
+  padding: 1rem 1rem calc(1rem + 4.2rem);
+  border-top: 1px solid var(--hairline);
+  color: var(--color-text-secondary);
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.app-frame:not(:has(.tab-bar)) .app-footer {
+  padding-bottom: 1rem;
+}
+
+.app-footer-brand {
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.app-footer-link {
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  border-bottom: 1px solid var(--hairline-strong);
+}
+
+.app-footer-link:hover {
+  color: var(--color-crown-gold);
+  border-bottom-color: var(--color-crown-gold);
+}
+
+.tab-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 4;
+  display: flex;
+  justify-content: space-around;
+  padding: 0.4rem 0.5rem calc(0.5rem + env(safe-area-inset-bottom, 0px));
+  background-color: color-mix(in srgb, var(--color-card-surface) 88%, transparent);
+  backdrop-filter: blur(8px);
+  border-top: 1px solid var(--hairline-strong);
+}
+
+.tab-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  min-width: 3.5rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--radius-control);
+  text-decoration: none;
+  color: var(--color-text-secondary);
+  font-size: 0.7rem;
+}
+
+.tab-icon {
+  font-size: 1.25rem;
+}
+
+.tab-item-active {
+  color: var(--color-crown-gold);
+  background-color: color-mix(in srgb, var(--color-crown-gold) 10%, transparent);
+}
+
 /* The Share wallpaper: crowns and flamingos drifting behind the feed. */
 .share-wallpaper {
   position: fixed;
@@ -1243,55 +1405,10 @@ textarea:focus-visible {
   vertical-align: 0.1em;
 }
 
-/* Home doors: the two rooms a student can step into. */
-.door-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.75rem;
-  max-width: 26rem;
-  margin: 1.5rem auto;
-}
-
-@media (max-width: 24rem) {
-  .door-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-.door-card {
-  display: block;
-  background-color: var(--color-card-surface);
-  border: 1px solid var(--hairline);
-  border-top: 2px solid color-mix(in srgb, var(--color-crown-gold) 55%, transparent);
-  border-radius: var(--radius-card);
-  padding: 1rem;
-  text-align: left;
-  text-decoration: none;
-  transition: border-color 0.15s ease;
-}
-
-.door-card:hover,
-.door-card:focus-visible {
-  border-color: var(--color-crown-gold);
-}
-
-.door-title {
-  display: block;
-  font-family: var(--font-display);
-  font-weight: 600;
-  color: var(--color-primary);
-  font-size: 1.05rem;
-  margin-bottom: 0.2rem;
-}
-
+/* A muted caption line (once the home doors' subtitle; reused broadly). */
 .door-sub {
   color: var(--color-text-secondary);
   font-size: 0.85rem;
-}
-
-/* An odd door count: the last door stretches across the row. */
-.door-card:last-child:nth-child(odd) {
-  grid-column: 1 / -1;
 }
 
 /* The Relax room (Phase 11): breath circle, grounding walk, library. */
@@ -1381,20 +1498,6 @@ textarea:focus-visible {
   padding-top: 0;
 }
 
-.landing-about-link {
-  display: inline-block;
-  margin-top: 1.25rem;
-  color: var(--color-text-secondary);
-  font-size: 0.9rem;
-  text-decoration: none;
-  border-bottom: 1px solid var(--hairline-strong);
-}
-
-.landing-about-link:hover {
-  color: var(--color-crown-gold);
-  border-bottom-color: var(--color-crown-gold);
-}
-
 /* Flag Center (Phase 14): status chips — calm words, never alarms. */
 .flag-status {
   font-size: 0.8rem;
@@ -1442,6 +1545,13 @@ textarea:focus-visible {
   font-size: 0.95rem;
   color: var(--color-crown-gold);
   flex: none;
+}
+
+.avatar-coin-hero {
+  width: 3.6rem;
+  height: 3.6rem;
+  font-size: 1.7rem;
+  margin: 0 auto 0.5rem;
 }
 
 .avatar-coin-small {

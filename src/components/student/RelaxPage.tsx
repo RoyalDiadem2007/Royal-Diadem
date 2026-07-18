@@ -7,7 +7,6 @@
  * allowed API cache.
  */
 import { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router';
 import {
   BREATH_PATTERNS,
   breathMomentAt,
@@ -272,11 +271,8 @@ export function RelaxPage() {
   }
 
   return (
-    <div className="app-shell page-glow">
+    <div>
       <header className="share-header">
-        <Link to="/" className="share-back">
-          ← Home
-        </Link>
         <h1 className="page-title">
           <span className="page-title-mark" aria-hidden="true">
             🕊️
