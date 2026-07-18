@@ -27,6 +27,7 @@ import { AnnouncementsPage } from '@/components/admin/AnnouncementsPage';
 import { ShareModerationPage } from '@/components/admin/ShareModerationPage';
 import { RelaxationPage } from '@/components/admin/RelaxationPage';
 import { AboutAdminPage } from '@/components/admin/AboutAdminPage';
+import { FlagsPage } from '@/components/admin/FlagsPage';
 import { AdminLayout } from '@/layouts/AdminLayout';
 import { exitStudentMode, logout, useAuth, type AuthSession } from '@/lib/authStore';
 
@@ -147,6 +148,7 @@ function AuthedRoutes({ session }: { session: AuthSession }) {
           <Route path="share" element={<ShareModerationPage />} />
           <Route path="relaxation" element={<RelaxationPage />} />
           <Route path="about" element={<AboutAdminPage />} />
+          <Route path="flags" element={<FlagsPage />} />
         </Route>
       )}
       <Route path="*" element={<Navigate to="/" replace />} />
