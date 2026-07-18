@@ -139,8 +139,8 @@ describe('admin shell routing and dashboard', () => {
       'href',
       '/admin/crown-checks',
     );
-    // Tiles without a live section stay plain cards for now.
-    expect(screen.queryByRole('link', { name: /New flags/ })).not.toBeInTheDocument();
+    // The flags tile links into the Flag Center (Phase 14).
+    expect(screen.getByRole('link', { name: /New flags/ })).toHaveAttribute('href', '/admin/flags');
 
     await userEvent.setup().click(tile);
     expect(await screen.findByRole('heading', { name: 'Students' })).toBeInTheDocument();

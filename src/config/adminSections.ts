@@ -38,6 +38,9 @@ export const ADMIN_SECTIONS: readonly AdminSection[] = [
   { id: 'relaxation', label: 'Relaxation', path: 'relaxation', roles: ['super_admin'] },
   // The public About page's editor (Spec §6.9): super_admin until OD-12.
   { id: 'about', label: 'About Page', path: 'about', roles: ['super_admin'] },
+  // The Flag Center (Spec §7): the most sensitive view after journals —
+  // super_admin only until OD-6/OD-12. The dashboard's flag tile links here.
+  { id: 'flags', label: 'Flags', path: 'flags', roles: ['super_admin'] },
 ];
 
 export function sectionsForRole(role: AdminRole): readonly AdminSection[] {

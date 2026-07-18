@@ -1395,6 +1395,27 @@ textarea:focus-visible {
   border-bottom-color: var(--color-crown-gold);
 }
 
+/* Flag Center (Phase 14): status chips — calm words, never alarms. */
+.flag-status {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+}
+
+.flag-status-new {
+  color: var(--color-crown-gold);
+}
+
+.flag-status-reviewed {
+  color: var(--color-text-secondary);
+}
+
+.flag-status-resolved {
+  color: var(--color-text-secondary);
+  opacity: 0.7;
+}
+
 /* About Us (Phase 12): Pastor Kenecia's portrait, framed in brand gold. */
 .about-portrait {
   display: block;
