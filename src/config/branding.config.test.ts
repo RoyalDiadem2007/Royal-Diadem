@@ -27,6 +27,10 @@ describe('branding config contract', () => {
     }
   });
 
+  it('credits the builder by name', () => {
+    expect(brand.builtBy.name).toBe('Envision VirtualEdge Group, LLC');
+  });
+
   it('has an app description for the PWA manifest', () => {
     expect(brand.appDescription.trim().length).toBeGreaterThan(0);
   });

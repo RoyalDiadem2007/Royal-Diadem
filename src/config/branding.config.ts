@@ -54,6 +54,13 @@ export type BrandConfig = {
   fonts: BrandFonts;
   /** Crown/queen themed emoji set for Share page reactions (Spec §6.8). */
   reactions: readonly string[];
+  /** Builder credit shown in the app footer (Maria, 2026-07-18). */
+  builtBy: {
+    name: string;
+    /** Contact address (mailto link). Empty until the exact address is
+     * confirmed — the link renders only when set, never guessed. */
+    email: string;
+  };
 };
 
 export const brand: BrandConfig = {
@@ -94,4 +101,10 @@ export const brand: BrandConfig = {
     body: "'Albert Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif",
   },
   reactions: ['👑', '💎', '🦩', '👏', '✨', '💪', '🌹', '🎉', '💖', '🔥'],
+  builtBy: {
+    name: 'Envision VirtualEdge Group, LLC',
+    // Awaiting the exact @envisionvirtualedge.org address from Maria — the
+    // footer link appears the moment this is filled in.
+    email: '',
+  },
 };

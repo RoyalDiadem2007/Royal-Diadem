@@ -1301,6 +1301,12 @@ textarea:focus-visible {
   border-bottom: 1px solid var(--hairline-strong);
 }
 
+.app-footer-credit {
+  flex-basis: 100%;
+  font-size: 0.75rem;
+  opacity: 0.85;
+}
+
 .app-footer-link:hover {
   color: var(--color-crown-gold);
   border-bottom-color: var(--color-crown-gold);
