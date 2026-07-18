@@ -3,12 +3,18 @@
 # Fires on PreToolUse(Bash); acts only when the command contains `git commit`.
 # Blocks the commit (deny) if staged changes violate CLAUDE.md §3/§11:
 #   - introduce `any` (typed) in TypeScript
-#   - introduce @ts-ignore / @ts-nocheck
+#   - introduce @ts-ignore / @ts-nocheck / @ts-expect-error / `as unknown as`
+#   - introduce an eslint-disable without an inline `-- reason` justification
 #   - introduce console.* (use the audit logger only; logger/audit files are exempt)
+#   - introduce TODO/FIXME/HACK/XXX or not-implemented stubs in code files (§0.11)
+#   - introduce a credential-shaped literal (private key, API key, JWT, VITE_ secret)
+#     in ANY file, or stage a .env/*.local file at all
+#   - write to client storage (localStorage/sessionStorage/cookies/IndexedDB) in src/
+#     non-test code (§3: no PHI/PII in client storage)
 #   - introduce a skipped/focused test (.skip/.only/xit/fit/@pytest.mark.skip/...)
 #   - fail the lint / typecheck / test gates (only run if that npm script exists)
 # Scans ADDED lines only (git diff --cached), so it flags what THIS commit introduces.
-# Markdown/docs and this script are never scanned (only *.ts/*.tsx and test files are).
+# node_modules/dist are never scanned. Markdown is scanned for secrets only.
 set -uo pipefail
 
 input="$(cat)"
@@ -38,15 +44,59 @@ is_test() {
 
 for f in "${staged[@]:-}"; do
   [ -n "$f" ] || continue
+
+  # Vendored/build output is never ours to police; this guard exempts itself
+  # (its grep patterns literally contain the strings it bans).
+  case "$f" in
+    node_modules/*|*/node_modules/*|dist/*|*/dist/*|.claude/hooks/*) continue ;;
+  esac
+
+  # Secret-bearing files are never committed, whatever they contain.
+  case "$f" in
+    .env|.env.*|*/.env|*/.env.*)
+      case "$f" in
+        *.example|*.sample) : ;;
+        *) violations+=("no-secret-files — $f: .env files are never committed (docs/SUPABASE_RULES.md)") ;;
+      esac
+      ;;
+    *.local|*/*.local)
+      violations+=("no-secret-files — $f: *.local files are never committed")
+      ;;
+  esac
+
   added="$(git diff --cached -U0 -- "$f" 2>/dev/null | grep -E '^\+[^+]' || true)"
   [ -n "$added" ] || continue
+
+  # Secrets scan — every file type, tests and docs included.
+  sec="$(printf '%s\n' "$added" | grep -nE -- '-----BEGIN [A-Z ]*PRIVATE KEY-----|sk-ant-[A-Za-z0-9_-]{8,}|AKIA[0-9A-Z]{16}|sbp_[A-Za-z0-9]{16,}|sb_secret_[A-Za-z0-9]{8,}|eyJ[A-Za-z0-9_-]{20,}\.eyJ[A-Za-z0-9_-]{20,}|VITE_[A-Z0-9_]*(SECRET|SERVICE_ROLE|PRIVATE|PASSWORD)' || true)"
+  [ -n "$sec" ] && violations+=("no-secrets — $f introduces a credential-shaped literal (rotate it if real; secrets live server-side only):"$'\n'"$sec")
+
+  # Stub/deferral markers — code files only (§0.11: build the real thing).
+  case "$f" in
+    *.ts|*.tsx|*.js|*.jsx|*.mjs|*.cjs|*.py|*.sql|*.sh)
+      td="$(printf '%s\n' "$added" | grep -nE '\b(TODO|FIXME|HACK|XXX)\b|NotImplementedError|[Nn]ot [Ii]mplemented' || true)"
+      [ -n "$td" ] && violations+=("no-stubs — $f introduces a TODO/FIXME/stub marker (§0.11 — build it or stop and ask):"$'\n'"$td")
+      ;;
+  esac
 
   case "$f" in
     *.ts|*.tsx)
       hit="$(printf '%s\n' "$added" | grep -nE '(:[[:space:]]*any\b|<any>|as[[:space:]]+any\b|\bany\[\]|Array<any>|,[[:space:]]*any>)' || true)"
       [ -n "$hit" ] && violations+=("no-any — $f introduces \`any\`:"$'\n'"$hit")
-      ig="$(printf '%s\n' "$added" | grep -nE '@ts-ignore|@ts-nocheck' || true)"
-      [ -n "$ig" ] && violations+=("no-suppress — $f introduces @ts-ignore/@ts-nocheck:"$'\n'"$ig")
+      ig="$(printf '%s\n' "$added" | grep -nE '@ts-ignore|@ts-nocheck|@ts-expect-error|\bas[[:space:]]+unknown[[:space:]]+as\b' || true)"
+      [ -n "$ig" ] && violations+=("no-suppress — $f introduces a type-checker suppression (@ts-*/as unknown as):"$'\n'"$ig")
+      ed="$(printf '%s\n' "$added" | grep -nE 'eslint-disable' | grep -vF ' -- ' || true)"
+      [ -n "$ed" ] && violations+=("no-unjustified-disable — $f introduces eslint-disable without an inline \`-- reason\` (§3):"$'\n'"$ed")
+      # Client storage is off-limits for app code (§3: no PHI/PII in client storage).
+      # Tests are exempt (they assert storage stays empty / gets cleared).
+      if ! is_test "$f"; then
+        case "$f" in
+          src/*)
+            st="$(printf '%s\n' "$added" | grep -nE '\b(localStorage|sessionStorage)\.[A-Za-z]|document\.cookie|indexedDB\.' || true)"
+            [ -n "$st" ] && violations+=("no-client-storage — $f touches localStorage/sessionStorage/cookies/IndexedDB (§3):"$'\n'"$st")
+            ;;
+        esac
+      fi
       # console.* is banned (audit logger only); exempt the logger/audit implementation files.
       case "$f" in
         *logger*|*Logger*|*audit*|*Audit*) : ;;
@@ -55,6 +105,10 @@ for f in "${staged[@]:-}"; do
           [ -n "$cl" ] && violations+=("no-console — $f uses console.* (use the audit logger):"$'\n'"$cl")
           ;;
       esac
+      ;;
+    *.py)
+      nq="$(printf '%s\n' "$added" | grep -nE '#[[:space:]]*(noqa|type:[[:space:]]*ignore)' | grep -vE '(noqa|type:[[:space:]]*ignore)[^#]*#[[:space:]]*[A-Za-z]' || true)"
+      [ -n "$nq" ] && violations+=("no-unjustified-suppress — $f introduces # noqa / # type: ignore without an inline reason (§5):"$'\n'"$nq")
       ;;
   esac
 
