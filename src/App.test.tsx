@@ -52,6 +52,12 @@ describe('App auth gate (white-label)', () => {
             }),
           );
         }
+        if (target.includes('/rest/v1/encouragement_messages')) {
+          // No message posted today — the daily card stays hidden.
+          return Promise.resolve(
+            new Response('[]', { status: 200, headers: { 'Content-Type': 'application/json' } }),
+          );
+        }
         return Promise.resolve(new Response(null, { status: 204 }));
       }),
     );

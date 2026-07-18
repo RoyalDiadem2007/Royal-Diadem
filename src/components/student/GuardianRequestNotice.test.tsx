@@ -40,6 +40,10 @@ function stubFetch(requestsBody: unknown): void {
       if (target.endsWith('/crown-check')) {
         return Promise.resolve(jsonResponse({ today: null, recent: [] }));
       }
+      if (target.includes('/rest/v1/encouragement_messages')) {
+        // No message posted today — the daily card stays hidden.
+        return Promise.resolve(jsonResponse([]));
+      }
       return Promise.resolve(new Response(null, { status: 204 }));
     }),
   );

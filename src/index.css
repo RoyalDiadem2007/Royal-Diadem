@@ -1123,6 +1123,54 @@ textarea:focus-visible {
   }
 }
 
+/* Daily Crown Message (Phase 8): today's approved encouragement, read-only. */
+.daily-message-card {
+  background-color: var(--color-card-surface);
+  border: 1px solid var(--color-crown-gold);
+  border-radius: var(--radius-card);
+  padding: 1.25rem;
+  margin: 1.5rem auto;
+  max-width: 26rem;
+  text-align: left;
+}
+
+.daily-message-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: var(--color-crown-gold);
+  font-size: 1.05rem;
+  margin: 0 0 0.5rem;
+}
+
+.daily-message-text {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.15rem;
+  line-height: 1.5;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.daily-message-loading {
+  color: var(--color-text-secondary);
+  margin: 0 0 0.5rem;
+}
+
+.daily-message-retry {
+  font: inherit;
+  font-weight: 600;
+  padding: 0.5rem 0.9rem;
+  background: transparent;
+  color: var(--color-text-secondary);
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--radius-control);
+  cursor: pointer;
+}
+
+.daily-message-retry:hover {
+  border-color: var(--color-crown-gold);
+}
+
 /* Journal (Phase 6): student card + admin review + prompts manager. */
 .journal-transparency {
   color: var(--color-text-secondary);

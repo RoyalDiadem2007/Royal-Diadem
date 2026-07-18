@@ -18,6 +18,18 @@ export function serviceKey(): string {
   return key;
 }
 
+/** The local stack's anon key — for tests exercising the anon RLS boundary. */
+export function anonKey(): string {
+  const key = env.SUPABASE_E2E_ANON_KEY;
+  if (key === undefined || key === '') {
+    throw new Error(
+      'SUPABASE_E2E_ANON_KEY is not set. Start the stack (npx supabase start), then run: ' +
+        'SUPABASE_E2E_ANON_KEY="$(npx supabase status -o json | jq -r .ANON_KEY)" npm run test:e2e',
+    );
+  }
+  return key;
+}
+
 function restHeaders(extra: Readonly<Record<string, string>> = {}): Record<string, string> {
   return {
     apikey: serviceKey(),

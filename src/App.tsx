@@ -7,6 +7,7 @@ import { LoginScreen } from '@/components/student/LoginScreen';
 import { LandingPage } from '@/components/student/LandingPage';
 import { WelcomeScreen } from '@/components/student/WelcomeScreen';
 import { CrownCheck } from '@/components/student/CrownCheck';
+import { DailyMessage } from '@/components/student/DailyMessage';
 import { Journal } from '@/components/student/Journal';
 import { GuardianRequestNotice } from '@/components/student/GuardianRequestNotice';
 import { GuardianHome } from '@/components/guardian/GuardianHome';
@@ -63,6 +64,7 @@ function StudentHome() {
       <EnablePasskeyPrompt />
       <EnablePushPrompt />
       <GuardianRequestNotice />
+      <DailyMessage />
       <CrownCheck />
       <Journal />
       <button
