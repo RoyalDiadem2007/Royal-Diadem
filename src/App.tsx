@@ -28,7 +28,9 @@ function StudentHome() {
     <div className="app-shell">
       <header className="app-header">
         <img src={brand.logo} alt={`${brand.name} logo`} className="app-logo" />
-        <h1 className="app-title">Welcome, {session.subject.displayName}</h1>
+        <h1 className="app-title">
+          Welcome, <span className="app-title-accent">{session.subject.displayName}</span>
+        </h1>
         {brand.tagline !== '' && <p className="app-tagline">{brand.tagline}</p>}
       </header>
       <EnablePasskeyPrompt />

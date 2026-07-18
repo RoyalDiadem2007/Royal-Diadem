@@ -77,6 +77,7 @@ export function LoginScreen() {
         <label className="login-field">
           <span>PIN</span>
           <input
+            className="login-pin-input"
             type="password"
             name="pin"
             inputMode="numeric"

@@ -18,12 +18,16 @@ describe('applyBrandTheme', () => {
     }
   });
 
-  it('falls back to a system font stack while brand fonts are unset', () => {
+  it('applies the configured brand fonts', () => {
     const root = document.createElement('div');
     applyBrandTheme(root);
 
     const display = root.style.getPropertyValue('--font-display');
     const body = root.style.getPropertyValue('--font-body');
+    // Both fonts are set in branding.config.ts; the empty-string system-stack
+    // fallback in applyBrandTheme remains for white-label configs without them.
+    expect(display).toBe(brand.fonts.display);
+    expect(body).toBe(brand.fonts.body);
     expect(display.trim().length).toBeGreaterThan(0);
     expect(body.trim().length).toBeGreaterThan(0);
   });
