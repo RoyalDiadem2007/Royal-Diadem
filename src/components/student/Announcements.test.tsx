@@ -132,7 +132,7 @@ describe('student Announcements card', () => {
     render(<App />);
     await signIn();
 
-    await screen.findByRole('radiogroup', { name: 'How are you feeling?' });
+    await screen.findByRole('radiogroup', { name: 'How is your crown sitting today?' });
     expect(screen.queryByLabelText('Announcements')).not.toBeInTheDocument();
     expect(stub.markReadCalls).toHaveLength(0);
   });

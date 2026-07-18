@@ -1,8 +1,9 @@
 /**
  * Crown Check mood scale (Spec §6.2): visual/emoji-driven, not clinical.
- * DEFAULT SET pending Kenecia's approval (Spec §12 open item "mood-scale
- * approval") — swap emojis/labels here only; scores 1–5 are the contract the
- * server and trend views rely on.
+ * THE DECIDED SET (Maria, 2026-07-18): the crown-sitting metaphor — 👑 down
+ * to 🌧️ — with the question "How is your crown sitting today?". Swap
+ * emojis/labels here only; scores 1–5 are the contract the server and trend
+ * views rely on.
  */
 
 export type MoodTier = {
@@ -14,12 +15,16 @@ export type MoodTier = {
 };
 
 export const MOOD_SCALE: readonly MoodTier[] = [
-  { score: 1, emoji: '😢', label: 'Heavy' },
-  { score: 2, emoji: '😟', label: 'Low' },
-  { score: 3, emoji: '😐', label: 'Okay' },
-  { score: 4, emoji: '😊', label: 'Good' },
+  { score: 1, emoji: '🌧️', label: 'Heavy' },
+  { score: 2, emoji: '💧', label: 'Low' },
+  { score: 3, emoji: '🌹', label: 'Okay' },
+  { score: 4, emoji: '✨', label: 'Good' },
   { score: 5, emoji: '👑', label: 'Crowned' },
 ];
+
+/** The card heading + daily question (Maria's wording, 2026-07-18). */
+export const CHECK_TITLE = 'Today’s Crown Check';
+export const CHECK_QUESTION = 'How is your crown sitting today?';
 
 /** Spec §6.2 wording — the optional one-line note prompt. */
 export const NOTE_PROMPT = "What's on your mind, queen?";
