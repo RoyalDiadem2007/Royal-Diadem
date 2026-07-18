@@ -69,6 +69,10 @@ function stubFetch(stub: FetchStub): void {
         // these tests assert on the Crown Check card alone.
         return Promise.resolve(jsonResponse({ prompts: [], entries: [] }));
       }
+      if (target.includes('/rest/v1/encouragement_messages')) {
+        // No message posted today — the daily card stays hidden.
+        return Promise.resolve(jsonResponse([]));
+      }
       return Promise.resolve(new Response(null, { status: 204 }));
     }),
   );

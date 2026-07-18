@@ -96,6 +96,7 @@ jobs:
       - name: Run E2E suite (no mocks)
         run: |
           SUPABASE_E2E_SERVICE_KEY="$(supabase status -o json | jq -r '.SERVICE_ROLE_KEY')" \
+          SUPABASE_E2E_ANON_KEY="$(supabase status -o json | jq -r '.ANON_KEY')" \
             npm run test:e2e
 
   audit:
