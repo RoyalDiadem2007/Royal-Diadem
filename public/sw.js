@@ -8,7 +8,7 @@
  * phase as an encrypted, server-mediated queue — not via this cache.
  */
 
-const CACHE_NAME = 'rd-static-v3';
+const CACHE_NAME = 'rd-static-v4';
 
 const PRECACHE_URLS = [
   '/',
@@ -20,9 +20,17 @@ const PRECACHE_URLS = [
   '/icons/icon-maskable-512.png',
   '/icons/apple-touch-icon.png',
   '/icons/favicon-48.png',
+  '/fonts/fraunces-600-latin.woff2',
+  '/fonts/fraunces-600-latin-ext.woff2',
+  '/fonts/albert-sans-400-latin.woff2',
+  '/fonts/albert-sans-400-latin-ext.woff2',
+  '/fonts/albert-sans-600-latin.woff2',
+  '/fonts/albert-sans-600-latin-ext.woff2',
+  '/fonts/albert-sans-400-italic-latin.woff2',
+  '/fonts/albert-sans-400-italic-latin-ext.woff2',
 ];
 
-const STATIC_PATH_PREFIXES = ['/assets/', '/icons/'];
+const STATIC_PATH_PREFIXES = ['/assets/', '/icons/', '/fonts/'];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(

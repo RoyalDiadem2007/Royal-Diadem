@@ -80,15 +80,18 @@ export const brand: BrandConfig = {
     crownGold: '#F0B0A0', // Warm gold-pink (crown jewels, sparkles)
     textPrimary: '#FFFFFF',
     textSecondary: '#F0C0B0',
-    cardSurface: '#1A1A1A',
+    cardSurface: '#191114', // Warm near-black — cards sit in the brand's world, not neutral grey
     success: '#4CAF50',
     warning: '#FFB74D',
     danger: '#EF5350',
   },
   logo: '/assets/royal-diadem-logo.png', // Crowned flamingo
   fonts: {
-    display: '',
-    body: '',
+    // "Modern Regal" direction (Maria, 2026-07-18): Fraunces headings over
+    // Albert Sans body. Self-hosted in public/fonts (declared in index.css) —
+    // no third-party font requests, works offline in the PWA.
+    display: "'Fraunces', Georgia, serif",
+    body: "'Albert Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif",
   },
   reactions: ['👑', '💎', '🦩', '👏', '✨', '💪', '🌹', '🎉', '💖', '🔥'],
 };

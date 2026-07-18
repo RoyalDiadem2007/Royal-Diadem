@@ -4,6 +4,119 @@
  * name, or font here (Spec §3 white-label rule).
  */
 
+/*
+ * Brand fonts, self-hosted (no third-party requests; precached by sw.js for
+ * offline). Families referenced only via --font-display/--font-body, which
+ * applyBrandTheme() sets from branding.config.ts — the white-label rule holds:
+ * a rebrand swaps the config names and these files.
+ */
+@font-face {
+  font-family: 'Fraunces';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/fonts/fraunces-600-latin-ext.woff2') format('woff2');
+  unicode-range:
+    U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329,
+    U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F,
+    U+A720-A7FF;
+}
+
+@font-face {
+  font-family: 'Fraunces';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/fonts/fraunces-600-latin.woff2') format('woff2');
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Albert Sans';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/albert-sans-400-latin-ext.woff2') format('woff2');
+  unicode-range:
+    U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329,
+    U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F,
+    U+A720-A7FF;
+}
+
+@font-face {
+  font-family: 'Albert Sans';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/albert-sans-400-latin.woff2') format('woff2');
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Albert Sans';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/fonts/albert-sans-600-latin-ext.woff2') format('woff2');
+  unicode-range:
+    U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329,
+    U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F,
+    U+A720-A7FF;
+}
+
+@font-face {
+  font-family: 'Albert Sans';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/fonts/albert-sans-600-latin.woff2') format('woff2');
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Albert Sans';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/albert-sans-400-italic-latin-ext.woff2') format('woff2');
+  unicode-range:
+    U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329,
+    U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F,
+    U+A720-A7FF;
+}
+
+@font-face {
+  font-family: 'Albert Sans';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/albert-sans-400-italic-latin.woff2') format('woff2');
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/*
+ * "Modern Regal" design tokens (Maria, 2026-07-18), all derived from brand
+ * colors so the white-label rule holds. Hairlines replace full-strength accent
+ * borders; controls get one radius, cards a slightly larger one.
+ */
+:root {
+  --radius-control: 10px;
+  --radius-card: 14px;
+  --hairline: color-mix(in srgb, var(--color-accent) 18%, transparent);
+  --hairline-strong: color-mix(in srgb, var(--color-accent) 36%, transparent);
+  --field-surface: color-mix(in srgb, var(--color-card-surface) 55%, var(--color-background));
+  --button-gradient: linear-gradient(180deg, var(--color-primary), var(--color-secondary));
+  --button-shadow: 0 6px 18px color-mix(in srgb, var(--color-primary) 28%, transparent);
+}
+
 *,
 *::before,
 *::after {
@@ -46,6 +159,18 @@ button {
   cursor: pointer;
 }
 
+button:focus-visible {
+  outline: 2px solid var(--color-crown-gold);
+  outline-offset: 2px;
+}
+
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--color-crown-gold);
+  outline-offset: 1px;
+}
+
 #root {
   min-height: 100dvh;
 }
@@ -68,9 +193,17 @@ button {
 
 .app-title {
   font-family: var(--font-display);
-  color: var(--color-primary);
+  font-weight: 600;
+  color: var(--color-text-primary);
   font-size: 2rem;
+  letter-spacing: 0.003em;
+  text-wrap: balance;
   margin: 1rem 0 0;
+}
+
+/* The student's name inside the welcome heading. */
+.app-title-accent {
+  color: var(--color-primary);
 }
 
 .app-tagline {
@@ -97,6 +230,7 @@ button {
 
 .login-title {
   font-family: var(--font-display);
+  font-weight: 600;
   color: var(--color-primary);
   font-size: 1.75rem;
   margin: 0.25rem 0 0.75rem;
@@ -119,17 +253,20 @@ button {
 }
 
 .login-field input {
-  background-color: var(--color-card-surface);
+  background-color: var(--field-surface);
   color: var(--color-text-primary);
-  border: 1px solid var(--color-accent);
-  border-radius: 0.5rem;
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--radius-control);
   padding: 0.65rem 0.8rem;
   font-size: 1.05rem;
 }
 
-.login-field input:focus-visible {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 1px;
+/* The PIN gets code-entry treatment: centered, spaced, digit-aligned. */
+.login-pin-input {
+  font-size: 1.15rem;
+  letter-spacing: 0.35em;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
 }
 
 .login-error {
@@ -139,12 +276,15 @@ button {
 }
 
 .login-submit {
-  background-color: var(--color-primary);
+  background: var(--button-gradient);
   color: var(--color-text-primary);
   border: none;
-  border-radius: 0.5rem;
-  padding: 0.7rem 1rem;
-  font-size: 1.05rem;
+  border-radius: var(--radius-control);
+  padding: 0.78rem 1.1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.015em;
+  box-shadow: var(--button-shadow);
 }
 
 .login-submit:disabled {
@@ -162,12 +302,13 @@ button {
 }
 
 .login-passkey {
-  background-color: var(--color-card-surface);
-  color: var(--color-text-primary);
-  border: 1px solid var(--color-primary);
-  border-radius: 0.5rem;
-  padding: 0.7rem 1.2rem;
-  font-size: 1rem;
+  background: transparent;
+  color: var(--color-accent);
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--radius-control);
+  padding: 0.68rem 1.2rem;
+  font-size: 0.95rem;
+  font-weight: 600;
   margin-top: 0.75rem;
 }
 
@@ -178,8 +319,8 @@ button {
 
 .passkey-prompt {
   background-color: var(--color-card-surface);
-  border: 1px solid var(--color-accent);
-  border-radius: 0.75rem;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-card);
   padding: 1rem 1.25rem;
   max-width: 24rem;
   margin-top: 1rem;
@@ -201,25 +342,28 @@ button {
 }
 
 .passkey-prompt-actions button {
-  background-color: var(--color-primary);
+  background: var(--button-gradient);
   color: var(--color-text-primary);
   border: none;
-  border-radius: 0.5rem;
+  border-radius: var(--radius-control);
   padding: 0.5rem 1.2rem;
+  font-weight: 600;
 }
 
 .passkey-prompt-dismiss {
-  background-color: transparent !important;
+  background: transparent !important;
   color: var(--color-text-secondary) !important;
-  border: 1px solid var(--color-accent) !important;
+  border: 1px solid var(--hairline-strong) !important;
+  box-shadow: none !important;
 }
 
 .logout-button {
-  background-color: var(--color-card-surface);
+  background: transparent;
   color: var(--color-text-secondary);
-  border: 1px solid var(--color-accent);
-  border-radius: 0.5rem;
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--radius-control);
   padding: 0.5rem 1.2rem;
+  font-weight: 600;
   margin-top: 1rem;
 }
 
@@ -235,6 +379,8 @@ button {
 }
 
 .error-fallback h1 {
+  font-family: var(--font-display);
+  font-weight: 600;
   color: var(--color-primary);
   font-size: 1.5rem;
   margin: 0;
@@ -247,11 +393,13 @@ button {
 }
 
 .error-fallback button {
-  background-color: var(--color-primary);
+  background: var(--button-gradient);
   color: var(--color-text-primary);
   border: none;
-  border-radius: 0.5rem;
+  border-radius: var(--radius-control);
   padding: 0.6rem 1.4rem;
+  font-weight: 600;
+  box-shadow: var(--button-shadow);
 }
 
 /* Admin file-cabinet shell (Spec §6.10) — desktop-first, brand-token colors. */
@@ -269,7 +417,7 @@ button {
   gap: 1.5rem;
   padding: 1.5rem 1rem;
   background-color: var(--color-card-surface);
-  border-right: 1px solid var(--color-accent);
+  border-right: 1px solid var(--hairline);
 }
 
 .admin-brand {
@@ -286,6 +434,7 @@ button {
 
 .admin-brand-name {
   font-family: var(--font-display);
+  font-weight: 600;
   color: var(--color-primary);
   font-size: 1.1rem;
   line-height: 1.2;
@@ -301,13 +450,15 @@ button {
 .admin-nav-link {
   display: block;
   padding: 0.6rem 0.9rem;
-  border-radius: 0.5rem;
+  border-radius: var(--radius-control);
   color: var(--color-text-secondary);
   text-decoration: none;
+  font-weight: 600;
 }
 
 .admin-nav-link:hover {
-  background-color: var(--color-surface-light);
+  background-color: var(--hairline);
+  color: var(--color-surface-light);
 }
 
 .admin-nav-link-active {
@@ -319,7 +470,7 @@ button {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
-  border-top: 1px solid var(--color-accent);
+  border-top: 1px solid var(--hairline);
   padding-top: 1rem;
 }
 
@@ -341,6 +492,7 @@ button {
 
 .admin-section-title {
   font-family: var(--font-display);
+  font-weight: 600;
   color: var(--color-primary);
   font-size: 1.5rem;
   margin: 0 0 1.25rem;
@@ -352,11 +504,13 @@ button {
 }
 
 .admin-retry-button {
-  background-color: var(--color-primary);
+  background: var(--button-gradient);
   color: var(--color-text-primary);
   border: none;
-  border-radius: 0.5rem;
+  border-radius: var(--radius-control);
   padding: 0.6rem 1.4rem;
+  font-weight: 600;
+  box-shadow: var(--button-shadow);
 }
 
 .admin-stat-grid {
@@ -371,9 +525,9 @@ button {
   flex-direction: column;
   gap: 0.25rem;
   padding: 1.25rem;
-  border-radius: 0.75rem;
+  border-radius: var(--radius-card);
   background-color: var(--color-card-surface);
-  border: 1px solid var(--color-accent);
+  border: 1px solid var(--hairline);
 }
 
 .admin-stat-card-alert {
@@ -400,7 +554,7 @@ button {
   .admin-sidebar {
     width: 100%;
     border-right: none;
-    border-bottom: 1px solid var(--color-accent);
+    border-bottom: 1px solid var(--hairline);
   }
 }
 
@@ -419,6 +573,7 @@ button {
 
 .admin-subsection-title {
   font-family: var(--font-display);
+  font-weight: 600;
   color: var(--color-primary);
   font-size: 1.15rem;
   margin: 0 0 1rem;
@@ -426,8 +581,8 @@ button {
 
 .admin-table-wrap {
   overflow-x: auto;
-  border: 1px solid var(--color-accent);
-  border-radius: 0.75rem;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-card);
 }
 
 .admin-table {
@@ -440,7 +595,7 @@ button {
 .admin-table td {
   text-align: left;
   padding: 0.75rem 1rem;
-  border-bottom: 1px solid var(--color-accent);
+  border-bottom: 1px solid var(--hairline);
   color: var(--color-text-primary);
   white-space: nowrap;
 }
@@ -451,8 +606,10 @@ button {
 
 .admin-table th {
   color: var(--color-text-secondary);
-  font-size: 0.85rem;
+  font-size: 0.78rem;
   font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .admin-table-sub {
@@ -466,11 +623,16 @@ button {
 }
 
 .admin-danger-button {
-  background-color: var(--color-danger);
-  color: var(--color-text-primary);
-  border: none;
-  border-radius: 0.5rem;
+  background: transparent;
+  color: var(--color-danger);
+  border: 1px solid color-mix(in srgb, var(--color-danger) 45%, transparent);
+  border-radius: var(--radius-control);
   padding: 0.5rem 1.2rem;
+  font-weight: 600;
+}
+
+.admin-danger-button:hover {
+  border-color: var(--color-danger);
 }
 
 .admin-pagination {
@@ -486,8 +648,8 @@ button {
 
 .add-student-form {
   background-color: var(--color-card-surface);
-  border: 1px solid var(--color-accent);
-  border-radius: 0.75rem;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-card);
   padding: 1.25rem;
   margin-bottom: 1.5rem;
   max-width: 48rem;
@@ -511,9 +673,9 @@ button {
 .add-student-grid input {
   font: inherit;
   padding: 0.55rem 0.75rem;
-  border: 1px solid var(--color-accent);
-  border-radius: 0.5rem;
-  background-color: var(--color-background);
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--radius-control);
+  background-color: var(--field-surface);
   color: var(--color-text-primary);
 }
 
@@ -529,7 +691,7 @@ button {
 .issued-pin-card {
   background-color: var(--color-card-surface);
   border: 2px solid var(--color-crown-gold);
-  border-radius: 0.75rem;
+  border-radius: var(--radius-card);
   padding: 1.25rem;
   margin-bottom: 1.5rem;
   max-width: 32rem;
@@ -537,6 +699,7 @@ button {
 
 .issued-pin-title {
   font-family: var(--font-display);
+  font-weight: 600;
   color: var(--color-primary);
   font-size: 1.15rem;
   margin: 0 0 1rem;
@@ -570,8 +733,8 @@ button {
 /* CSV import wizard + printable PIN card sheet. */
 .csv-import {
   background-color: var(--color-card-surface);
-  border: 1px solid var(--color-accent);
-  border-radius: 0.75rem;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-card);
   padding: 1.25rem;
   margin-bottom: 1.5rem;
   max-width: 48rem;
@@ -604,9 +767,9 @@ button {
 .csv-mapping-grid select {
   font: inherit;
   padding: 0.55rem 0.75rem;
-  border: 1px solid var(--color-accent);
-  border-radius: 0.5rem;
-  background-color: var(--color-background);
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--radius-control);
+  background-color: var(--field-surface);
   color: var(--color-text-primary);
 }
 
@@ -629,12 +792,13 @@ button {
   flex-direction: column;
   gap: 0.35rem;
   border: 2px dashed var(--color-crown-gold);
-  border-radius: 0.75rem;
+  border-radius: var(--radius-card);
   padding: 1rem;
 }
 
 .pin-card-name {
   font-family: var(--font-display);
+  font-weight: 600;
   color: var(--color-primary);
   font-size: 1.1rem;
 }
@@ -684,8 +848,8 @@ button {
 /* Crown Check — student daily check-in (Spec §6.2: < 30s, zero friction). */
 .crown-check-card {
   background-color: var(--color-card-surface);
-  border: 1px solid var(--color-accent);
-  border-radius: 0.75rem;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-card);
   padding: 1.25rem;
   margin: 1.5rem auto;
   max-width: 26rem;
@@ -694,6 +858,7 @@ button {
 
 .crown-check-title {
   font-family: var(--font-display);
+  font-weight: 600;
   color: var(--color-primary);
   font-size: 1.2rem;
   margin: 0 0 0.5rem;
@@ -718,13 +883,17 @@ button {
   gap: 0.25rem;
   flex: 1;
   padding: 0.5rem 0.25rem;
-  background-color: var(--color-background);
+  background-color: var(--field-surface);
   color: var(--color-text-secondary);
-  border: 1px solid var(--color-accent);
-  border-radius: 0.75rem;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-control);
   cursor: pointer;
   font: inherit;
   font-size: 0.75rem;
+}
+
+.crown-check-mood:hover {
+  border-color: var(--color-crown-gold);
 }
 
 .crown-check-mood-emoji {
@@ -753,9 +922,9 @@ button {
 .crown-check-note input {
   font: inherit;
   padding: 0.55rem 0.75rem;
-  border: 1px solid var(--color-accent);
-  border-radius: 0.5rem;
-  background-color: var(--color-background);
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--radius-control);
+  background-color: var(--field-surface);
   color: var(--color-text-primary);
 }
 
@@ -771,13 +940,16 @@ button {
 
 .crown-check-submit {
   font: inherit;
+  font-weight: 600;
+  letter-spacing: 0.015em;
   width: 100%;
-  padding: 0.65rem 1rem;
+  padding: 0.7rem 1rem;
   border: none;
-  border-radius: 0.5rem;
-  background-color: var(--color-primary);
+  border-radius: var(--radius-control);
+  background: var(--button-gradient);
   color: var(--color-text-primary);
   cursor: pointer;
+  box-shadow: var(--button-shadow);
 }
 
 .crown-check-submit:disabled {
@@ -798,11 +970,12 @@ button {
 .crown-check-edit,
 .crown-check-retry {
   font: inherit;
+  font-weight: 600;
   padding: 0.5rem 0.9rem;
-  background-color: var(--color-card-surface);
+  background: transparent;
   color: var(--color-text-secondary);
-  border: 1px solid var(--color-accent);
-  border-radius: 0.5rem;
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--radius-control);
   cursor: pointer;
 }
 
@@ -886,6 +1059,7 @@ button {
 
 .landing-title {
   font-family: var(--font-display);
+  font-weight: 600;
   color: var(--color-primary);
   font-size: 2.4rem;
   letter-spacing: 0.02em;
@@ -961,9 +1135,9 @@ button {
 .crown-check-note select {
   font: inherit;
   padding: 0.55rem 0.75rem;
-  border: 1px solid var(--color-accent);
-  border-radius: 0.5rem;
-  background-color: var(--color-background);
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--radius-control);
+  background-color: var(--field-surface);
   color: var(--color-text-primary);
   resize: vertical;
 }
@@ -1005,8 +1179,8 @@ button {
 
 .journal-review-entry {
   background-color: var(--color-card-surface);
-  border: 1px solid var(--color-accent);
-  border-radius: 0.75rem;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-card);
   padding: 1rem 1.25rem;
   margin-bottom: 1rem;
   max-width: 48rem;
@@ -1033,9 +1207,9 @@ button {
   font: inherit;
   flex: 1;
   padding: 0.55rem 0.75rem;
-  border: 1px solid var(--color-accent);
-  border-radius: 0.5rem;
-  background-color: var(--color-background);
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--radius-control);
+  background-color: var(--field-surface);
   color: var(--color-text-primary);
 }
 
@@ -1063,8 +1237,8 @@ button {
 /* Encouragement Engine (Phase 7): weekly day cards + gateway rules. */
 .encouragement-day {
   background-color: var(--color-card-surface);
-  border: 1px solid var(--color-accent);
-  border-radius: 0.75rem;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-card);
   padding: 1rem 1.25rem;
   margin-bottom: 1rem;
   max-width: 48rem;
@@ -1104,7 +1278,7 @@ button {
 .guardian-request-card {
   background-color: var(--color-card-surface);
   border: 2px solid var(--color-crown-gold);
-  border-radius: 0.75rem;
+  border-radius: var(--radius-card);
   padding: 1.25rem;
   margin: 1.5rem auto 0;
   max-width: 26rem;
@@ -1133,8 +1307,8 @@ button {
 .guardian-student-card,
 .guardian-view-card {
   background-color: var(--color-card-surface);
-  border: 1px solid var(--color-accent);
-  border-radius: 0.75rem;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-card);
   padding: 1.25rem;
   margin: 1rem auto;
   max-width: 26rem;
@@ -1152,10 +1326,11 @@ button {
   font-size: 1.3rem;
   letter-spacing: 0.35em;
   text-align: center;
+  font-variant-numeric: tabular-nums;
   padding: 0.55rem 0.75rem;
-  border: 1px solid var(--color-accent);
-  border-radius: 0.5rem;
-  background-color: var(--color-background);
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--radius-control);
+  background-color: var(--field-surface);
   color: var(--color-text-primary);
 }
 
@@ -1169,6 +1344,23 @@ button {
 
 .guardian-view-row span:first-child {
   color: var(--color-text-secondary);
+}
+
+/* Shared hover states for the Modern Regal controls (kept last so they win). */
+.login-submit:hover:not(:disabled),
+.passkey-prompt-actions button:hover,
+.error-fallback button:hover,
+.admin-retry-button:hover,
+.crown-check-submit:hover:not(:disabled) {
+  filter: brightness(1.07);
+}
+
+.login-passkey:hover:not(:disabled),
+.logout-button:hover,
+.crown-check-edit:hover,
+.crown-check-retry:hover {
+  border-color: var(--color-crown-gold);
+  color: var(--color-surface-light);
 }
 
 .guardian-trend-list {
