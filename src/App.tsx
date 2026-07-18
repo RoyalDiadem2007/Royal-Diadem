@@ -10,7 +10,7 @@ import { CrownCheck } from '@/components/student/CrownCheck';
 import { DailyMessage } from '@/components/student/DailyMessage';
 import { Announcements } from '@/components/student/Announcements';
 import { UpcomingEvents } from '@/components/student/UpcomingEvents';
-import { Journal } from '@/components/student/Journal';
+import { JournalPage } from '@/components/student/JournalPage';
 import { GuardianRequestNotice } from '@/components/student/GuardianRequestNotice';
 import { SharePage } from '@/components/student/SharePage';
 import { GuardianHome } from '@/components/guardian/GuardianHome';
@@ -73,13 +73,20 @@ function StudentHome() {
       <DailyMessage />
       <Announcements />
       <CrownCheck />
-      <Journal />
-      <Link to="/share" className="share-link-card">
-        <span className="share-link-title">
-          <span aria-hidden="true">👑</span> Royal Diadem Share
-        </span>
-        <span className="share-link-sub">Celebrate each other — posts, comments, crowns →</span>
-      </Link>
+      <nav className="door-grid" aria-label="Your spaces">
+        <Link to="/journal" className="door-card">
+          <span className="door-title">
+            <span aria-hidden="true">📖</span> My Journal
+          </span>
+          <span className="door-sub">Write what&rsquo;s in your heart</span>
+        </Link>
+        <Link to="/share" className="door-card">
+          <span className="door-title">
+            <span aria-hidden="true">👑</span> Royal Diadem Share
+          </span>
+          <span className="door-sub">Celebrate each other</span>
+        </Link>
+      </nav>
       <UpcomingEvents />
       <button
         type="button"
@@ -114,6 +121,7 @@ function AuthedRoutes({ session }: { session: AuthSession }) {
     <Routes>
       <Route path="/" element={isAdmin ? <Navigate to="/admin" replace /> : <StudentHome />} />
       {!isAdmin && <Route path="/share" element={<SharePage />} />}
+      {!isAdmin && <Route path="/journal" element={<JournalPage />} />}
       {isAdmin && (
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<DashboardPage />} />

@@ -216,7 +216,7 @@ describe('Royal Diadem Share page', () => {
     const file = new File([new Uint8Array([0xff, 0xd8, 0xff, 0xe0])], 'crown.jpg', {
       type: 'image/jpeg',
     });
-    await user.upload(screen.getByLabelText('Add a photo (optional)'), file);
+    await user.upload(screen.getByLabelText(/Add a photo/), file);
     expect(screen.getByRole('img', { name: 'Your photo, ready to share' })).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: 'Share it' }));

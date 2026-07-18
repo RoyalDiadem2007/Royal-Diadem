@@ -1179,38 +1179,145 @@ textarea:focus-visible {
 }
 
 /* Royal Diadem Share (Phase 10a): feed, composer, reactions, peer flag. */
-.share-link-card {
+
+/* The Share wallpaper: crowns and flamingos drifting behind the feed. */
+.share-wallpaper {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.share-wallpaper-motif {
+  position: absolute;
+  opacity: 0.08;
+  animation-name: share-drift;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
+
+@keyframes share-drift {
+  from {
+    transform: translateY(0) rotate(-8deg);
+  }
+  to {
+    transform: translateY(-1.8rem) rotate(7deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .share-wallpaper-motif {
+    animation: none;
+  }
+}
+
+/* Feed content floats above the wallpaper. */
+.share-content {
+  position: relative;
+  z-index: 1;
+}
+
+/* A soft crown-gold dawn behind full pages — ambience, never a spotlight. */
+.page-glow {
+  background-image: radial-gradient(
+    60rem 24rem at 50% -8rem,
+    color-mix(in srgb, var(--color-crown-gold) 9%, transparent),
+    transparent 70%
+  );
+}
+
+.page-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  font-size: 1.7rem;
+  letter-spacing: 0.01em;
+  margin: 0.5rem 0 0.15rem;
+}
+
+.page-title-mark {
+  margin-right: 0.4rem;
+  font-size: 1.2rem;
+  vertical-align: 0.1em;
+}
+
+/* Home doors: the two rooms a student can step into. */
+.door-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  max-width: 26rem;
+  margin: 1.5rem auto;
+}
+
+@media (max-width: 24rem) {
+  .door-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.door-card {
   display: block;
   background-color: var(--color-card-surface);
   border: 1px solid var(--hairline);
+  border-top: 2px solid color-mix(in srgb, var(--color-crown-gold) 55%, transparent);
   border-radius: var(--radius-card);
-  padding: 1.25rem;
-  margin: 1.5rem auto;
-  max-width: 26rem;
+  padding: 1rem;
   text-align: left;
   text-decoration: none;
+  transition: border-color 0.15s ease;
 }
 
-.share-link-card:hover {
+.door-card:hover,
+.door-card:focus-visible {
   border-color: var(--color-crown-gold);
 }
 
-.share-link-title {
+.door-title {
   display: block;
   font-family: var(--font-display);
   font-weight: 600;
   color: var(--color-primary);
-  font-size: 1.2rem;
+  font-size: 1.05rem;
+  margin-bottom: 0.2rem;
 }
 
-.share-link-sub {
+.door-sub {
   color: var(--color-text-secondary);
-  font-size: 0.9rem;
+  font-size: 0.85rem;
+}
+
+/* The queen's seal: a small monogram coin marking every voice in the feed. */
+.avatar-coin {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background-color: var(--field-surface);
+  border: 1px solid color-mix(in srgb, var(--color-crown-gold) 45%, transparent);
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--color-crown-gold);
+  flex: none;
+}
+
+.avatar-coin-small {
+  width: 1.4rem;
+  height: 1.4rem;
+  font-size: 0.7rem;
+  margin-right: 0.35rem;
+  vertical-align: -0.35rem;
 }
 
 .share-header {
-  max-width: 26rem;
+  max-width: 28rem;
   margin: 1.5rem auto 0;
+  padding: 0 0.25rem;
   text-align: left;
 }
 
@@ -1227,10 +1334,11 @@ textarea:focus-visible {
 .share-composer {
   background-color: var(--color-card-surface);
   border: 1px solid var(--hairline);
+  border-top: 2px solid color-mix(in srgb, var(--color-crown-gold) 55%, transparent);
   border-radius: var(--radius-card);
   padding: 1.25rem;
   margin: 1rem auto;
-  max-width: 26rem;
+  max-width: 28rem;
   text-align: left;
   display: flex;
   flex-direction: column;
@@ -1250,8 +1358,27 @@ textarea:focus-visible {
   border-radius: var(--radius-card);
   padding: 1.25rem;
   margin: 1rem auto;
-  max-width: 26rem;
+  max-width: 28rem;
   text-align: left;
+}
+
+.share-author-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0 0 0.6rem;
+}
+
+.share-author-name {
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.share-author-date {
+  color: var(--color-text-secondary);
+  font-size: 0.85rem;
 }
 
 .share-pending-tag {
@@ -1272,12 +1399,17 @@ textarea:focus-visible {
   display: inline-flex;
   align-items: center;
   gap: 0.25rem;
-  padding: 0.25rem 0.5rem;
+  padding: 0.25rem 0.6rem;
   background-color: var(--field-surface);
   border: 1px solid var(--hairline);
-  border-radius: var(--radius-control);
+  border-radius: 999px;
   cursor: pointer;
   color: var(--color-text-secondary);
+  transition: border-color 0.15s ease;
+}
+
+.share-reaction:hover {
+  border-color: var(--color-crown-gold);
 }
 
 .share-reaction-mine {
@@ -1296,9 +1428,9 @@ textarea:focus-visible {
 
 .share-comment {
   color: var(--color-text-secondary);
-  margin: 0.35rem 0;
-  border-top: 1px solid var(--hairline);
-  padding-top: 0.35rem;
+  margin: 0.5rem 0 0.5rem 0.5rem;
+  border-left: 2px solid var(--hairline);
+  padding-left: 0.6rem;
 }
 
 .share-comment strong {
@@ -1347,11 +1479,40 @@ textarea:focus-visible {
   margin: 0.5rem 0;
 }
 
+/* The file input hides behind a real button; the label keeps them bound. */
+.share-photo-pick {
+  position: relative;
+}
+
 .share-photo-pick input {
-  display: block;
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  border: 0;
+}
+
+.share-photo-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 0.45rem 0.9rem;
+  background: transparent;
   color: var(--color-text-secondary);
-  font-size: 0.85rem;
-  margin-top: 0.25rem;
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--radius-control);
+  cursor: pointer;
+}
+
+.share-photo-pick:hover .share-photo-button,
+.share-photo-pick input:focus-visible + .share-photo-button {
+  border-color: var(--color-crown-gold);
+  color: var(--color-text-primary);
 }
 
 .share-photo-preview img {
