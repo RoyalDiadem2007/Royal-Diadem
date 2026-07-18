@@ -22,7 +22,7 @@ const TODAY_ENTRY = {
   id: 'chk-1',
   checkDate: '2026-07-17',
   moodScore: 4,
-  moodEmoji: '😊',
+  moodEmoji: '✨',
   note: 'ready for the weekend',
 };
 
@@ -110,7 +110,9 @@ describe('student Crown Check', () => {
     render(<App />);
     await signIn();
 
-    const scale = await screen.findByRole('radiogroup', { name: 'How are you feeling?' });
+    const scale = await screen.findByRole('radiogroup', {
+      name: 'How is your crown sitting today?',
+    });
     expect(scale).toBeInTheDocument();
 
     const user = userEvent.setup();
@@ -121,12 +123,12 @@ describe('student Crown Check', () => {
     await user.type(screen.getByLabelText(/What's on your mind, queen\?/), 'ready for the weekend');
     await user.click(screen.getByRole('button', { name: 'Check in' }));
 
-    await screen.findByText('Crown Check ✓');
+    await screen.findByText('Today’s Crown Check ✓');
     expect(screen.getByText(/feeling good today/)).toBeInTheDocument();
     expect(screen.getByText(/“ready for the weekend”/)).toBeInTheDocument();
 
     const sent = sentBody(stub.submitCalls[0]);
-    expect(sent).toEqual({ moodScore: 4, moodEmoji: '😊', note: 'ready for the weekend' });
+    expect(sent).toEqual({ moodScore: 4, moodEmoji: '✨', note: 'ready for the weekend' });
     const headers = new Headers(stub.submitCalls[0]?.headers);
     expect(headers.get('authorization')).toBe('Bearer raw-student-token');
   });
@@ -141,13 +143,13 @@ describe('student Crown Check', () => {
 
     render(<App />);
     await signIn();
-    await screen.findByRole('radiogroup', { name: 'How are you feeling?' });
+    await screen.findByRole('radiogroup', { name: 'How is your crown sitting today?' });
 
     const user = userEvent.setup();
     await user.click(screen.getByRole('radio', { name: /Crowned/ }));
     await user.click(screen.getByRole('button', { name: 'Check in' }));
 
-    await screen.findByText('Crown Check ✓');
+    await screen.findByText('Today’s Crown Check ✓');
     const sent = sentBody(stub.submitCalls[0]);
     expect(sent).toEqual({ moodScore: 5, moodEmoji: '👑' });
   });
@@ -156,7 +158,7 @@ describe('student Crown Check', () => {
     const stub: FetchStub = {
       statusResponses: [jsonResponse({ today: TODAY_ENTRY, recent: [TODAY_ENTRY] })],
       submitResponses: [
-        jsonResponse({ check: { ...TODAY_ENTRY, moodScore: 2, moodEmoji: '😟', note: null } }),
+        jsonResponse({ check: { ...TODAY_ENTRY, moodScore: 2, moodEmoji: '💧', note: null } }),
       ],
       submitCalls: [],
     };
@@ -165,7 +167,7 @@ describe('student Crown Check', () => {
     render(<App />);
     await signIn();
 
-    await screen.findByText('Crown Check ✓');
+    await screen.findByText('Today’s Crown Check ✓');
     expect(screen.getByText(/feeling good today/)).toBeInTheDocument();
 
     const user = userEvent.setup();
@@ -183,7 +185,7 @@ describe('student Crown Check', () => {
 
     await screen.findByText(/feeling low today/);
     const sent = sentBody(stub.submitCalls[0]);
-    expect(sent).toEqual({ moodScore: 2, moodEmoji: '😟' });
+    expect(sent).toEqual({ moodScore: 2, moodEmoji: '💧' });
   });
 
   it('shows a calm error state when loading fails and recovers via Try again', async () => {
@@ -204,7 +206,7 @@ describe('student Crown Check', () => {
     expect(card).toHaveTextContent("Can't reach Royal Diadem right now.");
 
     await userEvent.setup().click(screen.getByRole('button', { name: 'Try again' }));
-    await screen.findByRole('radiogroup', { name: 'How are you feeling?' });
+    await screen.findByRole('radiogroup', { name: 'How is your crown sitting today?' });
   });
 
   it('keeps her on the picker with a gentle message when the submit is rate limited', async () => {
@@ -222,7 +224,7 @@ describe('student Crown Check', () => {
 
     render(<App />);
     await signIn();
-    await screen.findByRole('radiogroup', { name: 'How are you feeling?' });
+    await screen.findByRole('radiogroup', { name: 'How is your crown sitting today?' });
 
     const user = userEvent.setup();
     await user.click(screen.getByRole('radio', { name: /Okay/ }));
@@ -230,7 +232,9 @@ describe('student Crown Check', () => {
 
     const alert = await screen.findByRole('alert');
     expect(alert).toHaveTextContent('Whoa, lots of taps!');
-    expect(screen.getByRole('radiogroup', { name: 'How are you feeling?' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('radiogroup', { name: 'How is your crown sitting today?' }),
+    ).toBeInTheDocument();
   });
 
   it('treats a malformed 2xx body as a server failure, never a crash', async () => {

@@ -5,7 +5,14 @@
  * a server-side admin concern; nothing about them ever renders here.
  */
 import { useEffect, useState } from 'react';
-import { MOOD_SCALE, moodTierFor, NOTE_MAX_LENGTH, NOTE_PROMPT } from '@/config/crownCheck.config';
+import {
+  CHECK_QUESTION,
+  CHECK_TITLE,
+  MOOD_SCALE,
+  moodTierFor,
+  NOTE_MAX_LENGTH,
+  NOTE_PROMPT,
+} from '@/config/crownCheck.config';
 import { fetchCrownCheckStatus, submitCrownCheck, type CrownCheckEntry } from '@/lib/crownCheck';
 import type { ApiFailure } from '@/lib/api';
 import { useAuth } from '@/lib/authStore';
@@ -132,7 +139,7 @@ export function CrownCheck() {
     const tier = moodTierFor(state.today.moodScore);
     return (
       <section className="crown-check-card" aria-label="Crown Check">
-        <h2 className="crown-check-title">Crown Check ✓</h2>
+        <h2 className="crown-check-title">{CHECK_TITLE} ✓</h2>
         <p className="crown-check-done">
           <span className="crown-check-done-emoji" aria-hidden="true">
             {state.today.moodEmoji}
@@ -155,9 +162,9 @@ export function CrownCheck() {
 
   return (
     <section className="crown-check-card" aria-label="Crown Check">
-      <h2 className="crown-check-title">Crown Check</h2>
-      <p className="crown-check-question">How are you feeling today, queen?</p>
-      <div role="radiogroup" aria-label="How are you feeling?" className="crown-check-scale">
+      <h2 className="crown-check-title">{CHECK_TITLE}</h2>
+      <p className="crown-check-question">{CHECK_QUESTION}</p>
+      <div role="radiogroup" aria-label={CHECK_QUESTION} className="crown-check-scale">
         {MOOD_SCALE.map((tier) => (
           <button
             key={tier.score}

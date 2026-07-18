@@ -122,7 +122,7 @@ describe('Daily Crown Message', () => {
     await signIn();
 
     // Wait for the home screen (Crown Check card) before asserting absence.
-    await screen.findByRole('radiogroup', { name: 'How are you feeling?' });
+    await screen.findByRole('radiogroup', { name: 'How is your crown sitting today?' });
     expect(screen.queryByLabelText('Daily Crown Message')).not.toBeInTheDocument();
   });
 
