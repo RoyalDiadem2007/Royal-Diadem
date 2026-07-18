@@ -1,13 +1,12 @@
 /**
- * Daily Crown Message tests driven through the real App: real router, real
+ * Announcements card tests driven through the real App: real router, real
  * auth store, real component. Only fetch (the network boundary) is mocked.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { App } from '@/App';
 import { resetAuthForTests } from '@/lib/authStore';
-import { localDateIso } from '@/lib/dailyMessage';
 
 vi.mock('@/lib/turnstile', () => ({
   getTurnstileToken: vi.fn(() => Promise.resolve('turnstile-token-0123456789')),
@@ -19,6 +18,23 @@ const SESSION_BODY = {
   subject: { type: 'student', id: 'stu-1', displayName: 'Jada', role: 'student' },
 };
 
+const FEED = [
+  {
+    id: 'ann-2',
+    title: 'Retreat sign-ups open',
+    body: 'Grab your spot before Friday!',
+    priority: 'urgent',
+    created_at: '2026-07-18T15:00:00Z',
+  },
+  {
+    id: 'ann-1',
+    title: 'New journal prompts',
+    body: 'Fresh prompts are waiting for you.',
+    priority: 'normal',
+    created_at: '2026-07-16T12:00:00Z',
+  },
+];
+
 function jsonResponse(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
     status,
@@ -27,9 +43,8 @@ function jsonResponse(body: unknown, status = 200): Response {
 }
 
 type FetchStub = {
-  messageResponses: Response[];
-  messageUrls: string[];
-  messageInits: (RequestInit | undefined)[];
+  feedResponses: Response[];
+  markReadCalls: RequestInit[];
 };
 
 function stubFetch(stub: FetchStub): void {
@@ -40,19 +55,21 @@ function stubFetch(stub: FetchStub): void {
       if (target.endsWith('/auth-login')) {
         return Promise.resolve(jsonResponse(SESSION_BODY));
       }
-      if (target.includes('/rest/v1/encouragement_messages')) {
-        stub.messageUrls.push(target);
-        stub.messageInits.push(init);
-        const next = stub.messageResponses.shift();
+      if (target.includes('/rest/v1/announcements')) {
+        const next = stub.feedResponses.shift();
         return Promise.resolve(next ?? jsonResponse([]));
       }
+      if (target.endsWith('/announcement-reads')) {
+        if (init !== undefined) {
+          stub.markReadCalls.push(init);
+        }
+        return Promise.resolve(jsonResponse({ marked: 2 }));
+      }
       if (target.includes('/rest/v1/')) {
-        // Other passive cards (events, announcements) stay quietly empty.
+        // Other passive cards (daily message, events) stay quietly empty.
         return Promise.resolve(jsonResponse([]));
       }
       if (target.endsWith('/crown-check')) {
-        // The Crown Check card shares the home screen; keep it quietly
-        // healthy so these tests assert on the daily message alone.
         return Promise.resolve(jsonResponse({ today: null, recent: [] }));
       }
       if (target.endsWith('/journal')) {
@@ -83,69 +100,58 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-describe('Daily Crown Message', () => {
-  it("shows today's posted message after sign-in, requested with the anon key", async () => {
-    const today = localDateIso(new Date());
-    const stub: FetchStub = {
-      messageResponses: [
-        jsonResponse([{ message_text: 'Walk tall today, queen.', scheduled_date: today }]),
-      ],
-      messageUrls: [],
-      messageInits: [],
-    };
+describe('student Announcements card', () => {
+  it('shows the feed newest-first with urgent emphasis and records receipts', async () => {
+    const stub: FetchStub = { feedResponses: [jsonResponse(FEED)], markReadCalls: [] };
     stubFetch(stub);
 
     render(<App />);
     await signIn();
 
-    await screen.findByText('Walk tall today, queen.');
-    expect(screen.getByText(/Today’s Crown Message/)).toBeInTheDocument();
+    await screen.findByText('Retreat sign-ups open');
+    expect(screen.getByText('New journal prompts')).toBeInTheDocument();
+    expect(screen.getByText('Urgent')).toBeInTheDocument();
 
-    // The read asks for exactly today's posted row, as the anon role.
-    expect(stub.messageUrls[0]).toContain('status=eq.posted');
-    expect(stub.messageUrls[0]).toContain(`scheduled_date=eq.${today}`);
-    const headers = new Headers(stub.messageInits[0]?.headers);
-    expect(headers.get('apikey')).toBe('sb_publishable_test');
-    // A student's opaque session token must never reach the Data API.
-    expect(headers.get('authorization')).toBe('Bearer sb_publishable_test');
+    // Receipts go through the Edge Function with her session, both ids.
+    await waitFor(() => {
+      expect(stub.markReadCalls).toHaveLength(1);
+    });
+    const call = stub.markReadCalls[0];
+    if (typeof call?.body !== 'string') {
+      throw new Error('mark-read body was not a JSON string');
+    }
+    expect(JSON.parse(call.body)).toEqual({ announcementIds: ['ann-2', 'ann-1'] });
+    const headers = new Headers(call.headers);
+    expect(headers.get('authorization')).toBe('Bearer raw-student-token');
   });
 
-  it('renders nothing at all when no message is posted today', async () => {
-    const stub: FetchStub = {
-      messageResponses: [jsonResponse([])],
-      messageUrls: [],
-      messageInits: [],
-    };
+  it('renders nothing at all when no announcements exist', async () => {
+    const stub: FetchStub = { feedResponses: [jsonResponse([])], markReadCalls: [] };
     stubFetch(stub);
 
     render(<App />);
     await signIn();
 
-    // Wait for the home screen (Crown Check card) before asserting absence.
     await screen.findByRole('radiogroup', { name: 'How are you feeling?' });
-    expect(screen.queryByLabelText('Daily Crown Message')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Announcements')).not.toBeInTheDocument();
+    expect(stub.markReadCalls).toHaveLength(0);
   });
 
   it('shows a quiet error with retry, and recovers when retry succeeds', async () => {
-    const today = localDateIso(new Date());
     const stub: FetchStub = {
-      messageResponses: [
-        new Response(null, { status: 500 }),
-        jsonResponse([{ message_text: 'Grace looks good on you.', scheduled_date: today }]),
-      ],
-      messageUrls: [],
-      messageInits: [],
+      feedResponses: [new Response(null, { status: 500 }), jsonResponse(FEED)],
+      markReadCalls: [],
     };
     stubFetch(stub);
 
     render(<App />);
     await signIn();
 
-    await screen.findByText(/Crown Message couldn’t load/);
+    await screen.findByText(/Announcements couldn’t load/);
     const user = userEvent.setup();
     await user.click(screen.getByRole('button', { name: 'Try again' }));
 
-    await screen.findByText('Grace looks good on you.');
+    await screen.findByText('Retreat sign-ups open');
     expect(screen.queryByText(/couldn’t load/)).not.toBeInTheDocument();
   });
 });

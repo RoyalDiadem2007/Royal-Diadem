@@ -30,6 +30,9 @@ export const ADMIN_SECTIONS: readonly AdminSection[] = [
   // The AI surface stays super_admin regardless of OD-12 (Spec §6.5:
   // admin-gated; the human IS the gate).
   { id: 'encouragement', label: 'Encouragement', path: 'encouragement', roles: ['super_admin'] },
+  // Program content sections: super_admin until OD-12 assigns these rights.
+  { id: 'calendar', label: 'Calendar', path: 'calendar', roles: ['super_admin'] },
+  { id: 'announcements', label: 'Announcements', path: 'announcements', roles: ['super_admin'] },
 ];
 
 export function sectionsForRole(role: AdminRole): readonly AdminSection[] {

@@ -1,5 +1,5 @@
 /**
- * Daily Crown Message tests driven through the real App: real router, real
+ * Upcoming events card tests driven through the real App: real router, real
  * auth store, real component. Only fetch (the network boundary) is mocked.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -19,6 +19,12 @@ const SESSION_BODY = {
   subject: { type: 'student', id: 'stu-1', displayName: 'Jada', role: 'student' },
 };
 
+function daysFromToday(days: number): string {
+  const base = new Date(`${localDateIso(new Date())}T00:00:00Z`);
+  base.setUTCDate(base.getUTCDate() + days);
+  return base.toISOString().slice(0, 10);
+}
+
 function jsonResponse(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
     status,
@@ -26,33 +32,25 @@ function jsonResponse(body: unknown, status = 200): Response {
   });
 }
 
-type FetchStub = {
-  messageResponses: Response[];
-  messageUrls: string[];
-  messageInits: (RequestInit | undefined)[];
-};
+type FetchStub = { eventResponses: Response[] };
 
 function stubFetch(stub: FetchStub): void {
   vi.stubGlobal(
     'fetch',
-    vi.fn((url: RequestInfo | URL, init?: RequestInit) => {
+    vi.fn((url: RequestInfo | URL) => {
       const target = typeof url === 'string' ? url : url instanceof URL ? url.href : url.url;
       if (target.endsWith('/auth-login')) {
         return Promise.resolve(jsonResponse(SESSION_BODY));
       }
-      if (target.includes('/rest/v1/encouragement_messages')) {
-        stub.messageUrls.push(target);
-        stub.messageInits.push(init);
-        const next = stub.messageResponses.shift();
+      if (target.includes('/rest/v1/calendar_events')) {
+        const next = stub.eventResponses.shift();
         return Promise.resolve(next ?? jsonResponse([]));
       }
       if (target.includes('/rest/v1/')) {
-        // Other passive cards (events, announcements) stay quietly empty.
+        // Other passive cards (daily message, announcements) stay empty.
         return Promise.resolve(jsonResponse([]));
       }
       if (target.endsWith('/crown-check')) {
-        // The Crown Check card shares the home screen; keep it quietly
-        // healthy so these tests assert on the daily message alone.
         return Promise.resolve(jsonResponse({ today: null, recent: [] }));
       }
       if (target.endsWith('/journal')) {
@@ -83,69 +81,88 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-describe('Daily Crown Message', () => {
-  it("shows today's posted message after sign-in, requested with the anon key", async () => {
-    const today = localDateIso(new Date());
+describe('student Upcoming events card', () => {
+  it('lists upcoming dates with times, expanding weekly repeats', async () => {
     const stub: FetchStub = {
-      messageResponses: [
-        jsonResponse([{ message_text: 'Walk tall today, queen.', scheduled_date: today }]),
+      eventResponses: [
+        jsonResponse([
+          {
+            id: 'evt-weekly',
+            title: 'Bible study',
+            description: 'Bring your journal',
+            event_date: daysFromToday(-28),
+            event_time: '18:00:00',
+            end_time: '19:30:00',
+            is_recurring: true,
+            recurrence_rule: 'FREQ=WEEKLY',
+          },
+          {
+            id: 'evt-oneoff',
+            title: 'Summer retreat',
+            description: null,
+            event_date: daysFromToday(10),
+            event_time: null,
+            end_time: null,
+            is_recurring: false,
+            recurrence_rule: null,
+          },
+        ]),
       ],
-      messageUrls: [],
-      messageInits: [],
     };
     stubFetch(stub);
 
     render(<App />);
     await signIn();
 
-    await screen.findByText('Walk tall today, queen.');
-    expect(screen.getByText(/Today’s Crown Message/)).toBeInTheDocument();
-
-    // The read asks for exactly today's posted row, as the anon role.
-    expect(stub.messageUrls[0]).toContain('status=eq.posted');
-    expect(stub.messageUrls[0]).toContain(`scheduled_date=eq.${today}`);
-    const headers = new Headers(stub.messageInits[0]?.headers);
-    expect(headers.get('apikey')).toBe('sb_publishable_test');
-    // A student's opaque session token must never reach the Data API.
-    expect(headers.get('authorization')).toBe('Bearer sb_publishable_test');
+    await screen.findByText('Summer retreat');
+    const card = screen.getByRole('region', { name: 'Upcoming events' });
+    expect(card).toHaveTextContent('Coming up');
+    expect(card).toHaveTextContent('Summer retreat');
+    // The weekly series from a month back still produces upcoming dates.
+    expect(screen.getAllByText('Bible study').length).toBeGreaterThan(0);
+    expect(card).toHaveTextContent('18:00–19:30');
+    expect(card).toHaveTextContent('Bring your journal');
   });
 
-  it('renders nothing at all when no message is posted today', async () => {
-    const stub: FetchStub = {
-      messageResponses: [jsonResponse([])],
-      messageUrls: [],
-      messageInits: [],
-    };
+  it('renders nothing at all when nothing is coming up', async () => {
+    const stub: FetchStub = { eventResponses: [jsonResponse([])] };
     stubFetch(stub);
 
     render(<App />);
     await signIn();
 
-    // Wait for the home screen (Crown Check card) before asserting absence.
     await screen.findByRole('radiogroup', { name: 'How are you feeling?' });
-    expect(screen.queryByLabelText('Daily Crown Message')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Upcoming events')).not.toBeInTheDocument();
   });
 
   it('shows a quiet error with retry, and recovers when retry succeeds', async () => {
-    const today = localDateIso(new Date());
     const stub: FetchStub = {
-      messageResponses: [
+      eventResponses: [
         new Response(null, { status: 500 }),
-        jsonResponse([{ message_text: 'Grace looks good on you.', scheduled_date: today }]),
+        jsonResponse([
+          {
+            id: 'evt-1',
+            title: 'Game night',
+            description: null,
+            event_date: daysFromToday(3),
+            event_time: null,
+            end_time: null,
+            is_recurring: false,
+            recurrence_rule: null,
+          },
+        ]),
       ],
-      messageUrls: [],
-      messageInits: [],
     };
     stubFetch(stub);
 
     render(<App />);
     await signIn();
 
-    await screen.findByText(/Crown Message couldn’t load/);
+    await screen.findByText(/Upcoming events couldn’t load/);
     const user = userEvent.setup();
     await user.click(screen.getByRole('button', { name: 'Try again' }));
 
-    await screen.findByText('Grace looks good on you.');
+    await screen.findByText('Game night');
     expect(screen.queryByText(/couldn’t load/)).not.toBeInTheDocument();
   });
 });

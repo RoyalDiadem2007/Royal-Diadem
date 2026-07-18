@@ -8,6 +8,8 @@ import { LandingPage } from '@/components/student/LandingPage';
 import { WelcomeScreen } from '@/components/student/WelcomeScreen';
 import { CrownCheck } from '@/components/student/CrownCheck';
 import { DailyMessage } from '@/components/student/DailyMessage';
+import { Announcements } from '@/components/student/Announcements';
+import { UpcomingEvents } from '@/components/student/UpcomingEvents';
 import { Journal } from '@/components/student/Journal';
 import { GuardianRequestNotice } from '@/components/student/GuardianRequestNotice';
 import { GuardianHome } from '@/components/guardian/GuardianHome';
@@ -17,6 +19,8 @@ import { StudentsPage } from '@/components/admin/StudentsPage';
 import { CrownChecksPage } from '@/components/admin/CrownChecksPage';
 import { JournalsPage } from '@/components/admin/JournalsPage';
 import { EncouragementPage } from '@/components/admin/EncouragementPage';
+import { CalendarPage } from '@/components/admin/CalendarPage';
+import { AnnouncementsPage } from '@/components/admin/AnnouncementsPage';
 import { AdminLayout } from '@/layouts/AdminLayout';
 import { exitStudentMode, logout, useAuth, type AuthSession } from '@/lib/authStore';
 
@@ -65,8 +69,10 @@ function StudentHome() {
       <EnablePushPrompt />
       <GuardianRequestNotice />
       <DailyMessage />
+      <Announcements />
       <CrownCheck />
       <Journal />
+      <UpcomingEvents />
       <button
         type="button"
         className="logout-button"
@@ -106,6 +112,8 @@ function AuthedRoutes({ session }: { session: AuthSession }) {
           <Route path="crown-checks" element={<CrownChecksPage />} />
           <Route path="journals" element={<JournalsPage />} />
           <Route path="encouragement" element={<EncouragementPage />} />
+          <Route path="calendar" element={<CalendarPage />} />
+          <Route path="announcements" element={<AnnouncementsPage />} />
         </Route>
       )}
       <Route path="*" element={<Navigate to="/" replace />} />
