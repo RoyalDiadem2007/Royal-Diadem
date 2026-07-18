@@ -475,3 +475,9 @@ verify_jwt = false
 
 [functions.announcement-reads]
 verify_jwt = false
+
+[functions.share]
+verify_jwt = false
+
+[functions.admin-share]
+verify_jwt = false

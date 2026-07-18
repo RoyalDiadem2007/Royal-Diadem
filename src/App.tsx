@@ -1,4 +1,4 @@
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router';
+import { BrowserRouter, Link, Navigate, Route, Routes } from 'react-router';
 import { brand } from '@/config/branding.config';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { EnablePasskeyPrompt } from '@/components/ui/EnablePasskeyPrompt';
@@ -12,6 +12,7 @@ import { Announcements } from '@/components/student/Announcements';
 import { UpcomingEvents } from '@/components/student/UpcomingEvents';
 import { Journal } from '@/components/student/Journal';
 import { GuardianRequestNotice } from '@/components/student/GuardianRequestNotice';
+import { SharePage } from '@/components/student/SharePage';
 import { GuardianHome } from '@/components/guardian/GuardianHome';
 import { GuardianLoginScreen } from '@/components/guardian/GuardianLoginScreen';
 import { DashboardPage } from '@/components/admin/DashboardPage';
@@ -21,6 +22,7 @@ import { JournalsPage } from '@/components/admin/JournalsPage';
 import { EncouragementPage } from '@/components/admin/EncouragementPage';
 import { CalendarPage } from '@/components/admin/CalendarPage';
 import { AnnouncementsPage } from '@/components/admin/AnnouncementsPage';
+import { ShareModerationPage } from '@/components/admin/ShareModerationPage';
 import { AdminLayout } from '@/layouts/AdminLayout';
 import { exitStudentMode, logout, useAuth, type AuthSession } from '@/lib/authStore';
 
@@ -72,6 +74,12 @@ function StudentHome() {
       <Announcements />
       <CrownCheck />
       <Journal />
+      <Link to="/share" className="share-link-card">
+        <span className="share-link-title">
+          <span aria-hidden="true">👑</span> Royal Diadem Share
+        </span>
+        <span className="share-link-sub">Celebrate each other — posts, comments, crowns →</span>
+      </Link>
       <UpcomingEvents />
       <button
         type="button"
@@ -105,6 +113,7 @@ function AuthedRoutes({ session }: { session: AuthSession }) {
   return (
     <Routes>
       <Route path="/" element={isAdmin ? <Navigate to="/admin" replace /> : <StudentHome />} />
+      {!isAdmin && <Route path="/share" element={<SharePage />} />}
       {isAdmin && (
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<DashboardPage />} />
@@ -114,6 +123,7 @@ function AuthedRoutes({ session }: { session: AuthSession }) {
           <Route path="encouragement" element={<EncouragementPage />} />
           <Route path="calendar" element={<CalendarPage />} />
           <Route path="announcements" element={<AnnouncementsPage />} />
+          <Route path="share" element={<ShareModerationPage />} />
         </Route>
       )}
       <Route path="*" element={<Navigate to="/" replace />} />
