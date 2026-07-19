@@ -17,7 +17,22 @@ type Counts = {
   newFlags: number;
   highSeverityNewFlags: number;
   todaysCrownChecks: number;
+  /** The pending-work strip (SXU): what waits on a human, at a glance. */
+  pending: {
+    openFlags: number;
+    moderation: number;
+    guardianRequests: number;
+    encouragementDrafts: number;
+    upcomingEvents: number;
+  };
 };
+
+/** YYYY-MM-DD `days` after today (UTC date math on date-only values). */
+function daysAhead(days: number): string {
+  const base = new Date();
+  base.setUTCDate(base.getUTCDate() + days);
+  return base.toISOString().slice(0, 10);
+}
 
 async function gatherCounts(db: SupabaseClient): Promise<Counts | null> {
   // Student Mode test identities (staff_owner_admin_id set) are excluded from
@@ -45,7 +60,47 @@ async function gatherCounts(db: SupabaseClient): Promise<Counts | null> {
       .is('students.staff_owner_admin_id', null),
   ]);
 
-  for (const result of [students, flags, highFlags, crownChecks]) {
+  const today = new Date().toISOString().slice(0, 10);
+  const [openFlags, pendingPosts, pendingComments, guardianRequests, drafts, events] =
+    await Promise.all([
+      db.from('flags').select('id', { count: 'exact', head: true }).neq('status', 'resolved'),
+      db
+        .from('share_posts')
+        .select('id', { count: 'exact', head: true })
+        .eq('moderation_status', 'pending'),
+      db
+        .from('share_comments')
+        .select('id', { count: 'exact', head: true })
+        .eq('moderation_status', 'pending'),
+      db
+        .from('guardian_access_requests')
+        .select('id', { count: 'exact', head: true })
+        .eq('status', 'pending'),
+      db
+        .from('encouragement_messages')
+        .select('id', { count: 'exact', head: true })
+        .eq('status', 'draft'),
+      // This week's dates plus live weekly series (they land this week too).
+      db
+        .from('calendar_events')
+        .select('id', { count: 'exact', head: true })
+        .or(
+          `and(event_date.gte.${today},event_date.lte.${daysAhead(7)}),and(is_recurring.eq.true,recurrence_rule.not.is.null)`,
+        ),
+    ]);
+
+  for (const result of [
+    students,
+    flags,
+    highFlags,
+    crownChecks,
+    openFlags,
+    pendingPosts,
+    pendingComments,
+    guardianRequests,
+    drafts,
+    events,
+  ]) {
     if (result.error !== null || result.count === null) {
       serverLog.error('admin_dashboard.count_failed', {});
       return null;
@@ -56,6 +111,13 @@ async function gatherCounts(db: SupabaseClient): Promise<Counts | null> {
     newFlags: flags.count ?? 0,
     highSeverityNewFlags: highFlags.count ?? 0,
     todaysCrownChecks: crownChecks.count ?? 0,
+    pending: {
+      openFlags: openFlags.count ?? 0,
+      moderation: (pendingPosts.count ?? 0) + (pendingComments.count ?? 0),
+      guardianRequests: guardianRequests.count ?? 0,
+      encouragementDrafts: drafts.count ?? 0,
+      upcomingEvents: events.count ?? 0,
+    },
   };
 }
 

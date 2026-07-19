@@ -24,6 +24,13 @@ const COUNTS_BODY = {
   newFlags: 1,
   highSeverityNewFlags: 1,
   todaysCrownChecks: 1,
+  pending: {
+    openFlags: 0,
+    moderation: 0,
+    guardianRequests: 0,
+    encouragementDrafts: 0,
+    upcomingEvents: 0,
+  },
 };
 
 const ROSTER_BODY = {

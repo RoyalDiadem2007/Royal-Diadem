@@ -1977,6 +1977,48 @@ textarea:focus-visible {
   padding-top: 0;
 }
 
+/* The pending-work strip (SXU): what waits on a human, above the tiles. */
+.pending-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0 0 1.25rem;
+}
+
+.pending-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.85rem;
+  border-radius: 999px;
+  border: 1px solid var(--hairline-strong);
+  background-color: var(--color-card-surface);
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+  text-decoration: none;
+}
+
+.pending-chip-count {
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.pending-chip-link:hover {
+  border-color: var(--color-crown-gold);
+  color: var(--color-text-primary);
+}
+
+.pending-chip-alert {
+  border-color: color-mix(in srgb, var(--color-primary) 55%, transparent);
+  background-color: color-mix(in srgb, var(--color-primary) 12%, transparent);
+  color: var(--color-text-primary);
+}
+
+.pending-chip-clear {
+  border-style: dashed;
+}
+
 /* Flag Center (Phase 14): status chips — calm words, never alarms. */
 .flag-status {
   font-size: 0.8rem;

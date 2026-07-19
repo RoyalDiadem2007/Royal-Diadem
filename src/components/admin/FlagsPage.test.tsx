@@ -81,6 +81,13 @@ function stubFetch(stub: FetchStub): void {
             newFlags: 2,
             highSeverityNewFlags: 1,
             todaysCrownChecks: 0,
+            pending: {
+              openFlags: 0,
+              moderation: 0,
+              guardianRequests: 0,
+              encouragementDrafts: 0,
+              upcomingEvents: 0,
+            },
           }),
         );
       }
