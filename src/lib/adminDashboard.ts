@@ -9,6 +9,8 @@ export type PendingWork = {
   moderation: number;
   guardianRequests: number;
   encouragementDrafts: number;
+  sessionRequests: number;
+  friendInvites: number;
   upcomingEvents: number;
 };
 
@@ -48,6 +50,8 @@ function parseCounts(raw: unknown): DashboardCounts {
       moderation: requireCount(pending, 'moderation'),
       guardianRequests: requireCount(pending, 'guardianRequests'),
       encouragementDrafts: requireCount(pending, 'encouragementDrafts'),
+      sessionRequests: requireCount(pending, 'sessionRequests'),
+      friendInvites: requireCount(pending, 'friendInvites'),
       upcomingEvents: requireCount(pending, 'upcomingEvents'),
     },
   };

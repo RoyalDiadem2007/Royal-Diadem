@@ -34,6 +34,8 @@ const COUNTS_BODY = {
     moderation: 0,
     guardianRequests: 0,
     encouragementDrafts: 0,
+    sessionRequests: 0,
+    friendInvites: 0,
     upcomingEvents: 0,
   },
 };
@@ -168,6 +170,8 @@ describe('admin shell routing and dashboard', () => {
             moderation: 3,
             guardianRequests: 1,
             encouragementDrafts: 4,
+            sessionRequests: 0,
+            friendInvites: 0,
             upcomingEvents: 2,
           },
         }),

@@ -159,6 +159,8 @@ describe('admin-dashboard Edge Function (E2E, no mocks)', () => {
       'moderation',
       'guardianRequests',
       'encouragementDrafts',
+      'sessionRequests',
+      'friendInvites',
       'upcomingEvents',
     ]) {
       expect(pending[key]).toBeGreaterThanOrEqual(0);

@@ -79,6 +79,8 @@ function stubFetch(routes: Record<string, (init?: RequestInit) => Response>): vo
               moderation: 0,
               guardianRequests: 0,
               encouragementDrafts: 0,
+              sessionRequests: 0,
+              friendInvites: 0,
               upcomingEvents: 0,
             },
           }),

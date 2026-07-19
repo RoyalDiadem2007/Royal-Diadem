@@ -2215,6 +2215,51 @@ textarea:focus-visible {
   box-shadow: var(--button-shadow);
 }
 
+/* "Your people" cards (SXU): the goals-card grammar, in the main column. */
+.connect-card {
+  margin: 1.25rem 0;
+}
+
+.connect-card-notice {
+  color: var(--color-text-primary);
+  background-color: color-mix(in srgb, var(--color-crown-gold) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-crown-gold) 35%, transparent);
+  border-radius: 14px;
+  padding: 0.6rem 0.9rem;
+  margin: 0.75rem 0;
+}
+
+.connect-card-button {
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+/* Invite statuses: soft words in the goal-status chip shape. */
+.invite-status {
+  display: inline-block;
+  padding: 0.15rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.invite-status-pending {
+  background-color: color-mix(in srgb, var(--color-text-secondary) 18%, transparent);
+  color: var(--color-text-secondary);
+}
+
+.invite-status-reached_out {
+  background-color: color-mix(in srgb, var(--color-crown-gold) 25%, transparent);
+  color: var(--color-crown-gold);
+}
+
+.invite-status-declined {
+  background-color: color-mix(in srgb, var(--color-text-secondary) 12%, transparent);
+  color: var(--color-text-secondary);
+  opacity: 0.8;
+}
+
 /* The pending-work strip (SXU): what waits on a human, above the tiles. */
 .pending-strip {
   display: flex;
