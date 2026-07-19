@@ -141,6 +141,18 @@ export async function enforceShareWriteRateLimit(
   return recordAttempt(db, `share:${kind}:${studentId.toLowerCase()}`, SHARE_POLICIES[kind]);
 }
 
+// Queen Card writes (SXU): profile edits, goal changes, strength picks —
+// a person tending her card, not a script. Bounded; limiter dies closed.
+const PROFILE_WRITE_POLICY: Policy = { maxAttempts: 30, windowSeconds: 3600, lockoutSeconds: 900 };
+
+/** Records one profile/goal write for this student; fail closed. */
+export async function enforceProfileWriteRateLimit(
+  db: SupabaseClient,
+  studentId: string,
+): Promise<RateLimitOutcome> {
+  return recordAttempt(db, `profile:write:${studentId.toLowerCase()}`, PROFILE_WRITE_POLICY);
+}
+
 /** On successful login: clear the identifier counter (IP counter stays). */
 export async function clearIdentifierAttempts(db: SupabaseClient, identifier: string): Promise<void> {
   const { error } = await db.rpc('clear_auth_attempts', {
