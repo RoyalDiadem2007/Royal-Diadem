@@ -74,6 +74,13 @@ function stubFetch(routes: Record<string, (init?: RequestInit) => Response>): vo
             newFlags: 1,
             highSeverityNewFlags: 1,
             todaysCrownChecks: 0,
+            pending: {
+              openFlags: 0,
+              moderation: 0,
+              guardianRequests: 0,
+              encouragementDrafts: 0,
+              upcomingEvents: 0,
+            },
           }),
         );
       }

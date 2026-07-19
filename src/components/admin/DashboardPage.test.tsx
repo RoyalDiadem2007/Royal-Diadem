@@ -29,6 +29,13 @@ const COUNTS_BODY = {
   newFlags: 3,
   highSeverityNewFlags: 1,
   todaysCrownChecks: 7,
+  pending: {
+    openFlags: 0,
+    moderation: 0,
+    guardianRequests: 0,
+    encouragementDrafts: 0,
+    upcomingEvents: 0,
+  },
 };
 
 function jsonResponse(body: unknown, status = 200): Response {
@@ -144,6 +151,70 @@ describe('admin shell routing and dashboard', () => {
 
     await userEvent.setup().click(tile);
     expect(await screen.findByRole('heading', { name: 'Students' })).toBeInTheDocument();
+  });
+
+  it('leads with the pending-work strip, chips linked into their sections', async () => {
+    const SUPER_SESSION = {
+      ...ADMIN_SESSION_BODY,
+      subject: { type: 'admin', id: 'adm-9', displayName: 'Kenecia', role: 'super_admin' },
+    };
+    const stub: FetchStub = {
+      loginBody: SUPER_SESSION,
+      dashboardResponses: [
+        jsonResponse({
+          ...COUNTS_BODY,
+          pending: {
+            openFlags: 2,
+            moderation: 3,
+            guardianRequests: 1,
+            encouragementDrafts: 4,
+            upcomingEvents: 2,
+          },
+        }),
+      ],
+      dashboardCalls: [],
+    };
+    stubFetch(stub);
+
+    render(<App />);
+    await signIn('admin');
+    await screen.findByText('Active students');
+
+    // Every chip carries words, not color alone; work chips link home.
+    expect(screen.getByRole('link', { name: '2 open flags' })).toHaveAttribute(
+      'href',
+      '/admin/flags',
+    );
+    expect(screen.getByRole('link', { name: '3 waiting for moderation' })).toHaveAttribute(
+      'href',
+      '/admin/share',
+    );
+    expect(screen.getByRole('link', { name: '4 encouragement drafts to review' })).toHaveAttribute(
+      'href',
+      '/admin/encouragement',
+    );
+    expect(screen.getByRole('link', { name: '2 events this week' })).toHaveAttribute(
+      'href',
+      '/admin/calendar',
+    );
+    // Guardian requests wait on students, not admins — informational, no link.
+    const guardianChip = screen.getByText(/guardian request in progress/);
+    expect(guardianChip.closest('a')).toBeNull();
+  });
+
+  it('says so plainly when nothing waits', async () => {
+    const stub: FetchStub = {
+      loginBody: ADMIN_SESSION_BODY,
+      dashboardResponses: [jsonResponse(COUNTS_BODY)],
+      dashboardCalls: [],
+    };
+    stubFetch(stub);
+
+    render(<App />);
+    await signIn('admin');
+    await screen.findByText('Active students');
+
+    expect(screen.getByText(/Nothing waiting on you right now/)).toBeInTheDocument();
   });
 
   it('keeps dashboard tiles plain for a mentor (no Students access until OD-6)', async () => {

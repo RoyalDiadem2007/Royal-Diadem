@@ -151,6 +151,19 @@ describe('admin-dashboard Edge Function (E2E, no mocks)', () => {
     expect(counts.newFlags).toBeGreaterThanOrEqual(2);
     expect(counts.highSeverityNewFlags).toBeGreaterThanOrEqual(1);
     expect(counts.todaysCrownChecks).toBeGreaterThanOrEqual(1);
+
+    // The pending-work strip (SXU): every counter present and sane.
+    const pending = (counts as unknown as { pending: Record<string, number> }).pending;
+    for (const key of [
+      'openFlags',
+      'moderation',
+      'guardianRequests',
+      'encouragementDrafts',
+      'upcomingEvents',
+    ]) {
+      expect(pending[key]).toBeGreaterThanOrEqual(0);
+    }
+    expect(pending.openFlags).toBeGreaterThanOrEqual(counts.newFlags ?? 0);
     for (const key of ['activeStudents', 'newFlags', 'highSeverityNewFlags', 'todaysCrownChecks']) {
       expect(typeof counts[key]).toBe('number');
     }
