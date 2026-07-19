@@ -34,14 +34,19 @@ export function toTransports(value: unknown): AuthenticatorTransportFuture[] | u
 
 const CHALLENGE_TTL_MS = 5 * 60 * 1000;
 
-export type RelyingParty = { rpID: string; rpName: string; expectedOrigin: string };
+export type RelyingParty = { rpID: string; rpName: string; expectedOrigin: string[] };
 
 export function relyingParty(): RelyingParty {
   // Local dev defaults; production sets these via `supabase secrets set`
-  // (WEBAUTHN_RP_ID = the app domain, WEBAUTHN_ORIGIN = https://<domain>).
+  // (WEBAUTHN_RP_ID = the registrable app domain, e.g. royaldiademrise.org;
+  // WEBAUTHN_ORIGIN = comma-separated https origins — www AND apex, so a
+  // passkey works however she reached the site).
   const rpID = Deno.env.get('WEBAUTHN_RP_ID') ?? 'localhost';
   const rpName = Deno.env.get('WEBAUTHN_RP_NAME') ?? 'Royal Diadem';
-  const expectedOrigin = Deno.env.get('WEBAUTHN_ORIGIN') ?? 'http://localhost:5173';
+  const expectedOrigin = (Deno.env.get('WEBAUTHN_ORIGIN') ?? 'http://localhost:5173')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter((origin) => origin !== '');
   return { rpID, rpName, expectedOrigin };
 }
 

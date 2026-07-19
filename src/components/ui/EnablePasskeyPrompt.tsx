@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { registerPasskey, useAuth } from '@/lib/authStore';
 import { passkeysSupported } from '@/lib/passkey';
+import { promptMemory } from '@/lib/promptMemory';
 
 /**
  * Post-login nudge (Spec §5 step 2: "Enable Face ID / Touch ID?"). Shown only
@@ -9,7 +10,7 @@ import { passkeysSupported } from '@/lib/passkey';
  */
 export function EnablePasskeyPrompt() {
   const session = useAuth();
-  const [dismissed, setDismissed] = useState(false);
+  const [dismissed, setDismissed] = useState(promptMemory.passkeyDismissed);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
@@ -48,6 +49,7 @@ export function EnablePasskeyPrompt() {
           className="passkey-prompt-dismiss"
           disabled={busy}
           onClick={() => {
+            promptMemory.passkeyDismissed = true;
             setDismissed(true);
           }}
         >
