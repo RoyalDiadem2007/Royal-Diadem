@@ -131,7 +131,7 @@ describe('invite a friend card', () => {
 
     await screen.findByLabelText('Invite a friend');
     const user = userEvent.setup();
-    await user.type(screen.getByLabelText('Her email'), 'friend@example.com');
+    await user.type(await screen.findByLabelText('Her email'), 'friend@example.com');
     await user.click(screen.getByRole('button', { name: 'Share with my team' }));
 
     await screen.findByText('Got it — a real person from your team will reach out to them. 💛');
@@ -177,7 +177,7 @@ describe('invite a friend card', () => {
 
     await screen.findByLabelText('Invite a friend');
     const user = userEvent.setup();
-    await user.type(screen.getByLabelText('Her email'), 'friend@example.com');
+    await user.type(await screen.findByLabelText('Her email'), 'friend@example.com');
     await user.click(screen.getByRole('button', { name: 'Share with my team' }));
 
     await screen.findByText('You’ve already told us about this friend — your team has it. 💛');

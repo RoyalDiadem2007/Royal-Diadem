@@ -142,7 +142,7 @@ describe('mentor session card', () => {
     const card = await screen.findByLabelText('Time with a mentor');
     const user = userEvent.setup();
     const askDate = daysFromToday(3);
-    await user.type(screen.getByLabelText('Day'), askDate);
+    await user.type(await screen.findByLabelText('Day'), askDate);
     await user.selectOptions(screen.getByLabelText('Time of day'), 'after_school');
     await user.click(screen.getByRole('button', { name: 'Ask for time' }));
 
@@ -222,7 +222,7 @@ describe('mentor session card', () => {
 
     await screen.findByLabelText('Time with a mentor');
     const user = userEvent.setup();
-    await user.type(screen.getByLabelText('Day'), daysFromToday(2));
+    await user.type(await screen.findByLabelText('Day'), daysFromToday(2));
     await user.click(screen.getByRole('button', { name: 'Ask for time' }));
 
     await screen.findByText('You already have a request in — your team is on it.');
