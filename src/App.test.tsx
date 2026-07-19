@@ -58,6 +58,19 @@ describe('App auth gate (white-label)', () => {
             new Response('[]', { status: 200, headers: { 'Content-Type': 'application/json' } }),
           );
         }
+        if (target.endsWith('/student-profile')) {
+          return Promise.resolve(
+            new Response(
+              JSON.stringify({
+                profile: { avatarKey: null, proudOf: null },
+                goals: [],
+                strengths: [],
+                strengthOptions: [],
+              }),
+              { status: 200, headers: { 'Content-Type': 'application/json' } },
+            ),
+          );
+        }
         return Promise.resolve(new Response(null, { status: 204 }));
       }),
     );

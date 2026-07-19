@@ -496,3 +496,6 @@ verify_jwt = false
 
 [functions.student-profile]
 verify_jwt = false
+
+[functions.admin-strengths]
+verify_jwt = false

@@ -138,6 +138,16 @@ export function StudentShell({
                       <Link
                         role="menuitem"
                         className="account-menu-item"
+                        to="/profile"
+                        onClick={() => {
+                          setMenuOpen(false);
+                        }}
+                      >
+                        My Queen Card
+                      </Link>
+                      <Link
+                        role="menuitem"
+                        className="account-menu-item"
                         to="/about"
                         onClick={() => {
                           setMenuOpen(false);
