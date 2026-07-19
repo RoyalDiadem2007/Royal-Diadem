@@ -31,6 +31,8 @@ import { StrengthsPage } from '@/components/admin/StrengthsPage';
 import { AdminLayout } from '@/layouts/AdminLayout';
 import { StudentShell } from '@/components/student/StudentShell';
 import { CrownWatermark } from '@/components/student/CrownWatermark';
+import { CrownIcon } from '@/components/student/moodIcons';
+import { OpenBookIcon } from '@/components/student/todayIcons';
 import { GoalsCard } from '@/components/student/GoalsCard';
 import { QueenCardPage } from '@/components/student/QueenCardPage';
 import { exitStudentMode, useAuth, type AuthSession } from '@/lib/authStore';
@@ -100,25 +102,25 @@ function StudentHome() {
         </section>
 
         <h2 className="home-section-title">
-          Today for you <span aria-hidden="true">👑</span>
+          <span>Today for you</span>
+          <CrownIcon className="home-section-crown" />
         </h2>
         <DailyMessage />
-        <Announcements />
-        <Link to="/journal" className="today-row">
-          <span className="today-row-tile today-row-tile-cream" aria-hidden="true">
-            📖
+        <Link to="/journal" className="today-tile-row today-tile-row-link">
+          <span className="today-tile today-tile-cream" aria-hidden="true">
+            <OpenBookIcon />
           </span>
-          <span className="today-row-body">
-            <span className="today-row-label">Journal</span>
-            <span className="today-row-text">
-              Write privately — what&rsquo;s in your heart today?
-            </span>
+          <span className="today-tile-body">
+            <span className="eyebrow eyebrow-rose">Journal prompt</span>
+            <span className="today-tile-text">What&rsquo;s in your heart today?</span>
+            <span className="today-tile-action">Write privately</span>
           </span>
-          <span className="today-row-chevron" aria-hidden="true">
+          <span className="today-chevron" aria-hidden="true">
             ›
           </span>
         </Link>
         <UpcomingEvents />
+        <Announcements />
       </div>
       <aside className="home-aside">
         <GoalsCard />

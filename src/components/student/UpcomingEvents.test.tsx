@@ -125,14 +125,14 @@ describe('student Upcoming events card', () => {
     render(<App />);
     await signIn();
 
-    await screen.findByText('Summer retreat');
+    await screen.findByText('Bible study');
     const card = screen.getByRole('region', { name: 'Upcoming events' });
     expect(card).toHaveTextContent('Coming up');
-    expect(card).toHaveTextContent('Summer retreat');
-    // The weekly series from a month back still produces upcoming dates.
-    expect(screen.getAllByText('Bible study').length).toBeGreaterThan(0);
+    // The weekly series from a month back leads (nearest occurrence), with
+    // its time and detail; later dates follow as quiet lines.
     expect(card).toHaveTextContent('18:00–19:30');
     expect(card).toHaveTextContent('Bring your journal');
+    expect(card).toHaveTextContent('Summer retreat');
   });
 
   it('renders nothing at all when nothing is coming up', async () => {

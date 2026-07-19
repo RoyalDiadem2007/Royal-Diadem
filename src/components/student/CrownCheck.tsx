@@ -163,7 +163,9 @@ export function CrownCheck() {
     <section className="crown-hero-check" aria-label="Crown Check">
       <p className="crown-check-question">{CHECK_QUESTION}</p>
       <div role="radiogroup" aria-label={CHECK_QUESTION} className="crown-check-scale">
-        {MOOD_SCALE.map((tier) => (
+        {/* Display order is positive → difficult (Radiant first), per the
+            mockup and brief; scores/data stay ascending underneath. */}
+        {[...MOOD_SCALE].reverse().map((tier) => (
           <button
             key={tier.score}
             type="button"

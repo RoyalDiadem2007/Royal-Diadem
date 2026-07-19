@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 import { fetchVisibleEvents, upcomingOccurrences, type EventOccurrence } from '@/lib/calendar';
 import { localDateIso } from '@/lib/dailyMessage';
 import { useAuth } from '@/lib/authStore';
+import { GatheringIcon } from '@/components/student/todayIcons';
 
 const WINDOW_DAYS = 60;
 const LIMIT = 5;
@@ -95,29 +96,42 @@ export function UpcomingEvents() {
     );
   }
 
+  const [next, ...rest] = state.occurrences;
+  if (next === undefined) {
+    return null;
+  }
   return (
-    <section className="events-card" aria-label="Upcoming events">
-      <h2 className="events-title">Coming up</h2>
-      <ul className="events-list">
-        {state.occurrences.map(({ event, date }) => (
-          <li key={`${event.id}-${date}`} className="events-item">
-            <span className="events-date">
-              {friendlyDate(date)}
-              {event.eventTime !== null && (
-                <span className="events-time">
-                  {' '}
-                  · {event.eventTime}
-                  {event.endTime !== null ? `–${event.endTime}` : ''}
-                </span>
-              )}
-            </span>
-            <span className="events-name">{event.title}</span>
-            {event.description !== null && (
-              <span className="events-detail">{event.description}</span>
-            )}
-          </li>
-        ))}
-      </ul>
+    <section className="today-tile-row" aria-label="Upcoming events">
+      <span className="today-tile today-tile-dark" aria-hidden="true">
+        <GatheringIcon />
+      </span>
+      <span className="today-tile-body">
+        <h2 className="eyebrow eyebrow-rose">Coming up</h2>
+        <span className="today-tile-text">{next.event.title}</span>
+        <span className="today-tile-sub">
+          {friendlyDate(next.date)}
+          {next.event.eventTime !== null && (
+            <>
+              {' · '}
+              {next.event.eventTime}
+              {next.event.endTime !== null ? `–${next.event.endTime}` : ''}
+            </>
+          )}
+        </span>
+        {next.event.description !== null && (
+          <span className="today-tile-sub">{next.event.description}</span>
+        )}
+        {rest.length > 0 && (
+          <ul className="events-more">
+            {rest.map(({ event, date }) => (
+              <li key={`${event.id}-${date}`}>
+                {friendlyDate(date)}
+                {event.eventTime !== null ? ` · ${event.eventTime}` : ''} — {event.title}
+              </li>
+            ))}
+          </ul>
+        )}
+      </span>
     </section>
   );
 }

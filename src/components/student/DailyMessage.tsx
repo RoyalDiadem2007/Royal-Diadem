@@ -6,6 +6,7 @@
 import { useEffect, useState } from 'react';
 import { fetchDailyMessage, localDateIso, type DailyMessage as Message } from '@/lib/dailyMessage';
 import { useAuth } from '@/lib/authStore';
+import { QuillIcon } from '@/components/student/todayIcons';
 
 type ViewState =
   | { status: 'loading' }
@@ -83,11 +84,14 @@ export function DailyMessage() {
   }
 
   return (
-    <section className="daily-message-card" aria-label="Daily Crown Message">
-      <h2 className="daily-message-title">
-        <span aria-hidden="true">👑</span> Today’s Crown Message
-      </h2>
-      <blockquote className="daily-message-text">{state.message.text}</blockquote>
+    <section className="today-tile-row" aria-label="Daily Crown Message">
+      <span className="today-tile today-tile-rose" aria-hidden="true">
+        <QuillIcon />
+      </span>
+      <span className="today-tile-body">
+        <h2 className="eyebrow eyebrow-rose">Today’s Crown Message</h2>
+        <blockquote className="today-tile-text">{state.message.text}</blockquote>
+      </span>
     </section>
   );
 }
