@@ -3,7 +3,7 @@
  * transparency line is asserted — it is product, not decoration.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { App } from '@/App';
 import { resetAuthForTests } from '@/lib/authStore';
@@ -65,9 +65,10 @@ async function signIn(): Promise<void> {
   await user.type(screen.getByLabelText('Crown code'), 'RD-7F3K');
   await user.type(screen.getByLabelText('PIN'), '123456');
   await user.click(screen.getByRole('button', { name: 'Sign in' }));
-  await screen.findByRole('heading', { name: 'Welcome, Maya' });
+  await screen.findByRole('heading', { name: /Maya/ });
   // The journal lives in its own room — one tap on the tab bar.
-  await user.click(screen.getByRole('link', { name: 'Journal' }));
+  const mainNav = await screen.findByRole('navigation', { name: 'Main' });
+  await user.click(within(mainNav).getByRole('link', { name: 'Journal' }));
   await screen.findByRole('heading', { name: 'My Journal' });
 }
 

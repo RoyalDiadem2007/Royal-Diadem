@@ -102,7 +102,9 @@ describe('welcome magic-link claim (OD-19)', () => {
 
     await user.click(screen.getByRole('button', { name: 'I saved them — take me in' }));
     await waitFor(() => {
-      expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Welcome, Jada');
+      expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
+        /Good (morning|afternoon|evening), Jada/,
+      );
     });
   });
 

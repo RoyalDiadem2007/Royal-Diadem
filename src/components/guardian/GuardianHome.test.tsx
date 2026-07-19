@@ -175,7 +175,7 @@ describe('guardian portal (OD-19 build B)', () => {
 
     expect(await screen.findByRole('heading', { name: 'Maya' })).toBeInTheDocument();
     expect(screen.getByText('Maya Linked')).toBeInTheDocument();
-    expect(screen.getByText(/Good — /)).toBeInTheDocument();
+    expect(screen.getByText(/Steady — /)).toBeInTheDocument();
     expect(screen.getByText(/window closes in \d+ min/)).toBeInTheDocument();
   });
 

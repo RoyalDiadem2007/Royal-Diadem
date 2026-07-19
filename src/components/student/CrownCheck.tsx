@@ -13,6 +13,7 @@ import {
   NOTE_MAX_LENGTH,
   NOTE_PROMPT,
 } from '@/config/crownCheck.config';
+import { MoodIcon } from '@/components/student/moodIcons';
 import { fetchCrownCheckStatus, submitCrownCheck, type CrownCheckEntry } from '@/lib/crownCheck';
 import type { ApiFailure } from '@/lib/api';
 import { useAuth } from '@/lib/authStore';
@@ -109,15 +110,15 @@ export function CrownCheck() {
 
   if (state.status === 'loading') {
     return (
-      <section className="crown-check-card" aria-busy="true" aria-label="Crown Check">
-        <p className="crown-check-note-text">Getting your Crown Check ready…</p>
+      <section className="crown-hero-check" aria-busy="true" aria-label="Crown Check">
+        <p className="crown-check-question">Getting your Crown Check ready…</p>
       </section>
     );
   }
 
   if (state.status === 'error') {
     return (
-      <section className="crown-check-card" aria-label="Crown Check">
+      <section className="crown-hero-check" aria-label="Crown Check">
         <p role="alert" className="crown-check-error">
           {FAILURE_MESSAGES.network}
         </p>
@@ -138,12 +139,10 @@ export function CrownCheck() {
   if (state.status === 'done') {
     const tier = moodTierFor(state.today.moodScore);
     return (
-      <section className="crown-check-card" aria-label="Crown Check">
+      <section className="crown-hero-check" aria-label="Crown Check">
         <h2 className="crown-check-title">{CHECK_TITLE} ✓</h2>
         <p className="crown-check-done">
-          <span className="crown-check-done-emoji" aria-hidden="true">
-            {state.today.moodEmoji}
-          </span>
+          <MoodIcon score={state.today.moodScore} className="crown-check-done-icon" />
           You checked in feeling {tier?.label.toLowerCase() ?? 'yourself'} today.
         </p>
         {state.today.note !== null && <p className="crown-check-note-text">“{state.today.note}”</p>}
@@ -161,8 +160,7 @@ export function CrownCheck() {
   }
 
   return (
-    <section className="crown-check-card" aria-label="Crown Check">
-      <h2 className="crown-check-title">{CHECK_TITLE}</h2>
+    <section className="crown-hero-check" aria-label="Crown Check">
       <p className="crown-check-question">{CHECK_QUESTION}</p>
       <div role="radiogroup" aria-label={CHECK_QUESTION} className="crown-check-scale">
         {MOOD_SCALE.map((tier) => (
@@ -181,28 +179,33 @@ export function CrownCheck() {
               setSelectedScore(tier.score);
             }}
           >
-            <span className="crown-check-mood-emoji" aria-hidden="true">
-              {tier.emoji}
-            </span>
+            <MoodIcon score={tier.score} className="crown-check-mood-icon" />
             <span className="crown-check-mood-label">{tier.label}</span>
+            {selectedScore === tier.score && (
+              <span className="crown-check-mood-tick" aria-hidden="true">
+                ✓
+              </span>
+            )}
           </button>
         ))}
       </div>
-      <label className="crown-check-note">
-        <span className="crown-check-note-label">{NOTE_PROMPT} (optional)</span>
-        <input
-          type="text"
-          value={note}
-          maxLength={NOTE_MAX_LENGTH}
-          disabled={submitting}
-          spellCheck={true}
-          autoCorrect="on"
-          autoCapitalize="sentences"
-          onChange={(e) => {
-            setNote(e.target.value);
-          }}
-        />
-      </label>
+      {selectedScore !== null && (
+        <label className="crown-check-note">
+          <span className="crown-check-note-label">{NOTE_PROMPT} (optional)</span>
+          <input
+            type="text"
+            value={note}
+            maxLength={NOTE_MAX_LENGTH}
+            disabled={submitting}
+            spellCheck={true}
+            autoCorrect="on"
+            autoCapitalize="sentences"
+            onChange={(e) => {
+              setNote(e.target.value);
+            }}
+          />
+        </label>
+      )}
       {errorMessage !== null && (
         <p role="alert" className="crown-check-error">
           {errorMessage}
@@ -214,7 +217,7 @@ export function CrownCheck() {
         disabled={selectedScore === null || submitting}
         onClick={handleSubmit}
       >
-        {submitting ? 'Saving…' : state.today === null ? 'Check in' : 'Update my check-in'}
+        {submitting ? 'Saving…' : 'Save my check-in'}
       </button>
     </section>
   );

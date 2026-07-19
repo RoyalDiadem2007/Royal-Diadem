@@ -90,7 +90,14 @@ export async function callEdgeFunction<T>(
   }
 
   if (response.status === 204) {
-    return { ok: true, data: options.parse(null) };
+    try {
+      return { ok: true, data: options.parse(null) };
+    } catch {
+      // A 204 where the caller expected a body is a server contract break —
+      // surfaced as a typed failure, never a rejection (the sole contract).
+      logger.error('api.bad_response_shape', { fn: name });
+      return { ok: false, failure: { kind: 'server' } };
+    }
   }
 
   try {

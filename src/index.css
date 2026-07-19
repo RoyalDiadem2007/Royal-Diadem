@@ -108,8 +108,8 @@
  * borders; controls get one radius, cards a slightly larger one.
  */
 :root {
-  --radius-control: 10px;
-  --radius-card: 14px;
+  --radius-control: 12px;
+  --radius-card: 18px;
   --hairline: color-mix(in srgb, var(--color-accent) 18%, transparent);
   --hairline-strong: color-mix(in srgb, var(--color-accent) 36%, transparent);
   --field-surface: color-mix(in srgb, var(--color-card-surface) 55%, var(--color-background));
@@ -1238,12 +1238,124 @@ textarea:focus-visible {
   letter-spacing: 0.01em;
 }
 
-.app-bar-user {
+.app-bar-nav {
+  display: none;
+  gap: 0.35rem;
+  margin-left: auto;
+}
+
+@media (min-width: 48rem) {
+  .app-bar-nav {
+    display: inline-flex;
+  }
+}
+
+.app-bar-link {
+  padding: 0.35rem 0.8rem;
+  border-radius: 999px;
+  text-decoration: none;
+  color: var(--color-text-secondary);
+  font-size: 0.95rem;
+}
+
+.app-bar-link-active {
+  color: var(--color-text-primary);
+  background-color: color-mix(in srgb, var(--color-primary) 22%, transparent);
+}
+
+.app-bar-actions {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.6rem;
+  margin-left: auto;
+}
+
+@media (min-width: 48rem) {
+  .app-bar-actions {
+    margin-left: 0;
+  }
+}
+
+.app-bar-bell {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 50%;
   color: var(--color-text-secondary);
-  font-size: 0.9rem;
+}
+
+.app-bar-bell:hover {
+  color: var(--color-crown-gold);
+}
+
+.app-bar-bell-dot {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.55rem;
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background-color: var(--color-primary);
+}
+
+.avatar-coin-button {
+  border-width: 1px;
+  background-color: var(--field-surface);
+  width: 2.4rem;
+  height: 2.4rem;
+  font-size: 1.05rem;
+}
+
+.account-menu-wrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.account-menu {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  min-width: 12rem;
+  padding: 0.5rem;
+  background-color: var(--color-card-surface);
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--radius-card);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.28);
+  text-align: left;
+}
+
+.account-menu-name {
+  padding: 0.4rem 0.6rem 0.55rem;
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  border-bottom: 1px solid var(--hairline);
+  margin-bottom: 0.25rem;
+}
+
+.account-menu-item {
+  display: block;
+  width: 100%;
+  padding: 0.55rem 0.6rem;
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-control);
+  color: var(--color-text-secondary);
+  font: inherit;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.account-menu-item:hover {
+  background-color: color-mix(in srgb, var(--color-primary) 14%, transparent);
+  color: var(--color-text-primary);
 }
 
 .app-content {
@@ -1254,6 +1366,8 @@ textarea:focus-visible {
   max-width: 30rem;
   margin: 0 auto;
   padding: 0 0.75rem 1.5rem;
+  /* Girls read here: 17px primary text (SXU accessibility floor is 16). */
+  font-size: 1.0625rem;
 }
 
 /* Room for the fixed tab bar (plus phone safe areas). */
@@ -1348,45 +1462,6 @@ textarea:focus-visible {
   background-color: color-mix(in srgb, var(--color-crown-gold) 10%, transparent);
 }
 
-/* The Share wallpaper: crowns and flamingos drifting behind the feed. */
-.share-wallpaper {
-  position: fixed;
-  inset: 0;
-  overflow: hidden;
-  pointer-events: none;
-  z-index: 0;
-}
-
-.share-wallpaper-motif {
-  position: absolute;
-  opacity: 0.08;
-  animation-name: share-drift;
-  animation-timing-function: ease-in-out;
-  animation-iteration-count: infinite;
-  animation-direction: alternate;
-}
-
-@keyframes share-drift {
-  from {
-    transform: translateY(0) rotate(-8deg);
-  }
-  to {
-    transform: translateY(-1.8rem) rotate(7deg);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .share-wallpaper-motif {
-    animation: none;
-  }
-}
-
-/* Feed content floats above the wallpaper. */
-.share-content {
-  position: relative;
-  z-index: 1;
-}
-
 /* A soft crown-gold dawn behind full pages — ambience, never a spotlight. */
 .page-glow {
   background-image: radial-gradient(
@@ -1409,6 +1484,228 @@ textarea:focus-visible {
   margin-right: 0.4rem;
   font-size: 1.2rem;
   vertical-align: 0.1em;
+}
+
+/* Crown hero (SXU mockup): greeting + Crown Check on the warm light card. */
+.crown-hero {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(
+    160deg,
+    color-mix(in srgb, var(--color-surface-light) 38%, white),
+    color-mix(in srgb, var(--color-surface-light) 62%, white)
+  );
+  border: 1px solid color-mix(in srgb, var(--color-crown-gold) 40%, transparent);
+  border-radius: 26px;
+  padding: 1.5rem 1.4rem;
+  margin: 1.25rem auto;
+  max-width: 30rem;
+  width: 100%;
+  text-align: left;
+  color: var(--color-background);
+}
+
+.crown-hero-watermark {
+  position: absolute;
+  top: -1.4rem;
+  right: -1.6rem;
+  color: var(--color-crown-gold);
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+.crown-hero-greeting {
+  position: relative;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.8rem;
+  margin: 0 0 0.2rem;
+  color: var(--color-background);
+  text-wrap: balance;
+}
+
+.crown-hero-name {
+  color: var(--color-secondary);
+}
+
+.crown-hero-sub {
+  position: relative;
+  margin: 0 0 1rem;
+  color: color-mix(in srgb, var(--color-background) 62%, var(--color-secondary));
+}
+
+/* Crown Check inside the hero: light-surface treatment. */
+.crown-hero-check {
+  position: relative;
+}
+
+.crown-hero .crown-check-question {
+  color: var(--color-background);
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.15rem;
+  margin: 0 0 0.75rem;
+}
+
+.crown-hero .crown-check-scale {
+  flex-wrap: wrap;
+}
+
+.crown-hero .crown-check-mood {
+  background-color: color-mix(in srgb, white 72%, var(--color-surface-light));
+  border: 1px solid color-mix(in srgb, var(--color-background) 14%, transparent);
+  color: color-mix(in srgb, var(--color-background) 78%, var(--color-secondary));
+  min-height: 56px;
+  min-width: 4rem;
+  position: relative;
+}
+
+.crown-hero .crown-check-mood:hover {
+  border-color: var(--color-secondary);
+}
+
+.crown-hero .crown-check-mood-selected {
+  border: 2px solid var(--color-secondary);
+  background-color: color-mix(in srgb, var(--color-primary) 14%, white);
+  color: var(--color-secondary);
+}
+
+.crown-check-mood-icon {
+  display: block;
+  margin: 0 auto;
+}
+
+.crown-check-mood-tick {
+  position: absolute;
+  top: -0.5rem;
+  right: -0.4rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.3rem;
+  height: 1.3rem;
+  border-radius: 50%;
+  background-color: var(--color-secondary);
+  color: white;
+  font-size: 0.75rem;
+}
+
+.crown-hero .crown-check-note-label {
+  color: color-mix(in srgb, var(--color-background) 70%, var(--color-secondary));
+}
+
+.crown-hero .crown-check-note input {
+  background-color: white;
+  color: var(--color-background);
+  border: 1px solid color-mix(in srgb, var(--color-background) 20%, transparent);
+  border-radius: var(--radius-control);
+  padding: 0.6rem 0.75rem;
+  font-size: 1rem;
+}
+
+.crown-hero .crown-check-title {
+  color: var(--color-secondary);
+}
+
+.crown-hero .crown-check-done {
+  color: var(--color-background);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.crown-check-done-icon {
+  color: var(--color-secondary);
+  flex: none;
+}
+
+.crown-hero .crown-check-note-text {
+  color: color-mix(in srgb, var(--color-background) 70%, var(--color-secondary));
+}
+
+.crown-hero .crown-check-edit,
+.crown-hero .crown-check-retry {
+  color: color-mix(in srgb, var(--color-background) 75%, var(--color-secondary));
+  border-color: color-mix(in srgb, var(--color-background) 25%, transparent);
+}
+
+.crown-hero .crown-check-error {
+  color: var(--color-secondary);
+}
+
+/* "Today for you" section. */
+.home-section-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.25rem;
+  color: var(--color-text-primary);
+  max-width: 30rem;
+  margin: 1.75rem auto 0.25rem;
+  width: 100%;
+  text-align: left;
+}
+
+.today-row {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  background-color: var(--color-card-surface);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-card);
+  padding: 0.9rem 1rem;
+  margin: 0.9rem auto;
+  max-width: 30rem;
+  width: 100%;
+  text-align: left;
+  text-decoration: none;
+  transition: border-color 0.15s ease;
+}
+
+.today-row:hover {
+  border-color: var(--color-crown-gold);
+}
+
+.today-row-tile {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: var(--radius-control);
+  font-size: 1.4rem;
+  flex: none;
+  background-color: color-mix(in srgb, var(--color-primary) 30%, var(--color-card-surface));
+}
+
+.today-row-tile-cream {
+  background-color: color-mix(in srgb, var(--color-surface-light) 60%, white);
+}
+
+.today-row-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  flex: 1;
+}
+
+.today-row-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+}
+
+.today-row-text {
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.today-row-chevron {
+  color: var(--color-text-secondary);
+  font-size: 1.4rem;
+  flex: none;
 }
 
 /* A muted caption line (once the home doors' subtitle; reused broadly). */
