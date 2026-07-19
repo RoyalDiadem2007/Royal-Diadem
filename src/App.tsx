@@ -1,4 +1,4 @@
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router';
+import { BrowserRouter, Link, Navigate, Route, Routes } from 'react-router';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { EnablePasskeyPrompt } from '@/components/ui/EnablePasskeyPrompt';
 import { EnablePushPrompt } from '@/components/ui/EnablePushPrompt';
@@ -29,7 +29,8 @@ import { AboutAdminPage } from '@/components/admin/AboutAdminPage';
 import { FlagsPage } from '@/components/admin/FlagsPage';
 import { AdminLayout } from '@/layouts/AdminLayout';
 import { StudentShell } from '@/components/student/StudentShell';
-import { exitStudentMode, logout, useAuth, type AuthSession } from '@/lib/authStore';
+import { CrownWatermark } from '@/components/student/CrownWatermark';
+import { exitStudentMode, useAuth, type AuthSession } from '@/lib/authStore';
 
 /**
  * Shown only during an admin's Student Mode session: names the mode plainly
@@ -57,42 +58,64 @@ function StudentModeBanner() {
   );
 }
 
+/** Warm, honest, and time-aware — never "good morning" at night. */
+function greetingFor(hour: number): string {
+  if (hour < 12) {
+    return 'Good morning';
+  }
+  if (hour < 17) {
+    return 'Good afternoon';
+  }
+  return 'Good evening';
+}
+
 function StudentHome() {
   const session = useAuth();
   if (session === null) {
     return null;
   }
-  const firstInitial = session.subject.displayName.slice(0, 1).toUpperCase() || '♛';
   return (
     <div className="app-shell">
       {session.staffMode && <StudentModeBanner />}
-      <header className="app-header">
-        {/* Her page opens with HER mark (Maria 2026-07-18) — the brand logo
-            lives in the shell's app bar. The coin becomes her photo when
-            Phase 13 profiles arrive. */}
-        <span className="avatar-coin avatar-coin-hero" aria-hidden="true">
-          {firstInitial}
-        </span>
-        <h1 className="app-title">
-          Welcome, <span className="app-title-accent">{session.subject.displayName}</span>
-        </h1>
-      </header>
       <EnablePasskeyPrompt />
       <EnablePushPrompt />
       <GuardianRequestNotice />
+
+      {/* The hero (SXU mockup, Maria 2026-07-19): the day's most important
+          question, on the warm light surface, above the fold. Sign-out lives
+          in the shell's account menu now. */}
+      <section className="crown-hero" aria-label="Daily check-in">
+        <span className="crown-hero-watermark" aria-hidden="true">
+          <CrownWatermark />
+        </span>
+        <h1 className="crown-hero-greeting">
+          {greetingFor(new Date().getHours())},{' '}
+          <span className="crown-hero-name">{session.subject.displayName}</span>
+        </h1>
+        <p className="crown-hero-sub">Take a breath. This space is yours.</p>
+        <CrownCheck />
+      </section>
+
+      <h2 className="home-section-title">
+        Today for you <span aria-hidden="true">👑</span>
+      </h2>
       <DailyMessage />
       <Announcements />
-      <CrownCheck />
+      <Link to="/journal" className="today-row">
+        <span className="today-row-tile today-row-tile-cream" aria-hidden="true">
+          📖
+        </span>
+        <span className="today-row-body">
+          <span className="today-row-label">Journal</span>
+          <span className="today-row-text">
+            Write privately — what&rsquo;s in your heart today?
+          </span>
+        </span>
+        <span className="today-row-chevron" aria-hidden="true">
+          ›
+        </span>
+      </Link>
       <UpcomingEvents />
-      <button
-        type="button"
-        className="logout-button"
-        onClick={() => {
-          void logout();
-        }}
-      >
-        Sign out
-      </button>
     </div>
   );
 }

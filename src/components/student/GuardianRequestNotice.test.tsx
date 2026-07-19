@@ -54,7 +54,7 @@ async function signIn(): Promise<void> {
   await user.type(screen.getByLabelText('Crown code'), 'RD-7F3K');
   await user.type(screen.getByLabelText('PIN'), '123456');
   await user.click(screen.getByRole('button', { name: 'Sign in' }));
-  await screen.findByRole('heading', { name: 'Welcome, Maya' });
+  await screen.findByRole('heading', { name: /Maya/ });
 }
 
 beforeEach(() => {

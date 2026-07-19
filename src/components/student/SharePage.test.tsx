@@ -4,7 +4,7 @@
  * the Turnstile widget are mocked.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { App } from '@/App';
 import { resetAuthForTests } from '@/lib/authStore';
@@ -135,7 +135,8 @@ async function signInAndOpenShare(): Promise<void> {
   await user.type(screen.getByLabelText('Crown code'), 'RD-7F3K');
   await user.type(screen.getByLabelText('PIN'), '123456');
   await user.click(screen.getByRole('button', { name: 'Sign in' }));
-  await user.click(await screen.findByRole('link', { name: 'Share' }));
+  const mainNav = await screen.findByRole('navigation', { name: 'Main' });
+  await user.click(within(mainNav).getByRole('link', { name: 'Share' }));
 }
 
 function sentBody(init: RequestInit): Record<string, unknown> {

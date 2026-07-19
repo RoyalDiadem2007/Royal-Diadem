@@ -14,12 +14,16 @@ export type MoodTier = {
   label: string;
 };
 
+// Labels refined with the SXU mockup (Maria, 2026-07-19): warmer words over
+// the same five decided symbols. The emoji stays the stored canonical symbol
+// (data contract unchanged); the UI draws matching line icons. Kenecia gets
+// final say on wording during her walkthrough — this is a config-only swap.
 export const MOOD_SCALE: readonly MoodTier[] = [
-  { score: 1, emoji: '🌧️', label: 'Heavy' },
+  { score: 1, emoji: '🌧️', label: 'Stormy' },
   { score: 2, emoji: '💧', label: 'Low' },
-  { score: 3, emoji: '🌹', label: 'Okay' },
-  { score: 4, emoji: '✨', label: 'Good' },
-  { score: 5, emoji: '👑', label: 'Crowned' },
+  { score: 3, emoji: '🌹', label: 'Tender' },
+  { score: 4, emoji: '✨', label: 'Steady' },
+  { score: 5, emoji: '👑', label: 'Radiant' },
 ];
 
 /** The card heading + daily question (Maria's wording, 2026-07-18). */

@@ -201,7 +201,9 @@ describe('admin shell routing and dashboard', () => {
     await signIn('student');
 
     await waitFor(() => {
-      expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Welcome, Jada');
+      expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
+        /Good (morning|afternoon|evening), Jada/,
+      );
     });
     expect(screen.queryByRole('navigation', { name: 'Admin sections' })).not.toBeInTheDocument();
     expect(stub.dashboardCalls).toHaveLength(0);

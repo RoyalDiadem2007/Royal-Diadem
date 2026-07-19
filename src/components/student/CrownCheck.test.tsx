@@ -117,14 +117,14 @@ describe('student Crown Check', () => {
 
     const user = userEvent.setup();
     // Nothing selected yet → submit stays disabled (no accidental empty send).
-    expect(screen.getByRole('button', { name: 'Check in' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Save my check-in' })).toBeDisabled();
 
-    await user.click(screen.getByRole('radio', { name: /Good/ }));
+    await user.click(screen.getByRole('radio', { name: /Steady/ }));
     await user.type(screen.getByLabelText(/What's on your mind, queen\?/), 'ready for the weekend');
-    await user.click(screen.getByRole('button', { name: 'Check in' }));
+    await user.click(screen.getByRole('button', { name: 'Save my check-in' }));
 
     await screen.findByText('Today’s Crown Check ✓');
-    expect(screen.getByText(/feeling good today/)).toBeInTheDocument();
+    expect(screen.getByText(/feeling steady today/)).toBeInTheDocument();
     expect(screen.getByText(/“ready for the weekend”/)).toBeInTheDocument();
 
     const sent = sentBody(stub.submitCalls[0]);
@@ -146,8 +146,8 @@ describe('student Crown Check', () => {
     await screen.findByRole('radiogroup', { name: 'How is your crown sitting today?' });
 
     const user = userEvent.setup();
-    await user.click(screen.getByRole('radio', { name: /Crowned/ }));
-    await user.click(screen.getByRole('button', { name: 'Check in' }));
+    await user.click(screen.getByRole('radio', { name: /Radiant/ }));
+    await user.click(screen.getByRole('button', { name: 'Save my check-in' }));
 
     await screen.findByText('Today’s Crown Check ✓');
     const sent = sentBody(stub.submitCalls[0]);
@@ -168,20 +168,20 @@ describe('student Crown Check', () => {
     await signIn();
 
     await screen.findByText('Today’s Crown Check ✓');
-    expect(screen.getByText(/feeling good today/)).toBeInTheDocument();
+    expect(screen.getByText(/feeling steady today/)).toBeInTheDocument();
 
     const user = userEvent.setup();
     await user.click(screen.getByRole('button', { name: 'Feeling different? Update it' }));
 
     // Prefilled with what she chose earlier today.
-    expect(screen.getByRole('radio', { name: /Good/ })).toHaveAttribute('aria-checked', 'true');
+    expect(screen.getByRole('radio', { name: /Steady/ })).toHaveAttribute('aria-checked', 'true');
     expect(screen.getByLabelText(/What's on your mind, queen\?/)).toHaveValue(
       'ready for the weekend',
     );
 
     await user.click(screen.getByRole('radio', { name: /Low/ }));
     await user.clear(screen.getByLabelText(/What's on your mind, queen\?/));
-    await user.click(screen.getByRole('button', { name: 'Update my check-in' }));
+    await user.click(screen.getByRole('button', { name: 'Save my check-in' }));
 
     await screen.findByText(/feeling low today/);
     const sent = sentBody(stub.submitCalls[0]);
@@ -227,8 +227,8 @@ describe('student Crown Check', () => {
     await screen.findByRole('radiogroup', { name: 'How is your crown sitting today?' });
 
     const user = userEvent.setup();
-    await user.click(screen.getByRole('radio', { name: /Okay/ }));
-    await user.click(screen.getByRole('button', { name: 'Check in' }));
+    await user.click(screen.getByRole('radio', { name: /Tender/ }));
+    await user.click(screen.getByRole('button', { name: 'Save my check-in' }));
 
     const alert = await screen.findByRole('alert');
     expect(alert).toHaveTextContent('Whoa, lots of taps!');

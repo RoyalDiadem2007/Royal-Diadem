@@ -70,10 +70,13 @@ describe('App auth gate (white-label)', () => {
     await user.click(screen.getByRole('button', { name: 'Sign in' }));
 
     await waitFor(() => {
-      expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Welcome, Jada');
+      expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
+        /Good (morning|afternoon|evening), Jada/,
+      );
     });
 
-    await user.click(screen.getByRole('button', { name: 'Sign out' }));
+    await user.click(screen.getByRole('button', { name: 'Account menu' }));
+    await user.click(screen.getByRole('menuitem', { name: 'Sign out' }));
 
     // Signing out lands on the public front door (OD-20), one arrow from
     // sign-in — not straight back onto the form.
