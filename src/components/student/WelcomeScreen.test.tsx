@@ -47,6 +47,17 @@ function stubFetch(stub: FetchStub): void {
         // Empty Data API reads — the passive content cards stay hidden.
         return Promise.resolve(jsonResponse([]));
       }
+      if (target.endsWith('/student-profile')) {
+        // The goals card stays in its gentle empty state.
+        return Promise.resolve(
+          jsonResponse({
+            profile: { avatarKey: null, proudOf: null },
+            goals: [],
+            strengths: [],
+            strengthOptions: [],
+          }),
+        );
+      }
       return Promise.resolve(new Response(null, { status: 204 }));
     }),
   );

@@ -27,9 +27,12 @@ import { ShareModerationPage } from '@/components/admin/ShareModerationPage';
 import { RelaxationPage } from '@/components/admin/RelaxationPage';
 import { AboutAdminPage } from '@/components/admin/AboutAdminPage';
 import { FlagsPage } from '@/components/admin/FlagsPage';
+import { StrengthsPage } from '@/components/admin/StrengthsPage';
 import { AdminLayout } from '@/layouts/AdminLayout';
 import { StudentShell } from '@/components/student/StudentShell';
 import { CrownWatermark } from '@/components/student/CrownWatermark';
+import { GoalsCard } from '@/components/student/GoalsCard';
+import { QueenCardPage } from '@/components/student/QueenCardPage';
 import { exitStudentMode, useAuth, type AuthSession } from '@/lib/authStore';
 
 /**
@@ -75,47 +78,51 @@ function StudentHome() {
     return null;
   }
   return (
-    <div className="app-shell">
+    <div className="app-shell home-layout">
       {session.staffMode && <StudentModeBanner />}
       <EnablePasskeyPrompt />
       <EnablePushPrompt />
       <GuardianRequestNotice />
-
-      {/* The hero (SXU mockup, Maria 2026-07-19): the day's most important
+      <div className="home-main">
+        {/* The hero (SXU mockup, Maria 2026-07-19): the day's most important
           question, on the warm light surface, above the fold. Sign-out lives
           in the shell's account menu now. */}
-      <section className="crown-hero" aria-label="Daily check-in">
-        <span className="crown-hero-watermark" aria-hidden="true">
-          <CrownWatermark />
-        </span>
-        <h1 className="crown-hero-greeting">
-          {greetingFor(new Date().getHours())},{' '}
-          <span className="crown-hero-name">{session.subject.displayName}</span>
-        </h1>
-        <p className="crown-hero-sub">Take a breath. This space is yours.</p>
-        <CrownCheck />
-      </section>
-
-      <h2 className="home-section-title">
-        Today for you <span aria-hidden="true">👑</span>
-      </h2>
-      <DailyMessage />
-      <Announcements />
-      <Link to="/journal" className="today-row">
-        <span className="today-row-tile today-row-tile-cream" aria-hidden="true">
-          📖
-        </span>
-        <span className="today-row-body">
-          <span className="today-row-label">Journal</span>
-          <span className="today-row-text">
-            Write privately — what&rsquo;s in your heart today?
+        <section className="crown-hero" aria-label="Daily check-in">
+          <span className="crown-hero-watermark" aria-hidden="true">
+            <CrownWatermark />
           </span>
-        </span>
-        <span className="today-row-chevron" aria-hidden="true">
-          ›
-        </span>
-      </Link>
-      <UpcomingEvents />
+          <h1 className="crown-hero-greeting">
+            {greetingFor(new Date().getHours())},{' '}
+            <span className="crown-hero-name">{session.subject.displayName}</span>
+          </h1>
+          <p className="crown-hero-sub">Take a breath. This space is yours.</p>
+          <CrownCheck />
+        </section>
+
+        <h2 className="home-section-title">
+          Today for you <span aria-hidden="true">👑</span>
+        </h2>
+        <DailyMessage />
+        <Announcements />
+        <Link to="/journal" className="today-row">
+          <span className="today-row-tile today-row-tile-cream" aria-hidden="true">
+            📖
+          </span>
+          <span className="today-row-body">
+            <span className="today-row-label">Journal</span>
+            <span className="today-row-text">
+              Write privately — what&rsquo;s in your heart today?
+            </span>
+          </span>
+          <span className="today-row-chevron" aria-hidden="true">
+            ›
+          </span>
+        </Link>
+        <UpcomingEvents />
+      </div>
+      <aside className="home-aside">
+        <GoalsCard />
+      </aside>
     </div>
   );
 }
@@ -180,6 +187,16 @@ function AuthedRoutes({ session }: { session: AuthSession }) {
           }
         />
       )}
+      {!isAdmin && (
+        <Route
+          path="/profile"
+          element={
+            <StudentShell>
+              <QueenCardPage />
+            </StudentShell>
+          }
+        />
+      )}
       {/* About stays reachable signed-in too (students and admins alike). */}
       <Route
         path="/about"
@@ -202,6 +219,7 @@ function AuthedRoutes({ session }: { session: AuthSession }) {
           <Route path="relaxation" element={<RelaxationPage />} />
           <Route path="about" element={<AboutAdminPage />} />
           <Route path="flags" element={<FlagsPage />} />
+          <Route path="strengths" element={<StrengthsPage />} />
         </Route>
       )}
       <Route path="*" element={<Navigate to="/" replace />} />

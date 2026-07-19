@@ -41,6 +41,8 @@ export const ADMIN_SECTIONS: readonly AdminSection[] = [
   // The Flag Center (Spec §7): the most sensitive view after journals —
   // super_admin only until OD-6/OD-12. The dashboard's flag tile links here.
   { id: 'flags', label: 'Flags', path: 'flags', roles: ['super_admin'] },
+  // The Queen Card strengths vocabulary (SXU): super_admin until OD-12.
+  { id: 'strengths', label: 'Strengths', path: 'strengths', roles: ['super_admin'] },
 ];
 
 export function sectionsForRole(role: AdminRole): readonly AdminSection[] {
