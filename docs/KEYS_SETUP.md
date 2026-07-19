@@ -118,3 +118,19 @@ In `github.com/RoyalDiadem2007/Royal-Diadem` → Settings:
 - [ ] 4a–4c Vercel (at first deploy)
 
 When any item is done, tell Claude — it verifies the wiring and checks the box here.
+
+## WebAuthn (passkeys / Face ID / fingerprint) — REQUIRED on hosted
+
+Without these, the server offers passkeys for `localhost` and every
+fingerprint/Face ID enrollment on the live site fails (found in production
+2026-07-19):
+
+```
+supabase secrets set \
+  WEBAUTHN_RP_ID=royaldiademrise.org \
+  WEBAUTHN_ORIGIN=https://www.royaldiademrise.org,https://royaldiademrise.org
+```
+
+- `WEBAUTHN_RP_ID`: the registrable domain (covers www and apex).
+- `WEBAUTHN_ORIGIN`: comma-separated exact https origins the app is served
+  from. White-label deployments substitute their own domain in both.

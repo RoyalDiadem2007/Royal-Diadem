@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { EnablePasskeyPrompt } from '@/components/ui/EnablePasskeyPrompt';
+import { resetPromptMemoryForTests } from '@/lib/promptMemory';
 import { registerPasskey, useAuth, type AuthSession } from '@/lib/authStore';
 import { passkeysSupported } from '@/lib/passkey';
 
@@ -31,6 +32,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  resetPromptMemoryForTests();
   vi.clearAllMocks();
 });
 
