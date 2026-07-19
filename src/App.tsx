@@ -28,12 +28,15 @@ import { RelaxationPage } from '@/components/admin/RelaxationPage';
 import { AboutAdminPage } from '@/components/admin/AboutAdminPage';
 import { FlagsPage } from '@/components/admin/FlagsPage';
 import { StrengthsPage } from '@/components/admin/StrengthsPage';
+import { RequestsPage } from '@/components/admin/RequestsPage';
 import { AdminLayout } from '@/layouts/AdminLayout';
 import { StudentShell } from '@/components/student/StudentShell';
 import { CrownWatermark } from '@/components/student/CrownWatermark';
 import { CrownIcon } from '@/components/student/moodIcons';
 import { OpenBookIcon } from '@/components/student/todayIcons';
 import { GoalsCard } from '@/components/student/GoalsCard';
+import { MentorSessionCard } from '@/components/student/MentorSessionCard';
+import { InviteFriendCard } from '@/components/student/InviteFriendCard';
 import { QueenCardPage } from '@/components/student/QueenCardPage';
 import { exitStudentMode, useAuth, type AuthSession } from '@/lib/authStore';
 
@@ -121,6 +124,15 @@ function StudentHome() {
         </Link>
         <UpcomingEvents />
         <Announcements />
+
+        {/* "Your people" (SXU): the humans behind the app — her mentor
+          time and the friends she wants alongside her. */}
+        <h2 className="home-section-title">
+          <span>Your people</span>
+          <CrownIcon className="home-section-crown" />
+        </h2>
+        <MentorSessionCard />
+        <InviteFriendCard />
       </div>
       <aside className="home-aside">
         <GoalsCard />
@@ -222,6 +234,7 @@ function AuthedRoutes({ session }: { session: AuthSession }) {
           <Route path="about" element={<AboutAdminPage />} />
           <Route path="flags" element={<FlagsPage />} />
           <Route path="strengths" element={<StrengthsPage />} />
+          <Route path="requests" element={<RequestsPage />} />
         </Route>
       )}
       <Route path="*" element={<Navigate to="/" replace />} />

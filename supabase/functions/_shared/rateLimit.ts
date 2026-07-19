@@ -153,6 +153,34 @@ export async function enforceProfileWriteRateLimit(
   return recordAttempt(db, `profile:write:${studentId.toLowerCase()}`, PROFILE_WRITE_POLICY);
 }
 
+// 1:1 session requests: the one-open-request rule is the real gate; this
+// bounds a script hammering the endpoint, not a girl asking for time.
+const SESSION_REQUEST_POLICY: Policy = { maxAttempts: 5, windowSeconds: 86_400, lockoutSeconds: 900 };
+
+/** Records one mentor-session request for this student; fail closed. */
+export async function enforceSessionRequestRateLimit(
+  db: SupabaseClient,
+  studentId: string,
+): Promise<RateLimitOutcome> {
+  return recordAttempt(db, `msession:student:${studentId.toLowerCase()}`, SESSION_REQUEST_POLICY);
+}
+
+// Friend invites reach a third party's inbox (via staff outreach): a few per
+// week per student is generous for a person and useless for a spammer.
+const FRIEND_INVITE_POLICY: Policy = {
+  maxAttempts: 3,
+  windowSeconds: 604_800,
+  lockoutSeconds: 86_400,
+};
+
+/** Records one friend-invite submission for this student; fail closed. */
+export async function enforceFriendInviteRateLimit(
+  db: SupabaseClient,
+  studentId: string,
+): Promise<RateLimitOutcome> {
+  return recordAttempt(db, `finvite:student:${studentId.toLowerCase()}`, FRIEND_INVITE_POLICY);
+}
+
 /** On successful login: clear the identifier counter (IP counter stays). */
 export async function clearIdentifierAttempts(db: SupabaseClient, identifier: string): Promise<void> {
   const { error } = await db.rpc('clear_auth_attempts', {

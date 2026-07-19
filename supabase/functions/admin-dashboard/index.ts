@@ -23,6 +23,8 @@ type Counts = {
     moderation: number;
     guardianRequests: number;
     encouragementDrafts: number;
+    sessionRequests: number;
+    friendInvites: number;
     upcomingEvents: number;
   };
 };
@@ -61,8 +63,16 @@ async function gatherCounts(db: SupabaseClient): Promise<Counts | null> {
   ]);
 
   const today = new Date().toISOString().slice(0, 10);
-  const [openFlags, pendingPosts, pendingComments, guardianRequests, drafts, events] =
-    await Promise.all([
+  const [
+    openFlags,
+    pendingPosts,
+    pendingComments,
+    guardianRequests,
+    drafts,
+    sessionRequests,
+    friendInvites,
+    events,
+  ] = await Promise.all([
       db.from('flags').select('id', { count: 'exact', head: true }).neq('status', 'resolved'),
       db
         .from('share_posts')
@@ -80,6 +90,14 @@ async function gatherCounts(db: SupabaseClient): Promise<Counts | null> {
         .from('encouragement_messages')
         .select('id', { count: 'exact', head: true })
         .eq('status', 'draft'),
+      db
+        .from('mentor_session_requests')
+        .select('id', { count: 'exact', head: true })
+        .eq('status', 'pending'),
+      db
+        .from('friend_invites')
+        .select('id', { count: 'exact', head: true })
+        .eq('status', 'pending'),
       // This week's dates plus live weekly series (they land this week too).
       db
         .from('calendar_events')
@@ -99,6 +117,8 @@ async function gatherCounts(db: SupabaseClient): Promise<Counts | null> {
     pendingComments,
     guardianRequests,
     drafts,
+    sessionRequests,
+    friendInvites,
     events,
   ]) {
     if (result.error !== null || result.count === null) {
@@ -116,6 +136,8 @@ async function gatherCounts(db: SupabaseClient): Promise<Counts | null> {
       moderation: (pendingPosts.count ?? 0) + (pendingComments.count ?? 0),
       guardianRequests: guardianRequests.count ?? 0,
       encouragementDrafts: drafts.count ?? 0,
+      sessionRequests: sessionRequests.count ?? 0,
+      friendInvites: friendInvites.count ?? 0,
       upcomingEvents: events.count ?? 0,
     },
   };

@@ -156,7 +156,9 @@ export function DashboardPage() {
     pending.openFlags === 0 &&
     pending.moderation === 0 &&
     pending.guardianRequests === 0 &&
-    pending.encouragementDrafts === 0;
+    pending.encouragementDrafts === 0 &&
+    pending.sessionRequests === 0 &&
+    pending.friendInvites === 0;
   return (
     <section className="admin-section">
       <h2 className="admin-section-title">Dashboard</h2>
@@ -200,6 +202,24 @@ export function DashboardPage() {
                   : 'encouragement drafts to review'
               }
               sectionId="encouragement"
+              role={role}
+            />
+            <PendingChip
+              count={pending.sessionRequests}
+              label={
+                pending.sessionRequests === 1 ? 'one-on-one to schedule' : 'one-on-ones to schedule'
+              }
+              sectionId="requests"
+              role={role}
+            />
+            <PendingChip
+              count={pending.friendInvites}
+              label={
+                pending.friendInvites === 1
+                  ? 'friend invite to reach out on'
+                  : 'friend invites to reach out on'
+              }
+              sectionId="requests"
               role={role}
             />
           </>

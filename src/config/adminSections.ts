@@ -43,6 +43,9 @@ export const ADMIN_SECTIONS: readonly AdminSection[] = [
   { id: 'flags', label: 'Flags', path: 'flags', roles: ['super_admin'] },
   // The Queen Card strengths vocabulary (SXU): super_admin until OD-12.
   { id: 'strengths', label: 'Strengths', path: 'strengths', roles: ['super_admin'] },
+  // The "Your people" queue (1:1 asks + friend invites): human outreach
+  // work — super_admin until OD-6/OD-12 scope it to mentors.
+  { id: 'requests', label: 'Requests', path: 'requests', roles: ['super_admin'] },
 ];
 
 export function sectionsForRole(role: AdminRole): readonly AdminSection[] {

@@ -499,3 +499,12 @@ verify_jwt = false
 
 [functions.admin-strengths]
 verify_jwt = false
+
+[functions.mentor-sessions]
+verify_jwt = false
+
+[functions.friend-invites]
+verify_jwt = false
+
+[functions.admin-requests]
+verify_jwt = false
