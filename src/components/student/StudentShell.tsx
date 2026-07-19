@@ -116,6 +116,7 @@ export function StudentShell({
                 ))}
               </nav>
               <span className="app-bar-actions">
+                <span className="app-bar-hi">Hi, {firstName}</span>
                 <HonestBell token={studentSession.token} />
                 <span className="account-menu-wrap">
                   <button

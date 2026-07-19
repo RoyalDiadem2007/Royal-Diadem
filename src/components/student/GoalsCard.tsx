@@ -1,11 +1,13 @@
 /**
  * "What I'm growing toward" (SXU mockup): the home's gentle progress card —
- * up to three active goals, the first one's next step, and never a rank,
- * streak, or comparison. Fills the desktop right column beside the hero.
+ * the first active goal in full (MY GOAL / STATUS / NEXT GENTLE STEP),
+ * further goals as quiet lines, and never a rank, streak, or comparison.
+ * Fills the desktop right column beside the hero.
  */
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router';
 import { fetchQueenCard, GOAL_STATUS_LABELS, type StudentGoal } from '@/lib/profile';
+import { CrownIcon } from '@/components/student/moodIcons';
 import { useAuth } from '@/lib/authStore';
 
 type ViewState =
@@ -43,9 +45,13 @@ export function GoalsCard() {
     return null;
   }
 
+  const first = state.status === 'ready' ? state.goals[0] : undefined;
+  const rest = state.status === 'ready' ? state.goals.slice(1) : [];
+
   return (
     <section className="goals-card" aria-label="What I'm growing toward">
-      <h2 className="events-title">What I&rsquo;m growing toward</h2>
+      <CrownIcon className="goals-card-crown" />
+      <h2 className="goals-card-heading">What I&rsquo;m growing toward</h2>
 
       {state.status === 'loading' && <p className="daily-message-loading">One moment…</p>}
       {state.status === 'error' && (
@@ -55,38 +61,54 @@ export function GoalsCard() {
         </p>
       )}
 
-      {state.status === 'ready' && state.goals.length === 0 && (
+      {state.status === 'ready' && first === undefined && (
         <>
           <p className="door-sub">
             You don&rsquo;t need to have it all figured out. Choose one thing you&rsquo;d like to
             grow toward.
           </p>
-          <Link to="/profile" className="crown-check-submit goals-card-action">
-            Choose a goal
+          <Link to="/profile" className="goals-card-button">
+            <span>Choose a goal</span>
+            <span aria-hidden="true">›</span>
           </Link>
         </>
       )}
 
-      {state.status === 'ready' && state.goals.length > 0 && (
+      {first !== undefined && (
         <>
-          {state.goals.map((goal, index) => (
-            <article key={goal.id} className="goal-item">
-              <p className="goal-title">{goal.title}</p>
-              <p className="goal-meta">
-                <span className={`goal-status goal-status-${goal.status}`}>
-                  {GOAL_STATUS_LABELS[goal.status]}
-                </span>
-              </p>
-              {index === 0 && goal.nextStep !== null && (
-                <p className="goal-next">
-                  <span className="today-row-label">Next gentle step</span>
-                  {goal.nextStep}
+          <p className="eyebrow eyebrow-gold">My goal</p>
+          <p className="goals-card-goal">{first.title}</p>
+          <hr className="goals-card-rule" />
+          <p className="eyebrow eyebrow-gold">Status</p>
+          <p className="goal-meta">
+            <span className={`goal-status goal-status-${first.status}`}>
+              {GOAL_STATUS_LABELS[first.status]}
+            </span>
+          </p>
+          {first.nextStep !== null && (
+            <>
+              <hr className="goals-card-rule" />
+              <p className="eyebrow eyebrow-gold">Next gentle step</p>
+              <p className="goals-card-goal goals-card-step">{first.nextStep}</p>
+            </>
+          )}
+          {rest.length > 0 && (
+            <>
+              <hr className="goals-card-rule" />
+              <p className="eyebrow eyebrow-gold">Also growing</p>
+              {rest.map((goal) => (
+                <p key={goal.id} className="goals-card-also">
+                  {goal.title} ·{' '}
+                  <span className={`goal-status goal-status-${goal.status}`}>
+                    {GOAL_STATUS_LABELS[goal.status]}
+                  </span>
                 </p>
-              )}
-            </article>
-          ))}
-          <Link to="/profile" className="crown-check-submit goals-card-action">
-            View my goals
+              ))}
+            </>
+          )}
+          <Link to="/profile" className="goals-card-button">
+            <span>View my goals</span>
+            <span aria-hidden="true">›</span>
           </Link>
         </>
       )}
