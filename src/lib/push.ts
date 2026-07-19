@@ -46,10 +46,28 @@ async function fetchPublicKey(): Promise<ApiResult<string>> {
 
 export type EnableResult = { ok: true } | { ok: false; reason: 'denied' | 'unavailable' };
 
+/** serviceWorker.ready can hang forever when no worker ever activates. */
+const SW_READY_TIMEOUT_MS = 8000;
+
+async function readyRegistration(): Promise<ServiceWorkerRegistration | null> {
+  let timer: number | undefined;
+  const timeout = new Promise<null>((resolve) => {
+    timer = window.setTimeout(() => {
+      resolve(null);
+    }, SW_READY_TIMEOUT_MS);
+  });
+  try {
+    return await Promise.race([navigator.serviceWorker.ready, timeout]);
+  } finally {
+    window.clearTimeout(timer);
+  }
+}
+
 /**
  * Full enrollment: permission prompt → browser subscription → server
  * registration. Returns 'denied' only when the user said no; every technical
- * failure is 'unavailable' (retryable later, never an error screen).
+ * failure is 'unavailable' (retryable later, never an error screen) and logs
+ * WHICH step broke, so a field report can be traced.
  */
 export async function enablePushNotifications(sessionToken: string): Promise<EnableResult> {
   if (!pushSupported()) {
@@ -63,21 +81,34 @@ export async function enablePushNotifications(sessionToken: string): Promise<Ena
 
   const keyResult = await fetchPublicKey();
   if (!keyResult.ok) {
+    logger.warn('push.enroll_failed', { step: 'public_key' });
+    return { ok: false, reason: 'unavailable' };
+  }
+
+  const registration = await readyRegistration();
+  if (registration === null) {
+    // The service worker never became active (registration failed or is
+    // still installing) — bounded wait, honest failure, retry later.
+    logger.warn('push.enroll_failed', { step: 'sw_ready_timeout' });
     return { ok: false, reason: 'unavailable' };
   }
 
   try {
-    const registration = await navigator.serviceWorker.ready;
-    const subscription = await registration.pushManager.subscribe({
-      userVisibleOnly: true,
-      applicationServerKey: urlBase64ToUint8Array(keyResult.data),
-    });
+    // Reuse a live subscription when one exists: calling subscribe() again
+    // with a (potentially different) key throws instead of replacing.
+    const subscription =
+      (await registration.pushManager.getSubscription()) ??
+      (await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(keyResult.data),
+      }));
     const json = subscription.toJSON();
     if (
       typeof json.endpoint !== 'string' ||
       json.keys?.p256dh === undefined ||
       json.keys.auth === undefined
     ) {
+      logger.warn('push.enroll_failed', { step: 'subscription_shape' });
       return { ok: false, reason: 'unavailable' };
     }
     const saved = await callEdgeFunction('push/subscribe', {
@@ -87,13 +118,16 @@ export async function enablePushNotifications(sessionToken: string): Promise<Ena
       parse: () => null,
     });
     if (!saved.ok) {
+      logger.warn('push.enroll_failed', { step: 'server_save' });
       return { ok: false, reason: 'unavailable' };
     }
     logger.info('push.enabled', {});
     return { ok: true };
   } catch {
     // Browser refused the subscription (e.g. iOS not installed to home
-    // screen yet) — recoverable, not an error state.
+    // screen yet, or a key conflict with an older subscription) —
+    // recoverable, not an error state.
+    logger.warn('push.enroll_failed', { step: 'subscribe' });
     return { ok: false, reason: 'unavailable' };
   }
 }
