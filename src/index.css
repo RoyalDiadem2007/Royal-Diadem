@@ -262,7 +262,7 @@ textarea:focus-visible {
   font-family: var(--font-display);
   font-weight: var(--weight-semibold);
   color: var(--color-text-primary);
-  font-size: 2rem;
+  font-size: var(--text-2xl);
   letter-spacing: 0.003em;
   text-wrap: balance;
   margin: var(--space-4) 0 0;
@@ -316,7 +316,7 @@ textarea:focus-visible {
   gap: var(--space-1);
   text-align: left;
   color: var(--color-text-secondary);
-  font-size: 0.9rem;
+  font-size: var(--text-sm);
 }
 
 .login-field input {
@@ -325,12 +325,12 @@ textarea:focus-visible {
   border: 1px solid var(--hairline-strong);
   border-radius: var(--radius-control);
   padding: var(--space-3) var(--space-3);
-  font-size: 1.05rem;
+  font-size: var(--text-base);
 }
 
 /* The PIN gets code-entry treatment: centered, spaced, digit-aligned. */
 .login-pin-input {
-  font-size: 1.15rem;
+  font-size: var(--text-md);
   letter-spacing: 0.35em;
   text-align: center;
   font-variant-numeric: tabular-nums;
@@ -339,7 +339,7 @@ textarea:focus-visible {
 .login-error {
   color: var(--color-danger);
   margin: 0;
-  font-size: 0.9rem;
+  font-size: var(--text-sm);
 }
 
 .login-submit {
@@ -348,7 +348,7 @@ textarea:focus-visible {
   border: none;
   border-radius: var(--radius-control);
   padding: var(--space-3) var(--space-4);
-  font-size: 1rem;
+  font-size: var(--text-base);
   font-weight: var(--weight-semibold);
   letter-spacing: 0.015em;
   box-shadow: var(--button-shadow);
@@ -364,7 +364,7 @@ textarea:focus-visible {
   border: none;
   color: var(--color-text-secondary);
   text-decoration: underline;
-  font-size: 0.85rem;
+  font-size: var(--text-xs);
   margin-top: var(--space-2);
 }
 
@@ -374,7 +374,7 @@ textarea:focus-visible {
   border: 1px solid var(--hairline-strong);
   border-radius: var(--radius-control);
   padding: var(--space-3) 1.2rem;
-  font-size: 0.95rem;
+  font-size: var(--text-sm);
   font-weight: var(--weight-semibold);
   margin-top: var(--space-3);
 }
@@ -449,7 +449,7 @@ textarea:focus-visible {
   font-family: var(--font-display);
   font-weight: var(--weight-semibold);
   color: var(--color-primary);
-  font-size: 1.5rem;
+  font-size: var(--text-xl);
   margin: 0;
 }
 
@@ -503,7 +503,7 @@ textarea:focus-visible {
   font-family: var(--font-display);
   font-weight: var(--weight-semibold);
   color: var(--color-primary);
-  font-size: 1.1rem;
+  font-size: var(--text-md);
   line-height: 1.2;
 }
 
@@ -548,7 +548,7 @@ textarea:focus-visible {
 
 .admin-user-role {
   color: var(--color-text-secondary);
-  font-size: 0.85rem;
+  font-size: var(--text-xs);
 }
 
 .admin-main {
@@ -561,7 +561,7 @@ textarea:focus-visible {
   font-family: var(--font-display);
   font-weight: var(--weight-semibold);
   color: var(--color-primary);
-  font-size: 1.5rem;
+  font-size: var(--text-xl);
   margin: 0 0 1.25rem;
 }
 
@@ -602,14 +602,14 @@ textarea:focus-visible {
 }
 
 .admin-stat-value {
-  font-size: 2rem;
+  font-size: var(--text-2xl);
   font-weight: 700;
   color: var(--color-text-primary);
 }
 
 .admin-stat-label {
   color: var(--color-text-secondary);
-  font-size: 0.9rem;
+  font-size: var(--text-sm);
 }
 
 /* The file cabinet is desktop-first, but never broken on a small screen. */
@@ -642,7 +642,7 @@ textarea:focus-visible {
   font-family: var(--font-display);
   font-weight: var(--weight-semibold);
   color: var(--color-primary);
-  font-size: 1.15rem;
+  font-size: var(--text-md);
   margin: 0 0 var(--space-4);
 }
 
@@ -673,7 +673,7 @@ textarea:focus-visible {
 
 .admin-table th {
   color: var(--color-text-secondary);
-  font-size: 0.78rem;
+  font-size: var(--text-xs);
   font-weight: var(--weight-semibold);
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -681,7 +681,7 @@ textarea:focus-visible {
 
 .admin-table-sub {
   color: var(--color-text-secondary);
-  font-size: 0.85rem;
+  font-size: var(--text-xs);
 }
 
 .admin-confirm-group {
@@ -734,7 +734,7 @@ textarea:focus-visible {
   flex-direction: column;
   gap: var(--space-1);
   color: var(--color-text-secondary);
-  font-size: 0.9rem;
+  font-size: var(--text-sm);
 }
 
 .add-student-grid input {
@@ -768,7 +768,7 @@ textarea:focus-visible {
   font-family: var(--font-display);
   font-weight: var(--weight-semibold);
   color: var(--color-primary);
-  font-size: 1.15rem;
+  font-size: var(--text-md);
   margin: 0 0 var(--space-4);
 }
 
@@ -780,12 +780,12 @@ textarea:focus-visible {
 
 .issued-pin-details dt {
   color: var(--color-text-secondary);
-  font-size: 0.85rem;
+  font-size: var(--text-xs);
 }
 
 .issued-pin-details dd {
   margin: var(--space-1) 0 0;
-  font-size: 1.6rem;
+  font-size: var(--text-xl);
   font-weight: 700;
   letter-spacing: 0.1em;
   color: var(--color-text-primary);
@@ -794,7 +794,7 @@ textarea:focus-visible {
 .issued-pin-warning {
   color: var(--color-warning);
   margin: 0 0 var(--space-4);
-  font-size: 0.9rem;
+  font-size: var(--text-sm);
 }
 
 /* CSV import wizard + printable PIN card sheet. */
@@ -812,7 +812,7 @@ textarea:focus-visible {
   flex-direction: column;
   gap: var(--space-1);
   color: var(--color-text-secondary);
-  font-size: 0.9rem;
+  font-size: var(--text-sm);
   margin-bottom: var(--space-4);
 }
 
@@ -828,7 +828,7 @@ textarea:focus-visible {
   flex-direction: column;
   gap: var(--space-1);
   color: var(--color-text-secondary);
-  font-size: 0.9rem;
+  font-size: var(--text-sm);
 }
 
 .csv-mapping-grid select {
@@ -842,7 +842,7 @@ textarea:focus-visible {
 
 .csv-problem-list {
   color: var(--color-danger);
-  font-size: 0.9rem;
+  font-size: var(--text-sm);
   margin: 0 0 var(--space-4);
   padding-left: 1.25rem;
 }
@@ -867,12 +867,12 @@ textarea:focus-visible {
   font-family: var(--font-display);
   font-weight: var(--weight-semibold);
   color: var(--color-primary);
-  font-size: 1.1rem;
+  font-size: var(--text-md);
 }
 
 .pin-card-row {
   color: var(--color-text-primary);
-  font-size: 1rem;
+  font-size: var(--text-base);
   letter-spacing: 0.05em;
 }
 
@@ -927,7 +927,7 @@ textarea:focus-visible {
   font-family: var(--font-display);
   font-weight: var(--weight-semibold);
   color: var(--color-primary);
-  font-size: 1.2rem;
+  font-size: var(--text-md);
   margin: 0 0 var(--space-2);
 }
 
@@ -956,7 +956,7 @@ textarea:focus-visible {
   border-radius: var(--radius-control);
   cursor: pointer;
   font: inherit;
-  font-size: 0.75rem;
+  font-size: var(--text-2xs);
 }
 
 .crown-check-mood:hover {
@@ -964,7 +964,7 @@ textarea:focus-visible {
 }
 
 .crown-check-mood-emoji {
-  font-size: 1.5rem;
+  font-size: var(--text-xl);
 }
 
 .crown-check-mood-selected {
@@ -983,7 +983,7 @@ textarea:focus-visible {
 
 .crown-check-note-label {
   color: var(--color-text-secondary);
-  font-size: 0.9rem;
+  font-size: var(--text-sm);
 }
 
 .crown-check-note input {
@@ -1030,7 +1030,7 @@ textarea:focus-visible {
 }
 
 .crown-check-done-emoji {
-  font-size: 1.5rem;
+  font-size: var(--text-xl);
   margin-right: var(--space-2);
 }
 
@@ -1054,7 +1054,7 @@ textarea:focus-visible {
 .crown-flag {
   display: inline-block;
   transform: rotate(-28deg);
-  font-size: 1.1rem;
+  font-size: var(--text-md);
   margin-left: var(--space-1);
   filter: saturate(0.85);
 }
@@ -1135,14 +1135,14 @@ textarea:focus-visible {
 
 .landing-tagline {
   color: var(--color-text-secondary);
-  font-size: 1.05rem;
+  font-size: var(--text-base);
   margin: 0;
 }
 
 .landing-blurb {
   color: var(--color-text-secondary);
   max-width: 32rem;
-  font-size: 1.05rem;
+  font-size: var(--text-base);
   line-height: 1.75;
   margin: 1.25rem 0 var(--space-4);
 }
@@ -1159,13 +1159,13 @@ textarea:focus-visible {
 }
 
 .landing-enter-arrow {
-  font-size: 2rem;
+  font-size: var(--text-2xl);
   animation: landing-bounce 1.6s ease-in-out infinite;
 }
 
 .landing-enter-text {
   color: var(--color-text-secondary);
-  font-size: 0.95rem;
+  font-size: var(--text-sm);
 }
 
 .landing-enter:hover .landing-enter-text,
@@ -1205,14 +1205,14 @@ textarea:focus-visible {
   font-family: var(--font-display);
   font-weight: var(--weight-semibold);
   color: var(--color-crown-gold);
-  font-size: 1.05rem;
+  font-size: var(--text-base);
   margin: 0 0 var(--space-2);
 }
 
 .daily-message-text {
   font-family: var(--font-display);
   font-weight: var(--weight-semibold);
-  font-size: 1.15rem;
+  font-size: var(--text-md);
   line-height: 1.5;
   color: var(--color-text-primary);
   margin: 0;
@@ -1241,7 +1241,7 @@ textarea:focus-visible {
 /* Journal writing support: the on-device dictation nudge. */
 .journal-dictation-hint {
   color: var(--color-text-secondary);
-  font-size: 0.85rem;
+  font-size: var(--text-xs);
   margin: var(--space-1) 0 var(--space-3);
 }
 
@@ -1300,7 +1300,7 @@ textarea:focus-visible {
 .app-bar-name {
   font-family: var(--font-display);
   font-weight: var(--weight-semibold);
-  font-size: 1rem;
+  font-size: var(--text-base);
   color: var(--color-crown-gold);
   letter-spacing: 0.16em;
   text-transform: uppercase;
@@ -1308,7 +1308,7 @@ textarea:focus-visible {
 
 .app-bar-hi {
   color: var(--color-text-primary);
-  font-size: 0.95rem;
+  font-size: var(--text-sm);
 }
 
 .app-bar-nav {
@@ -1328,7 +1328,7 @@ textarea:focus-visible {
   border-radius: var(--radius-pill);
   text-decoration: none;
   color: var(--color-text-secondary);
-  font-size: 0.95rem;
+  font-size: var(--text-sm);
 }
 
 .app-bar-link-active {
@@ -1379,7 +1379,7 @@ textarea:focus-visible {
   background-color: var(--field-surface);
   width: 2.4rem;
   height: 2.4rem;
-  font-size: 1.05rem;
+  font-size: var(--text-base);
 }
 
 .account-menu-wrap {
@@ -1440,7 +1440,7 @@ textarea:focus-visible {
   margin: 0 auto;
   padding: 0 var(--space-3) var(--space-5);
   /* Girls read here: 17px primary text (SXU accessibility floor is 16). */
-  font-size: 1.0625rem;
+  font-size: var(--text-base);
 }
 
 /* Room for the fixed tab bar (plus phone safe areas). */
@@ -1468,7 +1468,7 @@ textarea:focus-visible {
   padding: 1rem 1rem calc(1rem + 4.2rem);
   border-top: 1px solid var(--hairline);
   color: var(--color-text-secondary);
-  font-size: 0.85rem;
+  font-size: var(--text-xs);
   text-align: center;
 }
 
@@ -1490,7 +1490,7 @@ textarea:focus-visible {
 
 .app-footer-credit {
   flex-basis: 100%;
-  font-size: 0.75rem;
+  font-size: var(--text-2xs);
   opacity: 0.85;
 }
 
@@ -1523,11 +1523,11 @@ textarea:focus-visible {
   border-radius: var(--radius-control);
   text-decoration: none;
   color: var(--color-text-secondary);
-  font-size: 0.7rem;
+  font-size: var(--text-2xs);
 }
 
 .tab-icon {
-  font-size: 1.25rem;
+  font-size: var(--text-lg);
 }
 
 .tab-item-active {
@@ -1548,7 +1548,7 @@ textarea:focus-visible {
   font-family: var(--font-display);
   font-weight: var(--weight-semibold);
   color: var(--color-text-primary);
-  font-size: 1.7rem;
+  font-size: var(--text-xl);
   letter-spacing: 0.01em;
   margin: var(--space-2) 0 0.15rem;
 }
@@ -1622,7 +1622,7 @@ textarea:focus-visible {
   color: var(--color-background);
   font-family: var(--font-display);
   font-weight: var(--weight-semibold);
-  font-size: 1.15rem;
+  font-size: var(--text-md);
   margin: 0 0 var(--space-3);
 }
 
@@ -1659,7 +1659,7 @@ textarea:focus-visible {
 }
 
 .crown-hero .crown-check-mood-label {
-  font-size: 1rem;
+  font-size: var(--text-base);
 }
 
 .crown-hero .crown-check-mood:hover {
@@ -1689,7 +1689,7 @@ textarea:focus-visible {
   border-radius: 50%;
   background-color: var(--color-secondary);
   color: white;
-  font-size: 0.75rem;
+  font-size: var(--text-2xs);
 }
 
 .crown-hero .crown-check-note-label {
@@ -1702,7 +1702,7 @@ textarea:focus-visible {
   border: 1px solid color-mix(in srgb, var(--color-background) 20%, transparent);
   border-radius: var(--radius-control);
   padding: var(--space-2) var(--space-3);
-  font-size: 1rem;
+  font-size: var(--text-base);
 }
 
 .crown-hero .crown-check-title {
@@ -1785,7 +1785,7 @@ textarea:focus-visible {
   width: 3rem;
   height: 3rem;
   border-radius: var(--radius-control);
-  font-size: 1.4rem;
+  font-size: var(--text-lg);
   flex: none;
   background-color: color-mix(in srgb, var(--color-primary) 30%, var(--color-card-surface));
 }
@@ -1802,7 +1802,7 @@ textarea:focus-visible {
 }
 
 .today-row-label {
-  font-size: 0.75rem;
+  font-size: var(--text-2xs);
   font-weight: var(--weight-semibold);
   letter-spacing: var(--tracking-label);
   text-transform: uppercase;
@@ -1817,7 +1817,7 @@ textarea:focus-visible {
 
 .today-row-chevron {
   color: var(--color-text-secondary);
-  font-size: 1.4rem;
+  font-size: var(--text-lg);
   flex: none;
 }
 
@@ -2013,7 +2013,7 @@ textarea:focus-visible {
 /* A muted caption line (once the home doors' subtitle; reused broadly). */
 .door-sub {
   color: var(--color-text-secondary);
-  font-size: 0.85rem;
+  font-size: var(--text-xs);
 }
 
 /* The Relax room (Phase 11): breath circle, grounding walk, library. */
@@ -2070,7 +2070,7 @@ textarea:focus-visible {
 .breath-label {
   font-family: var(--font-display);
   font-weight: var(--weight-semibold);
-  font-size: 1.1rem;
+  font-size: var(--text-md);
   color: var(--color-text-primary);
   margin: 0;
   display: flex;
@@ -2087,7 +2087,7 @@ textarea:focus-visible {
   border-radius: 50%;
   border: 1px solid color-mix(in srgb, var(--color-crown-gold) 55%, transparent);
   color: var(--color-crown-gold);
-  font-size: 1.2rem;
+  font-size: var(--text-md);
   flex: none;
 }
 
@@ -2106,7 +2106,7 @@ textarea:focus-visible {
 /* Eyebrows (SXU mockup): small caps labels that name each block. */
 .eyebrow {
   font-family: var(--font-body);
-  font-size: 0.78rem;
+  font-size: var(--text-xs);
   font-weight: var(--weight-semibold);
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -2182,7 +2182,7 @@ textarea:focus-visible {
 .today-tile-text {
   font-family: var(--font-display);
   font-weight: var(--weight-semibold);
-  font-size: 1.2rem;
+  font-size: var(--text-md);
   line-height: 1.4;
   color: var(--color-text-primary);
   margin: 0;
@@ -2190,12 +2190,12 @@ textarea:focus-visible {
 
 .today-tile-sub {
   color: var(--color-text-secondary);
-  font-size: 0.95rem;
+  font-size: var(--text-sm);
 }
 
 .today-tile-action {
   color: var(--color-crown-gold);
-  font-size: 0.95rem;
+  font-size: var(--text-sm);
   text-decoration: underline;
   text-underline-offset: 3px;
 }
@@ -2218,7 +2218,7 @@ textarea:focus-visible {
   margin: var(--space-1) 0 0;
   padding: 0;
   color: var(--color-text-secondary);
-  font-size: 0.9rem;
+  font-size: var(--text-sm);
   display: flex;
   flex-direction: column;
   gap: 0.2rem;
@@ -2246,14 +2246,14 @@ textarea:focus-visible {
 .goals-card-goal {
   font-family: var(--font-display);
   font-weight: var(--weight-semibold);
-  font-size: 1.3rem;
+  font-size: var(--text-lg);
   line-height: 1.35;
   color: var(--color-text-primary);
   margin: 0;
 }
 
 .goals-card-step {
-  font-size: 1.15rem;
+  font-size: var(--text-md);
 }
 
 .goals-card-rule {
@@ -2279,7 +2279,7 @@ textarea:focus-visible {
   background: var(--button-gradient);
   color: var(--color-text-primary);
   font-weight: var(--weight-semibold);
-  font-size: 1.05rem;
+  font-size: var(--text-base);
   text-decoration: none;
   box-shadow: var(--button-shadow);
 }
@@ -2309,7 +2309,7 @@ textarea:focus-visible {
   display: inline-block;
   padding: 0.15rem var(--space-3);
   border-radius: var(--radius-pill);
-  font-size: 0.78rem;
+  font-size: var(--text-xs);
   font-weight: var(--weight-semibold);
 }
 
@@ -2346,7 +2346,7 @@ textarea:focus-visible {
   border: 1px solid var(--hairline-strong);
   background-color: var(--color-card-surface);
   color: var(--color-text-secondary);
-  font-size: 0.9rem;
+  font-size: var(--text-sm);
   text-decoration: none;
 }
 
@@ -2373,7 +2373,7 @@ textarea:focus-visible {
 
 /* Flag Center (Phase 14): status chips — calm words, never alarms. */
 .flag-status {
-  font-size: 0.8rem;
+  font-size: var(--text-xs);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   font-weight: var(--weight-semibold);
@@ -2415,7 +2415,7 @@ textarea:focus-visible {
   border: 1px solid color-mix(in srgb, var(--color-crown-gold) 45%, transparent);
   font-family: var(--font-display);
   font-weight: var(--weight-semibold);
-  font-size: 0.95rem;
+  font-size: var(--text-sm);
   color: var(--color-crown-gold);
   flex: none;
 }
@@ -2423,14 +2423,14 @@ textarea:focus-visible {
 .avatar-coin-hero {
   width: 3.6rem;
   height: 3.6rem;
-  font-size: 1.7rem;
+  font-size: var(--text-xl);
   margin: 0 auto var(--space-2);
 }
 
 .avatar-coin-small {
   width: 1.4rem;
   height: 1.4rem;
-  font-size: 0.7rem;
+  font-size: var(--text-2xs);
   margin-right: var(--space-1);
   vertical-align: -0.35rem;
 }
@@ -2445,7 +2445,7 @@ textarea:focus-visible {
 .share-back {
   color: var(--color-text-secondary);
   text-decoration: none;
-  font-size: 0.9rem;
+  font-size: var(--text-sm);
 }
 
 .share-back:hover {
@@ -2499,12 +2499,12 @@ textarea:focus-visible {
 
 .share-author-date {
   color: var(--color-text-secondary);
-  font-size: 0.85rem;
+  font-size: var(--text-xs);
 }
 
 .share-pending-tag {
   color: var(--color-crown-gold);
-  font-size: 0.8rem;
+  font-size: var(--text-xs);
   font-style: italic;
 }
 
@@ -2544,7 +2544,7 @@ textarea:focus-visible {
 }
 
 .share-reaction-count {
-  font-size: 0.8rem;
+  font-size: var(--text-xs);
 }
 
 .share-comment {
@@ -2574,7 +2574,7 @@ textarea:focus-visible {
 
 .share-flag-button {
   font: inherit;
-  font-size: 0.85rem;
+  font-size: var(--text-xs);
   background: transparent;
   border: none;
   color: var(--color-text-secondary);
@@ -2589,7 +2589,7 @@ textarea:focus-visible {
 
 .share-flag-confirm {
   color: var(--color-text-secondary);
-  font-size: 0.85rem;
+  font-size: var(--text-xs);
 }
 
 .share-photo {
@@ -2621,7 +2621,7 @@ textarea:focus-visible {
   align-items: center;
   gap: var(--space-2);
   font-weight: var(--weight-semibold);
-  font-size: 0.9rem;
+  font-size: var(--text-sm);
   padding: var(--space-2) var(--space-4);
   background: transparent;
   color: var(--color-text-secondary);
@@ -2660,7 +2660,7 @@ textarea:focus-visible {
   font-family: var(--font-display);
   font-weight: var(--weight-semibold);
   color: var(--color-primary);
-  font-size: 1.2rem;
+  font-size: var(--text-md);
   margin: 0 0 var(--space-3);
 }
 
@@ -2682,7 +2682,7 @@ textarea:focus-visible {
 .events-date {
   color: var(--color-crown-gold);
   font-weight: var(--weight-semibold);
-  font-size: 0.85rem;
+  font-size: var(--text-xs);
 }
 
 .events-time {
@@ -2697,7 +2697,7 @@ textarea:focus-visible {
 
 .events-detail {
   color: var(--color-text-secondary);
-  font-size: 0.9rem;
+  font-size: var(--text-sm);
 }
 
 .announcement-item {
@@ -2719,7 +2719,7 @@ textarea:focus-visible {
 
 .announcement-meta {
   color: var(--color-text-secondary);
-  font-size: 0.85rem;
+  font-size: var(--text-xs);
   margin: 0 0 var(--space-1);
 }
 
@@ -2728,14 +2728,14 @@ textarea:focus-visible {
   font-weight: var(--weight-semibold);
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  font-size: 0.75rem;
+  font-size: var(--text-2xs);
 }
 
 .announcement-title {
   font-family: var(--font-display);
   font-weight: var(--weight-semibold);
   color: var(--color-text-primary);
-  font-size: 1.05rem;
+  font-size: var(--text-base);
   margin: 0 0 var(--space-1);
 }
 
@@ -2774,7 +2774,7 @@ textarea:focus-visible {
 /* Journal (Phase 6): student card + admin review + prompts manager. */
 .journal-transparency {
   color: var(--color-text-secondary);
-  font-size: 0.9rem;
+  font-size: var(--text-sm);
   font-style: italic;
   margin: 0 0 var(--space-3);
 }
@@ -2811,12 +2811,12 @@ textarea:focus-visible {
 
 .journal-history-date {
   color: var(--color-crown-gold);
-  font-size: 0.85rem;
+  font-size: var(--text-xs);
 }
 
 .journal-history-prompt {
   color: var(--color-text-secondary);
-  font-size: 0.85rem;
+  font-size: var(--text-xs);
 }
 
 .journal-history-text {
@@ -2898,7 +2898,7 @@ textarea:focus-visible {
 }
 
 .encouragement-status {
-  font-size: 0.8rem;
+  font-size: var(--text-xs);
   text-transform: uppercase;
   letter-spacing: 0.06em;
 }
@@ -2940,7 +2940,7 @@ textarea:focus-visible {
 
 .guardian-request-code {
   color: var(--color-crown-gold);
-  font-size: 2rem;
+  font-size: var(--text-2xl);
   letter-spacing: 0.35em;
   text-align: center;
   margin: 0 0 var(--space-2);
@@ -2948,7 +2948,7 @@ textarea:focus-visible {
 
 .guardian-request-hint {
   color: var(--color-text-secondary);
-  font-size: 0.85rem;
+  font-size: var(--text-xs);
   margin: 0;
 }
 
@@ -2971,7 +2971,7 @@ textarea:focus-visible {
 
 .guardian-code-entry input {
   font: inherit;
-  font-size: 1.3rem;
+  font-size: var(--text-lg);
   letter-spacing: 0.35em;
   text-align: center;
   font-variant-numeric: tabular-nums;
@@ -3010,7 +3010,7 @@ textarea:focus-visible {
 
 .staff-mode-banner-text {
   color: var(--color-text-secondary);
-  font-size: 0.9rem;
+  font-size: var(--text-sm);
   margin: 0;
 }
 
@@ -3039,7 +3039,7 @@ textarea:focus-visible {
   border: 1px solid var(--color-crown-gold);
   border-radius: 6px;
   color: var(--color-crown-gold);
-  font-size: 0.68rem;
+  font-size: var(--text-2xs);
   font-weight: var(--weight-semibold);
   letter-spacing: 0.08em;
   vertical-align: middle;
@@ -3067,7 +3067,7 @@ textarea:focus-visible {
 
 .admin-viewas-error {
   color: var(--color-danger);
-  font-size: 0.85rem;
+  font-size: var(--text-xs);
   margin: 0;
 }
 
@@ -3126,12 +3126,12 @@ textarea:focus-visible {
 
 .welcome-credential-label {
   color: var(--color-text-secondary);
-  font-size: 0.9rem;
+  font-size: var(--text-sm);
 }
 
 .welcome-credential-value {
   color: var(--color-text-primary);
-  font-size: 1.4rem;
+  font-size: var(--text-lg);
   letter-spacing: 0.12em;
 }
 
