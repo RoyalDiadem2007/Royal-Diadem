@@ -13,7 +13,7 @@
 @font-face {
   font-family: 'Fraunces';
   font-style: normal;
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
   font-display: swap;
   src: url('/fonts/fraunces-600-latin-ext.woff2') format('woff2');
   unicode-range:
@@ -25,7 +25,7 @@
 @font-face {
   font-family: 'Fraunces';
   font-style: normal;
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
   font-display: swap;
   src: url('/fonts/fraunces-600-latin.woff2') format('woff2');
   unicode-range:
@@ -59,7 +59,7 @@
 @font-face {
   font-family: 'Albert Sans';
   font-style: normal;
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
   font-display: swap;
   src: url('/fonts/albert-sans-600-latin-ext.woff2') format('woff2');
   unicode-range:
@@ -71,7 +71,7 @@
 @font-face {
   font-family: 'Albert Sans';
   font-style: normal;
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
   font-display: swap;
   src: url('/fonts/albert-sans-600-latin.woff2') format('woff2');
   unicode-range:
@@ -260,7 +260,7 @@ textarea:focus-visible {
 
 .app-title {
   font-family: var(--font-display);
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
   color: var(--color-text-primary);
   font-size: 2rem;
   letter-spacing: 0.003em;
@@ -297,7 +297,7 @@ textarea:focus-visible {
 
 .login-title {
   font-family: var(--font-display);
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
   color: var(--color-primary);
   font-size: 1.75rem;
   margin: 0.25rem 0 0.75rem;
@@ -349,7 +349,7 @@ textarea:focus-visible {
   border-radius: var(--radius-control);
   padding: 0.78rem 1.1rem;
   font-size: 1rem;
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
   letter-spacing: 0.015em;
   box-shadow: var(--button-shadow);
 }
@@ -375,7 +375,7 @@ textarea:focus-visible {
   border-radius: var(--radius-control);
   padding: 0.68rem 1.2rem;
   font-size: 0.95rem;
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
   margin-top: 0.75rem;
 }
 
@@ -414,7 +414,7 @@ textarea:focus-visible {
   border: none;
   border-radius: var(--radius-control);
   padding: 0.5rem 1.2rem;
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
 }
 
 .passkey-prompt-dismiss {
@@ -430,7 +430,7 @@ textarea:focus-visible {
   border: 1px solid var(--hairline-strong);
   border-radius: var(--radius-control);
   padding: 0.5rem 1.2rem;
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
   margin-top: 1rem;
 }
 
@@ -447,7 +447,7 @@ textarea:focus-visible {
 
 .error-fallback h1 {
   font-family: var(--font-display);
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
   color: var(--color-primary);
   font-size: 1.5rem;
   margin: 0;
@@ -465,7 +465,7 @@ textarea:focus-visible {
   border: none;
   border-radius: var(--radius-control);
   padding: 0.6rem 1.4rem;
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
   box-shadow: var(--button-shadow);
 }
 
@@ -496,12 +496,12 @@ textarea:focus-visible {
 .admin-logo {
   width: 2.5rem;
   height: 2.5rem;
-  border-radius: 0.5rem;
+  border-radius: var(--radius-sm);
 }
 
 .admin-brand-name {
   font-family: var(--font-display);
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
   color: var(--color-primary);
   font-size: 1.1rem;
   line-height: 1.2;
@@ -520,7 +520,7 @@ textarea:focus-visible {
   border-radius: var(--radius-control);
   color: var(--color-text-secondary);
   text-decoration: none;
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
 }
 
 .admin-nav-link:hover {
@@ -543,7 +543,7 @@ textarea:focus-visible {
 
 .admin-user-name {
   color: var(--color-text-primary);
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
 }
 
 .admin-user-role {
@@ -559,7 +559,7 @@ textarea:focus-visible {
 
 .admin-section-title {
   font-family: var(--font-display);
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
   color: var(--color-primary);
   font-size: 1.5rem;
   margin: 0 0 1.25rem;
@@ -576,7 +576,7 @@ textarea:focus-visible {
   border: none;
   border-radius: var(--radius-control);
   padding: 0.6rem 1.4rem;
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
   box-shadow: var(--button-shadow);
 }
 
@@ -640,7 +640,7 @@ textarea:focus-visible {
 
 .admin-subsection-title {
   font-family: var(--font-display);
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
   color: var(--color-primary);
   font-size: 1.15rem;
   margin: 0 0 1rem;
@@ -674,7 +674,7 @@ textarea:focus-visible {
 .admin-table th {
   color: var(--color-text-secondary);
   font-size: 0.78rem;
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -695,7 +695,7 @@ textarea:focus-visible {
   border: 1px solid color-mix(in srgb, var(--color-danger) 45%, transparent);
   border-radius: var(--radius-control);
   padding: 0.5rem 1.2rem;
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
 }
 
 .admin-danger-button:hover {
@@ -766,7 +766,7 @@ textarea:focus-visible {
 
 .issued-pin-title {
   font-family: var(--font-display);
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
   color: var(--color-primary);
   font-size: 1.15rem;
   margin: 0 0 1rem;
@@ -865,7 +865,7 @@ textarea:focus-visible {
 
 .pin-card-name {
   font-family: var(--font-display);
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
   color: var(--color-primary);
   font-size: 1.1rem;
 }
@@ -925,7 +925,7 @@ textarea:focus-visible {
 
 .crown-check-title {
   font-family: var(--font-display);
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
   color: var(--color-primary);
   font-size: 1.2rem;
   margin: 0 0 0.5rem;
@@ -1007,7 +1007,7 @@ textarea:focus-visible {
 
 .crown-check-submit {
   font: inherit;
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
   letter-spacing: 0.015em;
   width: 100%;
   padding: 0.7rem 1rem;
@@ -1037,7 +1037,7 @@ textarea:focus-visible {
 .crown-check-edit,
 .crown-check-retry {
   font: inherit;
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
   padding: 0.5rem 0.9rem;
   background: transparent;
   color: var(--color-text-secondary);
@@ -1126,7 +1126,7 @@ textarea:focus-visible {
 
 .landing-title {
   font-family: var(--font-display);
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
   color: var(--color-primary);
   font-size: 2.4rem;
   letter-spacing: 0.02em;
@@ -1203,7 +1203,7 @@ textarea:focus-visible {
 
 .daily-message-title {
   font-family: var(--font-display);
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
   color: var(--color-crown-gold);
   font-size: 1.05rem;
   margin: 0 0 0.5rem;
@@ -1211,7 +1211,7 @@ textarea:focus-visible {
 
 .daily-message-text {
   font-family: var(--font-display);
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
   font-size: 1.15rem;
   line-height: 1.5;
   color: var(--color-text-primary);
@@ -1225,7 +1225,7 @@ textarea:focus-visible {
 
 .daily-message-retry {
   font: inherit;
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
   padding: 0.5rem 0.9rem;
   background: transparent;
   color: var(--color-text-secondary);
@@ -1299,7 +1299,7 @@ textarea:focus-visible {
 
 .app-bar-name {
   font-family: var(--font-display);
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
   font-size: 1rem;
   color: var(--color-crown-gold);
   letter-spacing: 0.16em;
@@ -1325,7 +1325,7 @@ textarea:focus-visible {
 
 .app-bar-link {
   padding: 0.35rem 0.8rem;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   text-decoration: none;
   color: var(--color-text-secondary);
   font-size: 0.95rem;
@@ -1406,7 +1406,7 @@ textarea:focus-visible {
 .account-menu-name {
   padding: 0.4rem 0.6rem 0.55rem;
   font-family: var(--font-display);
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
   color: var(--color-text-primary);
   border-bottom: 1px solid var(--hairline);
   margin-bottom: 0.25rem;
@@ -1478,7 +1478,7 @@ textarea:focus-visible {
 
 .app-footer-brand {
   font-family: var(--font-display);
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
   color: var(--color-text-primary);
 }
 
@@ -1546,7 +1546,7 @@ textarea:focus-visible {
 
 .page-title {
   font-family: var(--font-display);
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
   color: var(--color-text-primary);
   font-size: 1.7rem;
   letter-spacing: 0.01em;
@@ -2069,7 +2069,7 @@ textarea:focus-visible {
 
 .breath-label {
   font-family: var(--font-display);
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
   font-size: 1.1rem;
   color: var(--color-text-primary);
   margin: 0;
@@ -2107,7 +2107,7 @@ textarea:focus-visible {
 .eyebrow {
   font-family: var(--font-body);
   font-size: 0.78rem;
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
   letter-spacing: 0.12em;
   text-transform: uppercase;
   margin: 0 0 0.3rem;
@@ -2235,7 +2235,7 @@ textarea:focus-visible {
 
 .goals-card-heading {
   font-family: var(--font-display);
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
   font-size: clamp(1.5rem, 2.2vw, 1.9rem);
   line-height: 1.25;
   color: var(--color-text-primary);
@@ -2245,7 +2245,7 @@ textarea:focus-visible {
 
 .goals-card-goal {
   font-family: var(--font-display);
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
   font-size: 1.3rem;
   line-height: 1.35;
   color: var(--color-text-primary);
@@ -2278,7 +2278,7 @@ textarea:focus-visible {
   border-radius: 14px;
   background: var(--button-gradient);
   color: var(--color-text-primary);
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
   font-size: 1.05rem;
   text-decoration: none;
   box-shadow: var(--button-shadow);
@@ -2308,9 +2308,9 @@ textarea:focus-visible {
 .invite-status {
   display: inline-block;
   padding: 0.15rem 0.7rem;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   font-size: 0.78rem;
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
 }
 
 .invite-status-pending {
@@ -2342,7 +2342,7 @@ textarea:focus-visible {
   align-items: center;
   gap: 0.4rem;
   padding: 0.4rem 0.85rem;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   border: 1px solid var(--hairline-strong);
   background-color: var(--color-card-surface);
   color: var(--color-text-secondary);
@@ -2352,7 +2352,7 @@ textarea:focus-visible {
 
 .pending-chip-count {
   font-family: var(--font-display);
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
   color: var(--color-text-primary);
 }
 
@@ -2376,7 +2376,7 @@ textarea:focus-visible {
   font-size: 0.8rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
 }
 
 .flag-status-new {
@@ -2414,7 +2414,7 @@ textarea:focus-visible {
   background-color: var(--field-surface);
   border: 1px solid color-mix(in srgb, var(--color-crown-gold) 45%, transparent);
   font-family: var(--font-display);
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
   font-size: 0.95rem;
   color: var(--color-crown-gold);
   flex: none;
@@ -2493,7 +2493,7 @@ textarea:focus-visible {
 
 .share-author-name {
   font-family: var(--font-display);
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
   color: var(--color-text-primary);
 }
 
@@ -2523,7 +2523,7 @@ textarea:focus-visible {
   padding: 0.25rem 0.6rem;
   background-color: var(--field-surface);
   border: 1px solid var(--hairline);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   cursor: pointer;
   color: var(--color-text-secondary);
   transition: border-color 0.15s ease;
@@ -2620,7 +2620,7 @@ textarea:focus-visible {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
   font-size: 0.9rem;
   padding: 0.45rem 0.9rem;
   background: transparent;
@@ -2658,7 +2658,7 @@ textarea:focus-visible {
 
 .events-title {
   font-family: var(--font-display);
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
   color: var(--color-primary);
   font-size: 1.2rem;
   margin: 0 0 0.75rem;
@@ -2681,7 +2681,7 @@ textarea:focus-visible {
 
 .events-date {
   color: var(--color-crown-gold);
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
   font-size: 0.85rem;
 }
 
@@ -2692,7 +2692,7 @@ textarea:focus-visible {
 
 .events-name {
   color: var(--color-text-primary);
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
 }
 
 .events-detail {
@@ -2725,7 +2725,7 @@ textarea:focus-visible {
 
 .announcement-urgent-tag {
   color: var(--color-crown-gold);
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   font-size: 0.75rem;
@@ -2733,7 +2733,7 @@ textarea:focus-visible {
 
 .announcement-title {
   font-family: var(--font-display);
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
   color: var(--color-text-primary);
   font-size: 1.05rem;
   margin: 0 0 0.25rem;
@@ -3024,7 +3024,7 @@ textarea:focus-visible {
   border: 1px solid var(--color-crown-gold);
   border-radius: var(--radius-control);
   padding: 0.5rem 1.1rem;
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
 }
 
 .staff-mode-exit:hover {
@@ -3040,7 +3040,7 @@ textarea:focus-visible {
   border-radius: 6px;
   color: var(--color-crown-gold);
   font-size: 0.68rem;
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
   letter-spacing: 0.08em;
   vertical-align: middle;
 }
@@ -3051,7 +3051,7 @@ textarea:focus-visible {
   border: 1px solid var(--color-crown-gold);
   border-radius: var(--radius-control);
   padding: 0.5rem 1.2rem;
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
   margin-top: 1rem;
 }
 
@@ -3104,7 +3104,7 @@ textarea:focus-visible {
 .welcome-credentials {
   background-color: var(--color-card-surface);
   border: 2px dashed var(--color-crown-gold);
-  border-radius: 0.75rem;
+  border-radius: var(--radius-control);
   padding: 1.25rem;
   margin: 1rem 0 1.5rem;
   max-width: 22rem;
