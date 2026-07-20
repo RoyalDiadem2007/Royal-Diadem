@@ -167,7 +167,7 @@ export function FlagsPage() {
             {flag.detail !== null && <p className="announcement-body">{flag.detail}</p>}
             {flag.adminNotes !== null && <p className="admin-table-sub">Note: {flag.adminNotes}</p>}
             <div className="admin-confirm-group">
-              <Link className="logout-button" to={sectionPathFor(flag.entityType)}>
+              <Link className="logout-button" to={sectionPathFor(flag.entityType, flag.studentId)}>
                 Open {ENTITY_LABELS[flag.entityType]}s
               </Link>
               {flag.status === 'new' && (

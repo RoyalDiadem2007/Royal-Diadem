@@ -16,6 +16,8 @@ export type CenterFlag = {
   createdAt: string;
   resolvedAt: string | null;
   adminNotes: string | null;
+  /** Content owner's id — powers the deep link into her section. */
+  studentId: string | null;
   studentName: string | null;
   detail: string | null;
   flaggedBy: string | null;
@@ -50,6 +52,7 @@ function parseFlag(raw: unknown): CenterFlag {
     typeof r.createdAt !== 'string' ||
     (r.resolvedAt !== null && typeof r.resolvedAt !== 'string') ||
     (r.adminNotes !== null && typeof r.adminNotes !== 'string') ||
+    (r.studentId !== undefined && r.studentId !== null && typeof r.studentId !== 'string') ||
     (r.studentName !== null && typeof r.studentName !== 'string') ||
     (r.detail !== null && typeof r.detail !== 'string') ||
     (r.flaggedBy !== null && typeof r.flaggedBy !== 'string')
@@ -65,6 +68,10 @@ function parseFlag(raw: unknown): CenterFlag {
     createdAt: r.createdAt,
     resolvedAt: r.resolvedAt,
     adminNotes: r.adminNotes,
+    // Missing (not just null) stays tolerated so a not-yet-redeployed
+    // function can't break the whole Flag Center — the link just falls
+    // back to the section root.
+    studentId: typeof r.studentId === 'string' ? r.studentId : null,
     studentName: r.studentName,
     detail: r.detail,
     flaggedBy: r.flaggedBy,
@@ -117,10 +124,16 @@ export async function updateFlag(
   });
 }
 
-/** Where each flag's full content lives — the section the row links to. */
-export function sectionPathFor(entityType: FlagEntityType): string {
+/**
+ * Where each flag's full content lives — the section the row links to.
+ * Crown Check flags deep-link straight into that student's check-in
+ * detail when the owner id is known.
+ */
+export function sectionPathFor(entityType: FlagEntityType, studentId: string | null): string {
   if (entityType === 'crown_check') {
-    return '/admin/crown-checks';
+    return studentId === null
+      ? '/admin/crown-checks'
+      : `/admin/crown-checks?student=${encodeURIComponent(studentId)}`;
   }
   if (entityType === 'journal') {
     return '/admin/journals';

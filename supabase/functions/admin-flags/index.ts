@@ -42,7 +42,7 @@ type FlagRow = {
   resolved_at: string | null;
 };
 
-type Context = { studentName: string | null; detail: string | null };
+type Context = { studentId: string | null; studentName: string | null; detail: string | null };
 
 async function nameMap(
   db: SupabaseClient,
@@ -88,6 +88,7 @@ async function contextFor(
     for (const row of data) {
       studentIdOf.set(String(row.id), String(row.student_id));
       contexts.set(String(row.id), {
+        studentId: String(row.student_id),
         studentName: null,
         detail: `Crown Check ${String(row.check_date)}${row.ai_flag_reason === null ? '' : ` — ${String(row.ai_flag_reason)}`}`,
       });
@@ -107,6 +108,7 @@ async function contextFor(
     for (const row of data) {
       studentIdOf.set(String(row.id), String(row.student_id));
       contexts.set(String(row.id), {
+        studentId: String(row.student_id),
         studentName: null,
         detail: `Journal entry ${String(row.created_at).slice(0, 10)}${row.ai_flag_reason === null ? '' : ` — ${String(row.ai_flag_reason)}`}`,
       });
@@ -126,6 +128,7 @@ async function contextFor(
     for (const row of data) {
       studentIdOf.set(String(row.id), String(row.student_id));
       contexts.set(String(row.id), {
+        studentId: String(row.student_id),
         studentName: null,
         detail: `Share post ${String(row.created_at).slice(0, 10)} — now ${String(row.moderation_status)}`,
       });
@@ -145,6 +148,7 @@ async function contextFor(
     for (const row of data) {
       studentIdOf.set(String(row.id), String(row.student_id));
       contexts.set(String(row.id), {
+        studentId: String(row.student_id),
         studentName: null,
         detail: `Share comment ${String(row.created_at).slice(0, 10)} — now ${String(row.moderation_status)}`,
       });
@@ -168,6 +172,7 @@ async function contextFor(
   for (const flag of flags) {
     if (flag.flagged_by !== null) {
       contexts.set(`flagger:${flag.id}`, {
+        studentId: null,
         studentName: names.get(flag.flagged_by) ?? null,
         detail: null,
       });
@@ -230,6 +235,9 @@ async function handleList(db: SupabaseClient, req: Request, ctx: AdminContext): 
       createdAt: flag.created_at,
       resolvedAt: flag.resolved_at,
       adminNotes: flag.admin_notes,
+      // Content owner's id — lets the client deep-link into her section
+      // (an id, never contents, per the header contract).
+      studentId: contexts.get(flag.entity_id)?.studentId ?? null,
       studentName: contexts.get(flag.entity_id)?.studentName ?? null,
       detail: contexts.get(flag.entity_id)?.detail ?? null,
       flaggedBy: contexts.get(`flagger:${flag.id}`)?.studentName ?? null,

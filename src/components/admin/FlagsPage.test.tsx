@@ -18,6 +18,8 @@ const SUPER_SESSION_BODY = {
   subject: { type: 'admin', id: 'adm-1', displayName: 'Kenecia', role: 'super_admin' },
 };
 
+const AMBER_ID = '3f0d2a9c-6b1e-4f5a-8c7d-2e9b4a6c8d10';
+
 const FLAGS_BODY = {
   flags: [
     {
@@ -29,6 +31,7 @@ const FLAGS_BODY = {
       createdAt: '2026-07-18T15:00:00Z',
       resolvedAt: null,
       adminNotes: null,
+      studentId: AMBER_ID,
       studentName: 'Amber',
       detail: 'Crown Check 2026-07-17 — 3 consecutive check-ins at or below 2',
       flaggedBy: null,
@@ -42,6 +45,7 @@ const FLAGS_BODY = {
       createdAt: '2026-07-17T15:00:00Z',
       resolvedAt: null,
       adminNotes: null,
+      studentId: 'a1b2c3d4-0000-4000-8000-000000000002',
       studentName: 'Jada',
       detail: 'Share post 2026-07-17 — now pending',
       flaggedBy: 'Nia',
@@ -153,10 +157,11 @@ describe('admin Flag Center', () => {
     // Peer attribution, admin-only.
     expect(screen.getByText(/Peer flag/)).toBeInTheDocument();
     expect(screen.getByText(/from Nia/)).toBeInTheDocument();
-    // Rows link into the owning sections.
+    // Rows link into the owning sections — the crown-check row deep-links
+    // straight to that student's check-ins.
     expect(screen.getByRole('link', { name: 'Open Crown Checks' })).toHaveAttribute(
       'href',
-      '/admin/crown-checks',
+      `/admin/crown-checks?student=${AMBER_ID}`,
     );
     expect(screen.getByRole('link', { name: 'Open Share posts' })).toHaveAttribute(
       'href',
