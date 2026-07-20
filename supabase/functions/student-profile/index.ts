@@ -36,12 +36,37 @@ const isoDate = z
   .regex(/^\d{4}-\d{2}-\d{2}$/)
   .refine((value) => !Number.isNaN(new Date(`${value}T00:00:00Z`).getTime()), 'not a real date');
 
+// Mirror of the build-your-own-avatar vocabulary in src/lib/avatarBuilder.ts.
+// Same discipline as the strengths vocabulary: the client offers these keys,
+// the server is the boundary that only accepts them. When a facet gains an
+// option, update both files.
+const AVATAR_VOCABULARY = {
+  skin: ['porcelain', 'honey', 'golden', 'amber', 'chestnut', 'espresso'],
+  hair: ['afro', 'coils', 'braids', 'waves', 'straight', 'bun'],
+  hairColor: ['black', 'espresso', 'chestnut', 'auburn', 'honey'],
+  expression: ['smile', 'calm', 'joyful', 'cool'],
+  crown: ['classic', 'tiara', 'flowers', 'halo', 'none'],
+} as const;
+
+const avatarConfigSchema = z
+  .object({
+    skin: z.enum(AVATAR_VOCABULARY.skin),
+    hair: z.enum(AVATAR_VOCABULARY.hair),
+    hairColor: z.enum(AVATAR_VOCABULARY.hairColor),
+    expression: z.enum(AVATAR_VOCABULARY.expression),
+    crown: z.enum(AVATAR_VOCABULARY.crown),
+  })
+  .strict();
+
 const updateProfileSchema = z
   .object({
     avatarKey: z
       .string()
       .regex(/^[a-z0-9-]{1,40}$/)
       .nullable(),
+    // Nullish so a caller that predates the builder (sends no avatarConfig)
+    // still validates — a missing config is simply "no built avatar".
+    avatarConfig: avatarConfigSchema.nullish(),
     proudOf: z.string().trim().min(1).max(500).nullable(),
   })
   .strict();
@@ -109,7 +134,7 @@ async function handleGet(db: SupabaseClient, req: Request, ctx: StudentContext):
   const [profileRes, goalsRes, strengthsRes, optionsRes] = await Promise.all([
     db
       .from('student_profiles')
-      .select('avatar_key, proud_of_ciphertext, proud_of_iv')
+      .select('avatar_key, avatar_config, proud_of_ciphertext, proud_of_iv')
       .eq('student_id', self)
       .maybeSingle(),
     db
@@ -166,9 +191,16 @@ async function handleGet(db: SupabaseClient, req: Request, ctx: StudentContext):
     metadata: { goals: goals.length },
   });
 
+  // avatar_config is validated on write, so a stored value already matches
+  // the vocabulary; re-parse defensively so a hand-edited row can't leak a
+  // malformed shape to the client.
+  const storedConfig = profileRes.data?.avatar_config ?? null;
+  const avatarConfig = avatarConfigSchema.safeParse(storedConfig);
+
   return jsonResponse(req, 200, {
     profile: {
       avatarKey: (profileRes.data?.avatar_key as string | null | undefined) ?? null,
+      avatarConfig: avatarConfig.success ? avatarConfig.data : null,
       proudOf,
     },
     goals,
@@ -211,6 +243,7 @@ async function handleUpdateProfile(
     {
       student_id: ctx.subject.subjectId,
       avatar_key: parsed.data.avatarKey,
+      avatar_config: parsed.data.avatarConfig ?? null,
       proud_of_ciphertext: proudOfCiphertext,
       proud_of_iv: proudOfIv,
     },
