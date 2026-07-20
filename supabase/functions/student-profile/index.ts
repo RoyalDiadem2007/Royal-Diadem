@@ -36,12 +36,43 @@ const isoDate = z
   .regex(/^\d{4}-\d{2}-\d{2}$/)
   .refine((value) => !Number.isNaN(new Date(`${value}T00:00:00Z`).getTime()), 'not a real date');
 
+// Mirror of the build-your-own-avatar vocabulary in src/lib/avatarBuilder.ts.
+// Same discipline as the strengths vocabulary: the client offers these keys,
+// the server is the boundary that only accepts them. When a facet gains an
+// option, update both files.
+const AVATAR_VOCABULARY = {
+  skin: ['porcelain', 'honey', 'golden', 'amber', 'chestnut', 'espresso'],
+  faceShape: ['round', 'oval', 'heart', 'square', 'long'],
+  eyes: ['round', 'almond', 'wide', 'soft'],
+  nose: ['button', 'round', 'wide', 'narrow'],
+  mouth: ['smile', 'full', 'grin', 'soft'],
+  hair: ['afro', 'coils', 'locs', 'braids', 'cornrows', 'ponytail', 'puffs'],
+  hairColor: ['black', 'espresso', 'chestnut', 'auburn', 'honey'],
+  crown: ['classic', 'tiara', 'flowers', 'halo', 'none'],
+} as const;
+
+const avatarConfigSchema = z
+  .object({
+    skin: z.enum(AVATAR_VOCABULARY.skin),
+    faceShape: z.enum(AVATAR_VOCABULARY.faceShape),
+    eyes: z.enum(AVATAR_VOCABULARY.eyes),
+    nose: z.enum(AVATAR_VOCABULARY.nose),
+    mouth: z.enum(AVATAR_VOCABULARY.mouth),
+    hair: z.enum(AVATAR_VOCABULARY.hair),
+    hairColor: z.enum(AVATAR_VOCABULARY.hairColor),
+    crown: z.enum(AVATAR_VOCABULARY.crown),
+  })
+  .strict();
+
 const updateProfileSchema = z
   .object({
     avatarKey: z
       .string()
       .regex(/^[a-z0-9-]{1,40}$/)
       .nullable(),
+    // Nullish so a caller that predates the builder (sends no avatarConfig)
+    // still validates — a missing config is simply "no built avatar".
+    avatarConfig: avatarConfigSchema.nullish(),
     proudOf: z.string().trim().min(1).max(500).nullable(),
   })
   .strict();
@@ -109,7 +140,7 @@ async function handleGet(db: SupabaseClient, req: Request, ctx: StudentContext):
   const [profileRes, goalsRes, strengthsRes, optionsRes] = await Promise.all([
     db
       .from('student_profiles')
-      .select('avatar_key, proud_of_ciphertext, proud_of_iv')
+      .select('avatar_key, avatar_config, proud_of_ciphertext, proud_of_iv')
       .eq('student_id', self)
       .maybeSingle(),
     db
@@ -169,6 +200,9 @@ async function handleGet(db: SupabaseClient, req: Request, ctx: StudentContext):
   return jsonResponse(req, 200, {
     profile: {
       avatarKey: (profileRes.data?.avatar_key as string | null | undefined) ?? null,
+      // Validated on write; re-parse defensively so a hand-edited row can't
+      // leak a malformed shape to the client.
+      avatarConfig: avatarConfigSchema.safeParse(profileRes.data?.avatar_config ?? null).data ?? null,
       proudOf,
     },
     goals,
@@ -211,6 +245,7 @@ async function handleUpdateProfile(
     {
       student_id: ctx.subject.subjectId,
       avatar_key: parsed.data.avatarKey,
+      avatar_config: parsed.data.avatarConfig ?? null,
       proud_of_ciphertext: proudOfCiphertext,
       proud_of_iv: proudOfIv,
     },
