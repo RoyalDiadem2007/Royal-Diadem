@@ -65,6 +65,34 @@ const ROSTER_BODY = {
   total: 2,
 };
 
+const AMBER_ID = '3f0d2a9c-6b1e-4f5a-8c7d-2e9b4a6c8d10';
+
+/** One open crown-check flag whose section link deep-links to `studentId`. */
+function flagsBody(studentId: string): unknown {
+  return {
+    flags: [
+      {
+        id: 'flag-1',
+        source: 'ai',
+        entityType: 'crown_check',
+        severity: 'high',
+        status: 'new',
+        createdAt: '2026-07-18T15:00:00Z',
+        resolvedAt: null,
+        adminNotes: null,
+        studentId,
+        studentName: 'Amber',
+        detail: 'Crown Check 2026-07-17 — 3 consecutive check-ins at or below 2',
+        flaggedBy: null,
+      },
+    ],
+    scope: 'open',
+    page: 1,
+    pageSize: 50,
+    total: 1,
+  };
+}
+
 const DETAIL_BODY = {
   student: {
     studentId: 'stu-1',
@@ -106,6 +134,10 @@ function jsonResponse(body: unknown, status = 200): Response {
 type FetchStub = {
   rosterResponses: Response[];
   detailResponses: Response[];
+  /** Only the deep-link tests visit the Flag Center. */
+  flagsResponses?: Response[];
+  /** Detail request URLs, captured for deep-link assertions. */
+  detailUrls?: string[];
 };
 
 function stubFetch(stub: FetchStub): void {
@@ -119,7 +151,12 @@ function stubFetch(stub: FetchStub): void {
       if (target.endsWith('/admin-dashboard')) {
         return Promise.resolve(jsonResponse(COUNTS_BODY));
       }
+      if (target.includes('/admin-flags')) {
+        const next = stub.flagsResponses?.shift();
+        return Promise.resolve(next ?? jsonResponse({ error: 'server_error' }, 500));
+      }
       if (target.includes('/admin-crown-checks/student?studentId=')) {
+        stub.detailUrls?.push(target);
         const next = stub.detailResponses.shift();
         return Promise.resolve(next ?? jsonResponse({ error: 'server_error' }, 500));
       }
@@ -132,14 +169,14 @@ function stubFetch(stub: FetchStub): void {
   );
 }
 
-async function signInAndOpenSection(): Promise<void> {
+async function signInAndOpenSection(section = 'Crown Checks'): Promise<void> {
   const user = userEvent.setup();
   await user.click(screen.getByRole('button', { name: 'Mentor or admin? Sign in here' }));
   await user.type(screen.getByLabelText('Email'), 'kenecia@example.com');
   await user.type(screen.getByLabelText('PIN'), '123456');
   await user.click(screen.getByRole('button', { name: 'Sign in' }));
   const nav = await screen.findByRole('navigation', { name: 'Admin sections' });
-  await user.click(within(nav).getByRole('link', { name: 'Crown Checks' }));
+  await user.click(within(nav).getByRole('link', { name: section }));
 }
 
 beforeEach(() => {
@@ -217,6 +254,53 @@ describe('admin Crown Checks section', () => {
     await waitFor(() => {
       expect(screen.getByText(/Brooks, Amber/)).toBeInTheDocument();
     });
+  });
+
+  it('deep-links from a Flag Center row straight into the student’s check-ins', async () => {
+    const stub: FetchStub = {
+      rosterResponses: [jsonResponse(ROSTER_BODY)],
+      detailResponses: [jsonResponse(DETAIL_BODY)],
+      flagsResponses: [jsonResponse(flagsBody(AMBER_ID))],
+      detailUrls: [],
+    };
+    stubFetch(stub);
+
+    render(<App />);
+    await signInAndOpenSection('Flags');
+
+    const user = userEvent.setup();
+    await user.click(await screen.findByRole('link', { name: 'Open Crown Checks' }));
+
+    // Her notes and flag reason appear without hunting through the roster.
+    expect(await screen.findByText('rough week')).toBeInTheDocument();
+    expect(screen.getByText(/3 consecutive check-ins at or below 2/)).toBeInTheDocument();
+    expect(stub.detailUrls?.[0]).toContain(`studentId=${AMBER_ID}`);
+
+    // Back lands on the full roster, deep link cleared.
+    await user.click(screen.getByRole('button', { name: 'Back to all students' }));
+    expect(await screen.findByText(/Carter, Nia/)).toBeInTheDocument();
+    expect(window.location.search).toBe('');
+  });
+
+  it('ignores a mangled deep link and shows the roster', async () => {
+    const stub: FetchStub = {
+      rosterResponses: [jsonResponse(ROSTER_BODY)],
+      detailResponses: [],
+      flagsResponses: [jsonResponse(flagsBody('not-a-uuid'))],
+      detailUrls: [],
+    };
+    stubFetch(stub);
+
+    render(<App />);
+    await signInAndOpenSection('Flags');
+
+    const user = userEvent.setup();
+    await user.click(await screen.findByRole('link', { name: 'Open Crown Checks' }));
+
+    expect(await screen.findByText(/Brooks, Amber/)).toBeInTheDocument();
+    // No doomed detail request went out, and the URL was cleaned up.
+    expect(stub.detailUrls).toHaveLength(0);
+    expect(window.location.search).toBe('');
   });
 
   it('treats a malformed roster body as an error, never a crash', async () => {

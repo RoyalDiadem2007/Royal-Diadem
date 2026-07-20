@@ -8,6 +8,7 @@
  * flags exist only on this side of the app.
  */
 import { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router';
 import {
   fetchStudentTrend,
   listCrownCheckRoster,
@@ -28,6 +29,10 @@ type DetailState =
   | { status: 'ready'; detail: StudentTrendDetail };
 
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] as const;
+
+/** Shape of a ?student= deep-link value worth fetching (the server rejects
+ * anything that isn't a UUID anyway — this just skips the doomed request). */
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /** "Mon 7/14" from a YYYY-MM-DD string, without timezone drift. */
 function formatCheckDate(checkDate: string): string {
@@ -74,7 +79,15 @@ export function CrownChecksPage() {
   const [page, setPage] = useState(1);
   // Bumping `reload` re-runs the roster fetch — the retry mechanism.
   const [reload, setReload] = useState(0);
-  const [detail, setDetail] = useState<DetailState>({ status: 'closed' });
+  // Deep link from the Flag Center: /admin/crown-checks?student=<id> opens
+  // that student's check-ins directly.
+  const [searchParams, setSearchParams] = useSearchParams();
+  const deepLinkStudentId = searchParams.get('student');
+  const [detail, setDetail] = useState<DetailState>(() =>
+    deepLinkStudentId !== null && UUID_PATTERN.test(deepLinkStudentId)
+      ? { status: 'loading', studentId: deepLinkStudentId }
+      : { status: 'closed' },
+  );
   const session = useAuth();
   const token = session?.token;
 
@@ -99,6 +112,26 @@ export function CrownChecksPage() {
       cancelled = true;
     };
   }, [token, page, reload]);
+
+  useEffect(() => {
+    if (token === undefined || deepLinkStudentId === null) {
+      return;
+    }
+    if (!UUID_PATTERN.test(deepLinkStudentId)) {
+      // A mangled link falls back to the roster with a clean URL.
+      setSearchParams({}, { replace: true });
+      return;
+    }
+    // The initial "loading" state came from the useState initializer; this
+    // effect only performs the fetch itself.
+    void fetchStudentTrend(token, deepLinkStudentId).then((result) => {
+      setDetail(
+        result.ok
+          ? { status: 'ready', detail: result.data }
+          : { status: 'error', studentId: deepLinkStudentId },
+      );
+    });
+  }, [token, deepLinkStudentId, setSearchParams]);
 
   function openDetail(studentId: string): void {
     if (token === undefined) {
@@ -129,6 +162,10 @@ export function CrownChecksPage() {
             className="logout-button"
             onClick={() => {
               setDetail({ status: 'closed' });
+              // Clear the deep link so the roster stays put on refresh/back.
+              if (deepLinkStudentId !== null) {
+                setSearchParams({}, { replace: true });
+              }
             }}
           >
             Back to all students
