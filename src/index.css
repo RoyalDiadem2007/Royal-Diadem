@@ -248,7 +248,7 @@ textarea:focus-visible {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 1.5rem;
+  padding: var(--space-5);
   text-align: center;
 }
 
@@ -265,7 +265,7 @@ textarea:focus-visible {
   font-size: 2rem;
   letter-spacing: 0.003em;
   text-wrap: balance;
-  margin: 1rem 0 0;
+  margin: var(--space-4) 0 0;
 }
 
 /* The student's name inside the welcome heading. */
@@ -275,7 +275,7 @@ textarea:focus-visible {
 
 .app-tagline {
   color: var(--color-text-secondary);
-  margin: 0.5rem 0 0;
+  margin: var(--space-2) 0 0;
 }
 
 .login-screen {
@@ -284,8 +284,8 @@ textarea:focus-visible {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.75rem;
-  padding: 1.5rem;
+  gap: var(--space-3);
+  padding: var(--space-5);
   text-align: center;
 }
 
@@ -300,20 +300,20 @@ textarea:focus-visible {
   font-weight: var(--weight-semibold);
   color: var(--color-primary);
   font-size: 1.75rem;
-  margin: 0.25rem 0 0.75rem;
+  margin: var(--space-1) 0 var(--space-3);
 }
 
 .login-form {
   display: flex;
   flex-direction: column;
-  gap: 0.9rem;
+  gap: var(--space-4);
   width: min(100%, 20rem);
 }
 
 .login-field {
   display: flex;
   flex-direction: column;
-  gap: 0.3rem;
+  gap: var(--space-1);
   text-align: left;
   color: var(--color-text-secondary);
   font-size: 0.9rem;
@@ -324,7 +324,7 @@ textarea:focus-visible {
   color: var(--color-text-primary);
   border: 1px solid var(--hairline-strong);
   border-radius: var(--radius-control);
-  padding: 0.65rem 0.8rem;
+  padding: var(--space-3) var(--space-3);
   font-size: 1.05rem;
 }
 
@@ -347,7 +347,7 @@ textarea:focus-visible {
   color: var(--color-text-primary);
   border: none;
   border-radius: var(--radius-control);
-  padding: 0.78rem 1.1rem;
+  padding: var(--space-3) var(--space-4);
   font-size: 1rem;
   font-weight: var(--weight-semibold);
   letter-spacing: 0.015em;
@@ -365,7 +365,7 @@ textarea:focus-visible {
   color: var(--color-text-secondary);
   text-decoration: underline;
   font-size: 0.85rem;
-  margin-top: 0.5rem;
+  margin-top: var(--space-2);
 }
 
 .login-passkey {
@@ -373,10 +373,10 @@ textarea:focus-visible {
   color: var(--color-accent);
   border: 1px solid var(--hairline-strong);
   border-radius: var(--radius-control);
-  padding: 0.68rem 1.2rem;
+  padding: var(--space-3) 1.2rem;
   font-size: 0.95rem;
   font-weight: var(--weight-semibold);
-  margin-top: 0.75rem;
+  margin-top: var(--space-3);
 }
 
 .login-passkey:disabled {
@@ -388,14 +388,14 @@ textarea:focus-visible {
   background-color: var(--color-card-surface);
   border: 1px solid var(--hairline);
   border-radius: var(--radius-card);
-  padding: 1rem 1.25rem;
+  padding: var(--space-4) 1.25rem;
   max-width: 24rem;
-  margin-top: 1rem;
+  margin-top: var(--space-4);
 }
 
 .passkey-prompt p {
   color: var(--color-text-secondary);
-  margin: 0 0 0.75rem;
+  margin: 0 0 var(--space-3);
 }
 
 .passkey-prompt-error {
@@ -404,7 +404,7 @@ textarea:focus-visible {
 
 .passkey-prompt-actions {
   display: flex;
-  gap: 0.75rem;
+  gap: var(--space-3);
   justify-content: center;
 }
 
@@ -413,7 +413,7 @@ textarea:focus-visible {
   color: var(--color-text-primary);
   border: none;
   border-radius: var(--radius-control);
-  padding: 0.5rem 1.2rem;
+  padding: var(--space-2) 1.2rem;
   font-weight: var(--weight-semibold);
 }
 
@@ -429,9 +429,9 @@ textarea:focus-visible {
   color: var(--color-text-secondary);
   border: 1px solid var(--hairline-strong);
   border-radius: var(--radius-control);
-  padding: 0.5rem 1.2rem;
+  padding: var(--space-2) 1.2rem;
   font-weight: var(--weight-semibold);
-  margin-top: 1rem;
+  margin-top: var(--space-4);
 }
 
 .error-fallback {
@@ -440,8 +440,8 @@ textarea:focus-visible {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.75rem;
-  padding: 1.5rem;
+  gap: var(--space-3);
+  padding: var(--space-5);
   text-align: center;
 }
 
@@ -464,7 +464,7 @@ textarea:focus-visible {
   color: var(--color-text-primary);
   border: none;
   border-radius: var(--radius-control);
-  padding: 0.6rem 1.4rem;
+  padding: var(--space-2) var(--space-5);
   font-weight: var(--weight-semibold);
   box-shadow: var(--button-shadow);
 }
@@ -481,8 +481,8 @@ textarea:focus-visible {
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
-  padding: 1.5rem 1rem;
+  gap: var(--space-5);
+  padding: var(--space-5) var(--space-4);
   background-color: var(--color-card-surface);
   border-right: 1px solid var(--hairline);
 }
@@ -490,7 +490,7 @@ textarea:focus-visible {
 .admin-brand {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: var(--space-3);
 }
 
 .admin-logo {
@@ -510,13 +510,13 @@ textarea:focus-visible {
 .admin-nav {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: var(--space-1);
   flex-grow: 1;
 }
 
 .admin-nav-link {
   display: block;
-  padding: 0.6rem 0.9rem;
+  padding: var(--space-2) var(--space-4);
   border-radius: var(--radius-control);
   color: var(--color-text-secondary);
   text-decoration: none;
@@ -536,9 +536,9 @@ textarea:focus-visible {
 .admin-user {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: var(--space-1);
   border-top: 1px solid var(--hairline);
-  padding-top: 1rem;
+  padding-top: var(--space-4);
 }
 
 .admin-user-name {
@@ -553,7 +553,7 @@ textarea:focus-visible {
 
 .admin-main {
   flex-grow: 1;
-  padding: 2rem;
+  padding: var(--space-6);
   min-width: 0;
 }
 
@@ -567,7 +567,7 @@ textarea:focus-visible {
 
 .admin-section-note {
   color: var(--color-text-secondary);
-  margin: 0 0 1rem;
+  margin: 0 0 var(--space-4);
 }
 
 .admin-retry-button {
@@ -575,7 +575,7 @@ textarea:focus-visible {
   color: var(--color-text-primary);
   border: none;
   border-radius: var(--radius-control);
-  padding: 0.6rem 1.4rem;
+  padding: var(--space-2) var(--space-5);
   font-weight: var(--weight-semibold);
   box-shadow: var(--button-shadow);
 }
@@ -583,14 +583,14 @@ textarea:focus-visible {
 .admin-stat-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
-  gap: 1rem;
+  gap: var(--space-4);
   max-width: 48rem;
 }
 
 .admin-stat-card {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: var(--space-1);
   padding: 1.25rem;
   border-radius: var(--radius-card);
   background-color: var(--color-card-surface);
@@ -630,7 +630,7 @@ textarea:focus-visible {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
+  gap: var(--space-4);
   margin-bottom: 1.25rem;
 }
 
@@ -643,7 +643,7 @@ textarea:focus-visible {
   font-weight: var(--weight-semibold);
   color: var(--color-primary);
   font-size: 1.15rem;
-  margin: 0 0 1rem;
+  margin: 0 0 var(--space-4);
 }
 
 .admin-table-wrap {
@@ -661,7 +661,7 @@ textarea:focus-visible {
 .admin-table th,
 .admin-table td {
   text-align: left;
-  padding: 0.75rem 1rem;
+  padding: var(--space-3) var(--space-4);
   border-bottom: 1px solid var(--hairline);
   color: var(--color-text-primary);
   white-space: nowrap;
@@ -686,7 +686,7 @@ textarea:focus-visible {
 
 .admin-confirm-group {
   display: inline-flex;
-  gap: 0.5rem;
+  gap: var(--space-2);
 }
 
 .admin-danger-button {
@@ -694,7 +694,7 @@ textarea:focus-visible {
   color: var(--color-danger);
   border: 1px solid color-mix(in srgb, var(--color-danger) 45%, transparent);
   border-radius: var(--radius-control);
-  padding: 0.5rem 1.2rem;
+  padding: var(--space-2) 1.2rem;
   font-weight: var(--weight-semibold);
 }
 
@@ -705,8 +705,8 @@ textarea:focus-visible {
 .admin-pagination {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  margin-top: 1rem;
+  gap: var(--space-4);
+  margin-top: var(--space-4);
 }
 
 .admin-pagination .admin-section-note {
@@ -718,28 +718,28 @@ textarea:focus-visible {
   border: 1px solid var(--hairline);
   border-radius: var(--radius-card);
   padding: 1.25rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: var(--space-5);
   max-width: 48rem;
 }
 
 .add-student-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
-  gap: 1rem;
-  margin-bottom: 1rem;
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
 }
 
 .add-student-grid label {
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
+  gap: var(--space-1);
   color: var(--color-text-secondary);
   font-size: 0.9rem;
 }
 
 .add-student-grid input {
   font: inherit;
-  padding: 0.55rem 0.75rem;
+  padding: var(--space-2) var(--space-3);
   border: 1px solid var(--hairline-strong);
   border-radius: var(--radius-control);
   background-color: var(--field-surface);
@@ -748,7 +748,7 @@ textarea:focus-visible {
 
 .add-student-actions {
   display: flex;
-  gap: 0.75rem;
+  gap: var(--space-3);
 }
 
 .add-student-actions .logout-button {
@@ -760,7 +760,7 @@ textarea:focus-visible {
   border: 2px solid var(--color-crown-gold);
   border-radius: var(--radius-card);
   padding: 1.25rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: var(--space-5);
   max-width: 32rem;
 }
 
@@ -769,13 +769,13 @@ textarea:focus-visible {
   font-weight: var(--weight-semibold);
   color: var(--color-primary);
   font-size: 1.15rem;
-  margin: 0 0 1rem;
+  margin: 0 0 var(--space-4);
 }
 
 .issued-pin-details {
   display: flex;
   gap: 2.5rem;
-  margin: 0 0 1rem;
+  margin: 0 0 var(--space-4);
 }
 
 .issued-pin-details dt {
@@ -784,7 +784,7 @@ textarea:focus-visible {
 }
 
 .issued-pin-details dd {
-  margin: 0.25rem 0 0;
+  margin: var(--space-1) 0 0;
   font-size: 1.6rem;
   font-weight: 700;
   letter-spacing: 0.1em;
@@ -793,7 +793,7 @@ textarea:focus-visible {
 
 .issued-pin-warning {
   color: var(--color-warning);
-  margin: 0 0 1rem;
+  margin: 0 0 var(--space-4);
   font-size: 0.9rem;
 }
 
@@ -803,37 +803,37 @@ textarea:focus-visible {
   border: 1px solid var(--hairline);
   border-radius: var(--radius-card);
   padding: 1.25rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: var(--space-5);
   max-width: 48rem;
 }
 
 .csv-file-label {
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
+  gap: var(--space-1);
   color: var(--color-text-secondary);
   font-size: 0.9rem;
-  margin-bottom: 1rem;
+  margin-bottom: var(--space-4);
 }
 
 .csv-mapping-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
-  gap: 1rem;
-  margin-bottom: 1rem;
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
 }
 
 .csv-mapping-grid label {
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
+  gap: var(--space-1);
   color: var(--color-text-secondary);
   font-size: 0.9rem;
 }
 
 .csv-mapping-grid select {
   font: inherit;
-  padding: 0.55rem 0.75rem;
+  padding: var(--space-2) var(--space-3);
   border: 1px solid var(--hairline-strong);
   border-radius: var(--radius-control);
   background-color: var(--field-surface);
@@ -843,24 +843,24 @@ textarea:focus-visible {
 .csv-problem-list {
   color: var(--color-danger);
   font-size: 0.9rem;
-  margin: 0 0 1rem;
+  margin: 0 0 var(--space-4);
   padding-left: 1.25rem;
 }
 
 .pin-card-sheet {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
-  gap: 1rem;
-  margin: 1rem 0 1.5rem;
+  gap: var(--space-4);
+  margin: var(--space-4) 0 var(--space-5);
 }
 
 .pin-card {
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
+  gap: var(--space-1);
   border: 2px dashed var(--color-crown-gold);
   border-radius: var(--radius-card);
-  padding: 1rem;
+  padding: var(--space-4);
 }
 
 .pin-card-name {
@@ -918,7 +918,7 @@ textarea:focus-visible {
   border: 1px solid var(--hairline);
   border-radius: var(--radius-card);
   padding: 1.25rem;
-  margin: 1.5rem auto;
+  margin: var(--space-5) auto;
   max-width: 26rem;
   text-align: left;
 }
@@ -928,28 +928,28 @@ textarea:focus-visible {
   font-weight: var(--weight-semibold);
   color: var(--color-primary);
   font-size: 1.2rem;
-  margin: 0 0 0.5rem;
+  margin: 0 0 var(--space-2);
 }
 
 .crown-check-question {
   color: var(--color-text-secondary);
-  margin: 0 0 0.75rem;
+  margin: 0 0 var(--space-3);
 }
 
 .crown-check-scale {
   display: flex;
-  gap: 0.5rem;
+  gap: var(--space-2);
   justify-content: space-between;
-  margin-bottom: 1rem;
+  margin-bottom: var(--space-4);
 }
 
 .crown-check-mood {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.25rem;
+  gap: var(--space-1);
   flex: 1;
-  padding: 0.5rem 0.25rem;
+  padding: var(--space-2) var(--space-1);
   background-color: var(--field-surface);
   color: var(--color-text-secondary);
   border: 1px solid var(--hairline);
@@ -977,8 +977,8 @@ textarea:focus-visible {
 .crown-check-note {
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
-  margin-bottom: 1rem;
+  gap: var(--space-1);
+  margin-bottom: var(--space-4);
 }
 
 .crown-check-note-label {
@@ -988,7 +988,7 @@ textarea:focus-visible {
 
 .crown-check-note input {
   font: inherit;
-  padding: 0.55rem 0.75rem;
+  padding: var(--space-2) var(--space-3);
   border: 1px solid var(--hairline-strong);
   border-radius: var(--radius-control);
   background-color: var(--field-surface);
@@ -997,12 +997,12 @@ textarea:focus-visible {
 
 .crown-check-note-text {
   color: var(--color-text-secondary);
-  margin: 0 0 0.75rem;
+  margin: 0 0 var(--space-3);
 }
 
 .crown-check-error {
   color: var(--color-danger);
-  margin: 0 0 0.75rem;
+  margin: 0 0 var(--space-3);
 }
 
 .crown-check-submit {
@@ -1010,7 +1010,7 @@ textarea:focus-visible {
   font-weight: var(--weight-semibold);
   letter-spacing: 0.015em;
   width: 100%;
-  padding: 0.7rem 1rem;
+  padding: var(--space-3) var(--space-4);
   border: none;
   border-radius: var(--radius-control);
   background: var(--button-gradient);
@@ -1026,19 +1026,19 @@ textarea:focus-visible {
 
 .crown-check-done {
   color: var(--color-text-primary);
-  margin: 0 0 0.5rem;
+  margin: 0 0 var(--space-2);
 }
 
 .crown-check-done-emoji {
   font-size: 1.5rem;
-  margin-right: 0.5rem;
+  margin-right: var(--space-2);
 }
 
 .crown-check-edit,
 .crown-check-retry {
   font: inherit;
   font-weight: var(--weight-semibold);
-  padding: 0.5rem 0.9rem;
+  padding: var(--space-2) var(--space-4);
   background: transparent;
   color: var(--color-text-secondary);
   border: 1px solid var(--hairline-strong);
@@ -1055,7 +1055,7 @@ textarea:focus-visible {
   display: inline-block;
   transform: rotate(-28deg);
   font-size: 1.1rem;
-  margin-left: 0.35rem;
+  margin-left: var(--space-1);
   filter: saturate(0.85);
 }
 
@@ -1103,8 +1103,8 @@ textarea:focus-visible {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.75rem;
-  padding: 2rem 1.5rem;
+  gap: var(--space-3);
+  padding: var(--space-6) var(--space-5);
   text-align: center;
 }
 
@@ -1114,8 +1114,8 @@ textarea:focus-visible {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.5rem;
-  padding: 1.5rem 0 0.5rem;
+  gap: var(--space-2);
+  padding: var(--space-5) 0 var(--space-2);
 }
 
 .landing-logo {
@@ -1144,7 +1144,7 @@ textarea:focus-visible {
   max-width: 32rem;
   font-size: 1.05rem;
   line-height: 1.75;
-  margin: 1.25rem 0 1rem;
+  margin: 1.25rem 0 var(--space-4);
 }
 
 .landing-enter {
@@ -1153,7 +1153,7 @@ textarea:focus-visible {
   align-items: center;
   gap: 0.15rem;
   margin-top: auto;
-  padding: 0.75rem 2rem;
+  padding: var(--space-3) var(--space-6);
   color: var(--color-primary);
   text-decoration: none;
 }
@@ -1196,7 +1196,7 @@ textarea:focus-visible {
   border: 1px solid var(--color-crown-gold);
   border-radius: var(--radius-card);
   padding: 1.25rem;
-  margin: 1.5rem auto;
+  margin: var(--space-5) auto;
   max-width: 26rem;
   text-align: left;
 }
@@ -1206,7 +1206,7 @@ textarea:focus-visible {
   font-weight: var(--weight-semibold);
   color: var(--color-crown-gold);
   font-size: 1.05rem;
-  margin: 0 0 0.5rem;
+  margin: 0 0 var(--space-2);
 }
 
 .daily-message-text {
@@ -1220,13 +1220,13 @@ textarea:focus-visible {
 
 .daily-message-loading {
   color: var(--color-text-secondary);
-  margin: 0 0 0.5rem;
+  margin: 0 0 var(--space-2);
 }
 
 .daily-message-retry {
   font: inherit;
   font-weight: var(--weight-semibold);
-  padding: 0.5rem 0.9rem;
+  padding: var(--space-2) var(--space-4);
   background: transparent;
   color: var(--color-text-secondary);
   border: 1px solid var(--hairline-strong);
@@ -1242,7 +1242,7 @@ textarea:focus-visible {
 .journal-dictation-hint {
   color: var(--color-text-secondary);
   font-size: 0.85rem;
-  margin: 0.35rem 0 0.75rem;
+  margin: var(--space-1) 0 var(--space-3);
 }
 
 /* Royal Diadem Share (Phase 10a): feed, composer, reactions, peer flag. */
@@ -1277,8 +1277,8 @@ textarea:focus-visible {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.75rem;
-  padding: 0.6rem 1rem;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-4);
   border-bottom: 1px solid var(--hairline);
   background-color: color-mix(in srgb, var(--color-card-surface) 72%, transparent);
   backdrop-filter: blur(6px);
@@ -1287,7 +1287,7 @@ textarea:focus-visible {
 .app-bar-brand {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--space-2);
   text-decoration: none;
 }
 
@@ -1313,7 +1313,7 @@ textarea:focus-visible {
 
 .app-bar-nav {
   display: none;
-  gap: 0.35rem;
+  gap: var(--space-1);
   margin-left: auto;
 }
 
@@ -1324,7 +1324,7 @@ textarea:focus-visible {
 }
 
 .app-bar-link {
-  padding: 0.35rem 0.8rem;
+  padding: var(--space-1) var(--space-3);
   border-radius: var(--radius-pill);
   text-decoration: none;
   color: var(--color-text-secondary);
@@ -1339,7 +1339,7 @@ textarea:focus-visible {
 .app-bar-actions {
   display: inline-flex;
   align-items: center;
-  gap: 0.6rem;
+  gap: var(--space-2);
   margin-left: auto;
 }
 
@@ -1366,8 +1366,8 @@ textarea:focus-visible {
 
 .app-bar-bell-dot {
   position: absolute;
-  top: 0.5rem;
-  right: 0.55rem;
+  top: var(--space-2);
+  right: var(--space-2);
   width: 0.55rem;
   height: 0.55rem;
   border-radius: 50%;
@@ -1395,7 +1395,7 @@ textarea:focus-visible {
   display: flex;
   flex-direction: column;
   min-width: 12rem;
-  padding: 0.5rem;
+  padding: var(--space-2);
   background-color: var(--color-card-surface);
   border: 1px solid var(--hairline-strong);
   border-radius: var(--radius-card);
@@ -1404,18 +1404,18 @@ textarea:focus-visible {
 }
 
 .account-menu-name {
-  padding: 0.4rem 0.6rem 0.55rem;
+  padding: var(--space-2) var(--space-2) var(--space-2);
   font-family: var(--font-display);
   font-weight: var(--weight-semibold);
   color: var(--color-text-primary);
   border-bottom: 1px solid var(--hairline);
-  margin-bottom: 0.25rem;
+  margin-bottom: var(--space-1);
 }
 
 .account-menu-item {
   display: block;
   width: 100%;
-  padding: 0.55rem 0.6rem;
+  padding: var(--space-2) var(--space-2);
   border: none;
   background: transparent;
   border-radius: var(--radius-control);
@@ -1438,7 +1438,7 @@ textarea:focus-visible {
   width: 100%;
   max-width: 30rem;
   margin: 0 auto;
-  padding: 0 0.75rem 1.5rem;
+  padding: 0 var(--space-3) var(--space-5);
   /* Girls read here: 17px primary text (SXU accessibility floor is 16). */
   font-size: 1.0625rem;
 }
@@ -1464,7 +1464,7 @@ textarea:focus-visible {
   flex-wrap: wrap;
   align-items: center;
   justify-content: center;
-  gap: 0.35rem 0.75rem;
+  gap: var(--space-1) var(--space-3);
   padding: 1rem 1rem calc(1rem + 4.2rem);
   border-top: 1px solid var(--hairline);
   color: var(--color-text-secondary);
@@ -1473,7 +1473,7 @@ textarea:focus-visible {
 }
 
 .app-frame:not(:has(.tab-bar)) .app-footer {
-  padding-bottom: 1rem;
+  padding-bottom: var(--space-4);
 }
 
 .app-footer-brand {
@@ -1519,7 +1519,7 @@ textarea:focus-visible {
   align-items: center;
   gap: 0.15rem;
   min-width: 3.5rem;
-  padding: 0.25rem 0.5rem;
+  padding: var(--space-1) var(--space-2);
   border-radius: var(--radius-control);
   text-decoration: none;
   color: var(--color-text-secondary);
@@ -1550,7 +1550,7 @@ textarea:focus-visible {
   color: var(--color-text-primary);
   font-size: 1.7rem;
   letter-spacing: 0.01em;
-  margin: 0.5rem 0 0.15rem;
+  margin: var(--space-2) 0 0.15rem;
 }
 
 .page-title-mark {
@@ -1581,7 +1581,7 @@ textarea:focus-visible {
 .crown-hero-watermark {
   position: absolute;
   top: -0.5rem;
-  right: 0.5rem;
+  right: var(--space-2);
   color: var(--color-crown-gold);
   opacity: 0.3;
   pointer-events: none;
@@ -1629,7 +1629,7 @@ textarea:focus-visible {
 .crown-hero .crown-check-scale {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(6.25rem, 1fr));
-  gap: 0.85rem;
+  gap: var(--space-3);
 }
 
 .crown-hero .crown-check-mood {
@@ -1638,8 +1638,8 @@ textarea:focus-visible {
   border-radius: 16px;
   color: color-mix(in srgb, var(--color-background) 78%, var(--color-secondary));
   min-height: 6.5rem;
-  padding: 1rem 0.5rem;
-  gap: 0.5rem;
+  padding: var(--space-4) var(--space-2);
+  gap: var(--space-2);
   position: relative;
 }
 
@@ -1701,7 +1701,7 @@ textarea:focus-visible {
   color: var(--color-background);
   border: 1px solid color-mix(in srgb, var(--color-background) 20%, transparent);
   border-radius: var(--radius-control);
-  padding: 0.6rem 0.75rem;
+  padding: var(--space-2) var(--space-3);
   font-size: 1rem;
 }
 
@@ -1713,7 +1713,7 @@ textarea:focus-visible {
   color: var(--color-background);
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--space-2);
 }
 
 .crown-check-done-icon {
@@ -1745,7 +1745,7 @@ textarea:focus-visible {
   font-size: clamp(1.35rem, 2vw, 1.7rem);
   color: var(--color-text-primary);
   max-width: 30rem;
-  margin: 1.9rem auto 0.35rem;
+  margin: var(--space-6) auto var(--space-1);
   padding-bottom: var(--space-2);
   border-bottom: 1px solid color-mix(in srgb, var(--color-crown-gold) 28%, transparent);
   width: 100%;
@@ -1761,12 +1761,12 @@ textarea:focus-visible {
 .today-row {
   display: flex;
   align-items: center;
-  gap: 0.85rem;
+  gap: var(--space-3);
   background-color: var(--color-card-surface);
   border: 1px solid var(--hairline);
   border-radius: var(--radius-card);
-  padding: 0.9rem 1rem;
-  margin: 0.9rem auto;
+  padding: var(--space-4) var(--space-4);
+  margin: var(--space-4) auto;
   max-width: 30rem;
   width: 100%;
   text-align: left;
@@ -1843,8 +1843,8 @@ textarea:focus-visible {
 .avatar-picker {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
-  margin: 0.5rem 0 1rem;
+  gap: var(--space-2);
+  margin: var(--space-2) 0 var(--space-4);
 }
 
 .avatar-choice {
@@ -1968,7 +1968,7 @@ textarea:focus-visible {
   background-color: color-mix(in srgb, var(--color-card-surface) 82%, var(--color-background));
   border: 1px solid var(--hairline);
   border-radius: 26px;
-  padding: 1.5rem;
+  padding: var(--space-5);
   margin: 1.25rem auto;
   max-width: 30rem;
   width: 100%;
@@ -1980,14 +1980,14 @@ textarea:focus-visible {
   display: inline-block;
   text-decoration: none;
   text-align: center;
-  margin-top: 0.5rem;
+  margin-top: var(--space-2);
 }
 
 @media (min-width: 60rem) {
   .home-layout {
     display: grid;
     grid-template-columns: minmax(0, 1fr) 22.5rem;
-    gap: 1.5rem;
+    gap: var(--space-5);
     align-items: start;
   }
 
@@ -2002,7 +2002,7 @@ textarea:focus-visible {
 
   .home-aside {
     position: sticky;
-    top: 1rem;
+    top: var(--space-4);
   }
 
   .home-aside .goals-card {
@@ -2022,7 +2022,7 @@ textarea:focus-visible {
   border: 1px solid var(--hairline);
   border-radius: var(--radius-card);
   padding: 1.25rem;
-  margin: 1rem auto;
+  margin: var(--space-4) auto;
   max-width: 28rem;
   text-align: left;
 }
@@ -2031,8 +2031,8 @@ textarea:focus-visible {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.75rem;
-  padding: 1.25rem 0 0.75rem;
+  gap: var(--space-3);
+  padding: 1.25rem 0 var(--space-3);
 }
 
 .breath-circle {
@@ -2075,7 +2075,7 @@ textarea:focus-visible {
   margin: 0;
   display: flex;
   align-items: center;
-  gap: 0.6rem;
+  gap: var(--space-2);
 }
 
 .grounding-count {
@@ -2093,13 +2093,13 @@ textarea:focus-visible {
 
 .relax-item {
   border-top: 1px solid var(--hairline);
-  padding-top: 0.6rem;
-  margin-top: 0.6rem;
+  padding-top: var(--space-2);
+  margin-top: var(--space-2);
 }
 
 .relax-item:first-of-type {
   border-top: none;
-  margin-top: 0.25rem;
+  margin-top: var(--space-1);
   padding-top: 0;
 }
 
@@ -2110,7 +2110,7 @@ textarea:focus-visible {
   font-weight: var(--weight-semibold);
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  margin: 0 0 0.3rem;
+  margin: 0 0 var(--space-1);
 }
 
 .eyebrow-rose {
@@ -2125,12 +2125,12 @@ textarea:focus-visible {
 .today-tile-row {
   display: flex;
   align-items: center;
-  gap: 1.1rem;
+  gap: var(--space-4);
   background-color: color-mix(in srgb, var(--color-card-surface) 80%, var(--color-background));
   border: 1px solid var(--hairline);
   border-radius: var(--radius-card);
-  padding: 1.1rem 1.2rem;
-  margin: 0.9rem auto;
+  padding: var(--space-4) 1.2rem;
+  margin: var(--space-4) auto;
   max-width: 30rem;
   width: 100%;
   text-align: left;
@@ -2215,7 +2215,7 @@ textarea:focus-visible {
 
 .events-more {
   list-style: none;
-  margin: 0.35rem 0 0;
+  margin: var(--space-1) 0 0;
   padding: 0;
   color: var(--color-text-secondary);
   font-size: 0.9rem;
@@ -2259,22 +2259,22 @@ textarea:focus-visible {
 .goals-card-rule {
   border: none;
   border-top: 1px solid var(--hairline);
-  margin: 1rem 0;
+  margin: var(--space-4) 0;
 }
 
 .goals-card-also {
   color: var(--color-text-secondary);
-  margin: 0.35rem 0;
+  margin: var(--space-1) 0;
 }
 
 .goals-card-button {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.75rem;
+  gap: var(--space-3);
   width: 100%;
   margin-top: 1.25rem;
-  padding: 0.85rem 1.1rem;
+  padding: var(--space-3) var(--space-4);
   border-radius: 14px;
   background: var(--button-gradient);
   color: var(--color-text-primary);
@@ -2294,8 +2294,8 @@ textarea:focus-visible {
   background-color: color-mix(in srgb, var(--color-crown-gold) 14%, transparent);
   border: 1px solid color-mix(in srgb, var(--color-crown-gold) 35%, transparent);
   border-radius: 14px;
-  padding: 0.6rem 0.9rem;
-  margin: 0.75rem 0;
+  padding: var(--space-2) var(--space-4);
+  margin: var(--space-3) 0;
 }
 
 .connect-card-button {
@@ -2307,7 +2307,7 @@ textarea:focus-visible {
 /* Invite statuses: soft words in the goal-status chip shape. */
 .invite-status {
   display: inline-block;
-  padding: 0.15rem 0.7rem;
+  padding: 0.15rem var(--space-3);
   border-radius: var(--radius-pill);
   font-size: 0.78rem;
   font-weight: var(--weight-semibold);
@@ -2333,15 +2333,15 @@ textarea:focus-visible {
 .pending-strip {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: var(--space-2);
   margin: 0 0 1.25rem;
 }
 
 .pending-chip {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  padding: 0.4rem 0.85rem;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
   border-radius: var(--radius-pill);
   border: 1px solid var(--hairline-strong);
   background-color: var(--color-card-surface);
@@ -2400,7 +2400,7 @@ textarea:focus-visible {
   object-fit: cover;
   border-radius: 50%;
   border: 2px solid color-mix(in srgb, var(--color-crown-gold) 60%, transparent);
-  margin: 0.25rem auto 1rem;
+  margin: var(--space-1) auto var(--space-4);
 }
 
 /* The queen's seal: a small monogram coin marking every voice in the feed. */
@@ -2424,21 +2424,21 @@ textarea:focus-visible {
   width: 3.6rem;
   height: 3.6rem;
   font-size: 1.7rem;
-  margin: 0 auto 0.5rem;
+  margin: 0 auto var(--space-2);
 }
 
 .avatar-coin-small {
   width: 1.4rem;
   height: 1.4rem;
   font-size: 0.7rem;
-  margin-right: 0.35rem;
+  margin-right: var(--space-1);
   vertical-align: -0.35rem;
 }
 
 .share-header {
   max-width: 28rem;
-  margin: 1.5rem auto 0;
-  padding: 0 0.25rem;
+  margin: var(--space-5) auto 0;
+  padding: 0 var(--space-1);
   text-align: left;
 }
 
@@ -2458,17 +2458,17 @@ textarea:focus-visible {
   border-top: 2px solid color-mix(in srgb, var(--color-crown-gold) 55%, transparent);
   border-radius: var(--radius-card);
   padding: 1.25rem;
-  margin: 1rem auto;
+  margin: var(--space-4) auto;
   max-width: 28rem;
   text-align: left;
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: var(--space-3);
 }
 
 .share-notice {
   max-width: 26rem;
-  margin: 0.5rem auto;
+  margin: var(--space-2) auto;
   color: var(--color-crown-gold);
   text-align: left;
 }
@@ -2478,7 +2478,7 @@ textarea:focus-visible {
   border: 1px solid var(--hairline);
   border-radius: var(--radius-card);
   padding: 1.25rem;
-  margin: 1rem auto;
+  margin: var(--space-4) auto;
   max-width: 28rem;
   text-align: left;
 }
@@ -2487,8 +2487,8 @@ textarea:focus-visible {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 0.5rem;
-  margin: 0 0 0.6rem;
+  gap: var(--space-2);
+  margin: 0 0 var(--space-2);
 }
 
 .share-author-name {
@@ -2511,16 +2511,16 @@ textarea:focus-visible {
 .share-reactions {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.35rem;
-  margin: 0.5rem 0;
+  gap: var(--space-1);
+  margin: var(--space-2) 0;
 }
 
 .share-reaction {
   font: inherit;
   display: inline-flex;
   align-items: center;
-  gap: 0.25rem;
-  padding: 0.25rem 0.6rem;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-2);
   background-color: var(--field-surface);
   border: 1px solid var(--hairline);
   border-radius: var(--radius-pill);
@@ -2549,9 +2549,9 @@ textarea:focus-visible {
 
 .share-comment {
   color: var(--color-text-secondary);
-  margin: 0.5rem 0 0.5rem 0.5rem;
+  margin: var(--space-2) 0 var(--space-2) var(--space-2);
   border-left: 2px solid var(--hairline);
-  padding-left: 0.6rem;
+  padding-left: var(--space-2);
 }
 
 .share-comment strong {
@@ -2560,8 +2560,8 @@ textarea:focus-visible {
 
 .share-comment-add {
   display: flex;
-  gap: 0.5rem;
-  margin-top: 0.5rem;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
 }
 
 .share-comment-add input {
@@ -2569,7 +2569,7 @@ textarea:focus-visible {
 }
 
 .share-flag {
-  margin-top: 0.75rem;
+  margin-top: var(--space-3);
 }
 
 .share-flag-button {
@@ -2580,7 +2580,7 @@ textarea:focus-visible {
   color: var(--color-text-secondary);
   text-decoration: underline;
   cursor: pointer;
-  padding: 0.1rem 0.25rem;
+  padding: 0.1rem var(--space-1);
 }
 
 .share-flag-button:hover {
@@ -2597,7 +2597,7 @@ textarea:focus-visible {
   max-width: 100%;
   border-radius: var(--radius-control);
   border: 1px solid var(--hairline);
-  margin: 0.5rem 0;
+  margin: var(--space-2) 0;
 }
 
 /* The file input hides behind a real button; the label keeps them bound. */
@@ -2619,10 +2619,10 @@ textarea:focus-visible {
 .share-photo-button {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: var(--space-2);
   font-weight: var(--weight-semibold);
   font-size: 0.9rem;
-  padding: 0.45rem 0.9rem;
+  padding: var(--space-2) var(--space-4);
   background: transparent;
   color: var(--color-text-secondary);
   border: 1px solid var(--hairline-strong);
@@ -2641,7 +2641,7 @@ textarea:focus-visible {
   max-width: 10rem;
   border-radius: var(--radius-control);
   border: 1px solid var(--hairline-strong);
-  margin-bottom: 0.25rem;
+  margin-bottom: var(--space-1);
 }
 
 /* Calendar + Announcements (Phase 9): student cards + admin editors. */
@@ -2651,7 +2651,7 @@ textarea:focus-visible {
   border: 1px solid var(--hairline);
   border-radius: var(--radius-card);
   padding: 1.25rem;
-  margin: 1.5rem auto;
+  margin: var(--space-5) auto;
   max-width: 26rem;
   text-align: left;
 }
@@ -2661,7 +2661,7 @@ textarea:focus-visible {
   font-weight: var(--weight-semibold);
   color: var(--color-primary);
   font-size: 1.2rem;
-  margin: 0 0 0.75rem;
+  margin: 0 0 var(--space-3);
 }
 
 .events-list {
@@ -2670,7 +2670,7 @@ textarea:focus-visible {
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: var(--space-3);
 }
 
 .events-item {
@@ -2702,8 +2702,8 @@ textarea:focus-visible {
 
 .announcement-item {
   border-top: 1px solid var(--hairline);
-  padding: 0.75rem 0 0.5rem;
-  margin-top: 0.75rem;
+  padding: var(--space-3) 0 var(--space-2);
+  margin-top: var(--space-3);
 }
 
 .announcement-item:first-of-type {
@@ -2714,13 +2714,13 @@ textarea:focus-visible {
 
 .announcement-item-urgent {
   border-left: 3px solid var(--color-crown-gold);
-  padding-left: 0.75rem;
+  padding-left: var(--space-3);
 }
 
 .announcement-meta {
   color: var(--color-text-secondary);
   font-size: 0.85rem;
-  margin: 0 0 0.25rem;
+  margin: 0 0 var(--space-1);
 }
 
 .announcement-urgent-tag {
@@ -2736,12 +2736,12 @@ textarea:focus-visible {
   font-weight: var(--weight-semibold);
   color: var(--color-text-primary);
   font-size: 1.05rem;
-  margin: 0 0 0.25rem;
+  margin: 0 0 var(--space-1);
 }
 
 .announcement-body {
   color: var(--color-text-secondary);
-  margin: 0 0 0.5rem;
+  margin: 0 0 var(--space-2);
   white-space: pre-wrap;
 }
 
@@ -2749,24 +2749,24 @@ textarea:focus-visible {
   background-color: var(--color-card-surface);
   border: 1px solid var(--hairline);
   border-radius: var(--radius-card);
-  padding: 1rem;
-  margin: 1rem 0;
+  padding: var(--space-4);
+  margin: var(--space-4) 0;
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: var(--space-3);
 }
 
 .calendar-editor-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.75rem;
+  gap: var(--space-3);
   align-items: end;
 }
 
 .calendar-repeat-toggle {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: var(--space-2);
   color: var(--color-text-secondary);
   cursor: pointer;
 }
@@ -2776,13 +2776,13 @@ textarea:focus-visible {
   color: var(--color-text-secondary);
   font-size: 0.9rem;
   font-style: italic;
-  margin: 0 0 0.75rem;
+  margin: 0 0 var(--space-3);
 }
 
 .crown-check-note textarea,
 .crown-check-note select {
   font: inherit;
-  padding: 0.55rem 0.75rem;
+  padding: var(--space-2) var(--space-3);
   border: 1px solid var(--hairline-strong);
   border-radius: var(--radius-control);
   background-color: var(--field-surface);
@@ -2791,7 +2791,7 @@ textarea:focus-visible {
 }
 
 .journal-history {
-  margin-top: 1rem;
+  margin-top: var(--space-4);
   color: var(--color-text-secondary);
 }
 
@@ -2801,12 +2801,12 @@ textarea:focus-visible {
 
 .journal-history-list {
   list-style: none;
-  margin: 0.75rem 0 0;
+  margin: var(--space-3) 0 0;
   padding: 0;
 }
 
 .journal-history-list li {
-  margin-bottom: 0.75rem;
+  margin-bottom: var(--space-3);
 }
 
 .journal-history-date {
@@ -2822,39 +2822,39 @@ textarea:focus-visible {
 .journal-history-text {
   color: var(--color-text-primary);
   white-space: pre-wrap;
-  margin: 0.25rem 0 0;
+  margin: var(--space-1) 0 0;
 }
 
 .journal-review-entry {
   background-color: var(--color-card-surface);
   border: 1px solid var(--hairline);
   border-radius: var(--radius-card);
-  padding: 1rem 1.25rem;
-  margin-bottom: 1rem;
+  padding: var(--space-4) 1.25rem;
+  margin-bottom: var(--space-4);
   max-width: 48rem;
 }
 
 .journal-review-text {
   color: var(--color-text-primary);
   white-space: pre-wrap;
-  margin: 0.5rem 0 0;
+  margin: var(--space-2) 0 0;
 }
 
 .journal-prompts-manager {
-  margin-top: 2rem;
+  margin-top: var(--space-6);
   max-width: 48rem;
 }
 
 .journal-prompt-add {
   display: flex;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
 }
 
 .journal-prompt-add input {
   font: inherit;
   flex: 1;
-  padding: 0.55rem 0.75rem;
+  padding: var(--space-2) var(--space-3);
   border: 1px solid var(--hairline-strong);
   border-radius: var(--radius-control);
   background-color: var(--field-surface);
@@ -2871,8 +2871,8 @@ textarea:focus-visible {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 1rem;
-  padding: 0.5rem 0;
+  gap: var(--space-4);
+  padding: var(--space-2) 0;
   border-bottom: 1px solid var(--color-card-surface);
   color: var(--color-text-primary);
 }
@@ -2887,14 +2887,14 @@ textarea:focus-visible {
   background-color: var(--color-card-surface);
   border: 1px solid var(--hairline);
   border-radius: var(--radius-card);
-  padding: 1rem 1.25rem;
-  margin-bottom: 1rem;
+  padding: var(--space-4) 1.25rem;
+  margin-bottom: var(--space-4);
   max-width: 48rem;
 }
 
 .encouragement-text {
   color: var(--color-text-primary);
-  margin: 0.5rem 0 0.75rem;
+  margin: var(--space-2) 0 var(--space-3);
 }
 
 .encouragement-status {
@@ -2918,8 +2918,8 @@ textarea:focus-visible {
 .encouragement-editor {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  margin-top: 0.5rem;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
 }
 
 /* Guardian consent ceremony (OD-19 build B). */
@@ -2928,14 +2928,14 @@ textarea:focus-visible {
   border: 2px solid var(--color-crown-gold);
   border-radius: var(--radius-card);
   padding: 1.25rem;
-  margin: 1.5rem auto 0;
+  margin: var(--space-5) auto 0;
   max-width: 26rem;
   text-align: left;
 }
 
 .guardian-request-text {
   color: var(--color-text-primary);
-  margin: 0 0 0.75rem;
+  margin: 0 0 var(--space-3);
 }
 
 .guardian-request-code {
@@ -2943,7 +2943,7 @@ textarea:focus-visible {
   font-size: 2rem;
   letter-spacing: 0.35em;
   text-align: center;
-  margin: 0 0 0.5rem;
+  margin: 0 0 var(--space-2);
 }
 
 .guardian-request-hint {
@@ -2958,7 +2958,7 @@ textarea:focus-visible {
   border: 1px solid var(--hairline);
   border-radius: var(--radius-card);
   padding: 1.25rem;
-  margin: 1rem auto;
+  margin: var(--space-4) auto;
   max-width: 26rem;
   text-align: left;
 }
@@ -2966,7 +2966,7 @@ textarea:focus-visible {
 .guardian-code-entry {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: var(--space-3);
 }
 
 .guardian-code-entry input {
@@ -2975,7 +2975,7 @@ textarea:focus-visible {
   letter-spacing: 0.35em;
   text-align: center;
   font-variant-numeric: tabular-nums;
-  padding: 0.55rem 0.75rem;
+  padding: var(--space-2) var(--space-3);
   border: 1px solid var(--hairline-strong);
   border-radius: var(--radius-control);
   background-color: var(--field-surface);
@@ -2985,9 +2985,9 @@ textarea:focus-visible {
 .guardian-view-row {
   display: flex;
   justify-content: space-between;
-  gap: 1rem;
+  gap: var(--space-4);
   color: var(--color-text-primary);
-  margin: 0 0 0.5rem;
+  margin: 0 0 var(--space-2);
 }
 
 .guardian-view-row span:first-child {
@@ -2999,12 +2999,12 @@ textarea:focus-visible {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.6rem;
+  gap: var(--space-2);
   background-color: var(--color-card-surface);
   border: 1px solid var(--color-crown-gold);
   border-radius: var(--radius-card);
-  padding: 0.9rem 1.1rem;
-  margin-bottom: 1rem;
+  padding: var(--space-4) var(--space-4);
+  margin-bottom: var(--space-4);
   max-width: 26rem;
 }
 
@@ -3023,7 +3023,7 @@ textarea:focus-visible {
   color: var(--color-crown-gold);
   border: 1px solid var(--color-crown-gold);
   border-radius: var(--radius-control);
-  padding: 0.5rem 1.1rem;
+  padding: var(--space-2) var(--space-4);
   font-weight: var(--weight-semibold);
 }
 
@@ -3034,8 +3034,8 @@ textarea:focus-visible {
 
 .staff-badge {
   display: inline-block;
-  margin-left: 0.5rem;
-  padding: 0.1rem 0.45rem;
+  margin-left: var(--space-2);
+  padding: 0.1rem var(--space-2);
   border: 1px solid var(--color-crown-gold);
   border-radius: 6px;
   color: var(--color-crown-gold);
@@ -3050,9 +3050,9 @@ textarea:focus-visible {
   color: var(--color-crown-gold);
   border: 1px solid var(--color-crown-gold);
   border-radius: var(--radius-control);
-  padding: 0.5rem 1.2rem;
+  padding: var(--space-2) 1.2rem;
   font-weight: var(--weight-semibold);
-  margin-top: 1rem;
+  margin-top: var(--space-4);
 }
 
 .admin-viewas-button:hover:not(:disabled) {
@@ -3096,7 +3096,7 @@ textarea:focus-visible {
 }
 
 .guardian-trend-list li {
-  padding: 0.35rem 0;
+  padding: var(--space-1) 0;
   border-bottom: 1px solid var(--color-card-surface);
 }
 
@@ -3106,22 +3106,22 @@ textarea:focus-visible {
   border: 2px dashed var(--color-crown-gold);
   border-radius: var(--radius-control);
   padding: 1.25rem;
-  margin: 1rem 0 1.5rem;
+  margin: var(--space-4) 0 var(--space-5);
   max-width: 22rem;
   text-align: left;
 }
 
 .welcome-keep-safe {
   color: var(--color-text-secondary);
-  margin: 0 0 1rem;
+  margin: 0 0 var(--space-4);
 }
 
 .welcome-credential-row {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  gap: 1rem;
-  margin: 0 0 0.5rem;
+  gap: var(--space-4);
+  margin: 0 0 var(--space-2);
 }
 
 .welcome-credential-label {
@@ -3138,5 +3138,5 @@ textarea:focus-visible {
 .welcome-hint {
   color: var(--color-text-secondary);
   max-width: 22rem;
-  margin: 0.5rem 0 1rem;
+  margin: var(--space-2) 0 var(--space-4);
 }
