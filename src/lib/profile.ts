@@ -5,7 +5,6 @@
  * touches the Data API directly.
  */
 import { callEdgeFunction, type ApiResult } from '@/lib/api';
-import { isAvatarConfig, type AvatarConfig } from '@/lib/avatarBuilder';
 
 export type GoalStatus = 'not_started' | 'growing' | 'completed';
 
@@ -19,11 +18,7 @@ export type StudentGoal = {
 };
 
 export type QueenCard = {
-  profile: {
-    avatarKey: string | null;
-    avatarConfig: AvatarConfig | null;
-    proudOf: string | null;
-  };
+  profile: { avatarKey: string | null; proudOf: string | null };
   goals: StudentGoal[];
   strengths: string[];
   strengthOptions: { key: string; label: string }[];
@@ -83,9 +78,6 @@ function parseCard(raw: unknown): QueenCard {
   return {
     profile: {
       avatarKey: profile.avatarKey,
-      // Unknown/legacy shapes read as "no built avatar" rather than throwing —
-      // the card falls back to the legacy mark or the default builder state.
-      avatarConfig: isAvatarConfig(profile.avatarConfig) ? profile.avatarConfig : null,
       proudOf: profile.proudOf,
     },
     goals: r.goals.map(parseGoal),
@@ -115,12 +107,13 @@ export async function fetchQueenCard(sessionToken: string): Promise<ApiResult<Qu
 
 export async function saveProfile(
   sessionToken: string,
-  input: { avatarKey: string | null; avatarConfig: AvatarConfig | null; proudOf: string | null },
+  avatarKey: string | null,
+  proudOf: string | null,
 ): Promise<ApiResult<null>> {
   return callEdgeFunction('student-profile/update', {
     method: 'POST',
     sessionToken,
-    body: input,
+    body: { avatarKey, proudOf },
     parse: () => null,
   });
 }

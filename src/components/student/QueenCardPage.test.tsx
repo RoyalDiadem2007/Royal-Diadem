@@ -19,18 +19,7 @@ const SESSION_BODY = {
 };
 
 const CARD_BODY = {
-  profile: {
-    avatarKey: null,
-    avatarConfig: {
-      skin: 'espresso',
-      faceShape: 'oval',
-      hair: 'afro',
-      hairColor: 'black',
-      expression: 'calm',
-      crown: 'halo',
-    },
-    proudOf: 'I stood up for my little brother.',
-  },
+  profile: { avatarKey: 'crown', proudOf: 'I stood up for my little brother.' },
   goals: [
     {
       id: 'goal-1',
@@ -136,16 +125,7 @@ describe('My Queen Card', () => {
     render(<App />);
     await signInAndOpenCard();
 
-    // Her stored avatar loads into the builder: the matching facet swatches
-    // read as selected.
-    expect(screen.getByRole('radio', { name: 'Skin: Espresso' })).toHaveAttribute(
-      'aria-checked',
-      'true',
-    );
-    expect(screen.getByRole('radio', { name: 'Crown: Halo' })).toHaveAttribute(
-      'aria-checked',
-      'true',
-    );
+    expect(screen.getByRole('radio', { name: 'Crown' })).toHaveAttribute('aria-checked', 'true');
     expect(screen.getByLabelText(/What I’m proud of/)).toHaveValue(
       'I stood up for my little brother.',
     );
@@ -156,7 +136,7 @@ describe('My Queen Card', () => {
     expect(screen.getByText(/Only you and the Royal Diadem staff can see it/)).toBeInTheDocument();
   });
 
-  it('builds her avatar and saves it with proud-of together', async () => {
+  it('saves her mark and proud-of together', async () => {
     const stub: FetchStub = { cardResponses: [], writes: [] };
     stubFetch(stub);
 
@@ -164,25 +144,13 @@ describe('My Queen Card', () => {
     await signInAndOpenCard();
 
     const user = userEvent.setup();
-    // Change three facets away from what loaded; the rest stay as stored.
-    await user.click(screen.getByRole('radio', { name: 'Face shape: Heart' }));
-    await user.click(screen.getByRole('radio', { name: 'Hair: Box braids' }));
-    await user.click(screen.getByRole('radio', { name: 'Expression: Joyful' }));
+    await user.click(screen.getByRole('radio', { name: 'Star' }));
     await user.click(screen.getByRole('button', { name: 'Save my card' }));
 
     await screen.findByText('Your card is saved.');
     expect(firstWrite(stub).action).toBe('update');
     expect(sentBody(firstWrite(stub).init)).toEqual({
-      // The builder supersedes the legacy single mark: avatarKey is cleared.
-      avatarKey: null,
-      avatarConfig: {
-        skin: 'espresso',
-        faceShape: 'heart',
-        hair: 'braids',
-        hairColor: 'black',
-        expression: 'joyful',
-        crown: 'halo',
-      },
+      avatarKey: 'star',
       proudOf: 'I stood up for my little brother.',
     });
   });
