@@ -286,3 +286,21 @@ server mirror).
 
 *Questions on anchors, palettes, or edge cases → ask before drawing the full set; a quick alignment
 check on one composed avatar first will save a round.*
+
+---
+
+## 12. Authenticity references
+
+For getting textured and protective styles *right*, use these (both free, and both made **by Black
+artists**):
+
+- **Code My Crown** (Dove × Open Source Afro Hair Library) — a free guide with 15 original hair
+  sculpts, 360° photo mapping, and cultural insight for afros, locs, braids, cornrows and other
+  protective styles. Built as a reference for digital artists. It's aimed at 3D/games, so it is **not
+  a drop-in asset** for this 2D SVG set — but it is the best available reference for shape, texture,
+  and cultural accuracy. <https://www.dove.com/us/en/campaigns/purpose/code-my-crown.html>
+- **Open Source Afro Hair Library** — the umbrella project behind Code My Crown.
+  <https://afrohairlibrary.org/>
+
+Ground the hairstyles in real references like these rather than stylized approximations — that is
+the difference this brief is asking for.
