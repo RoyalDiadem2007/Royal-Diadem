@@ -18,8 +18,8 @@ import {
   type QueenCard,
   type StudentGoal,
 } from '@/lib/profile';
-import { AvatarBuilder } from '@/components/student/AvatarBuilder';
-import { DEFAULT_AVATAR_CONFIG, type AvatarConfig } from '@/lib/avatarBuilder';
+import { AvatarArt } from '@/components/student/avatarArt';
+import { AVATAR_OPTIONS } from '@/lib/avatars';
 import { CrownWatermark } from '@/components/student/CrownWatermark';
 import { brand } from '@/config/branding.config';
 import { useAuth } from '@/lib/authStore';
@@ -40,7 +40,7 @@ export function QueenCardPage() {
   const token = session?.token;
 
   const [state, setState] = useState<ViewState>({ status: 'loading' });
-  const [avatarConfig, setAvatarConfig] = useState<AvatarConfig>(DEFAULT_AVATAR_CONFIG);
+  const [avatarKey, setAvatarKey] = useState<string | null>(null);
   const [proudOf, setProudOf] = useState('');
   const [pickedStrengths, setPickedStrengths] = useState<string[]>([]);
   // 'new', a goal id, or null when no goal editor is open.
@@ -64,7 +64,7 @@ export function QueenCardPage() {
         return;
       }
       setState({ status: 'ready', card: result.data });
-      setAvatarConfig(result.data.profile.avatarConfig ?? DEFAULT_AVATAR_CONFIG);
+      setAvatarKey(result.data.profile.avatarKey);
       setProudOf(result.data.profile.proudOf ?? '');
       setPickedStrengths(result.data.strengths);
     });
@@ -172,8 +172,29 @@ export function QueenCardPage() {
               <CrownWatermark />
             </span>
             <h2 className="events-title">My mark</h2>
-            <p className="door-sub">Build the queen who feels like you (no photo needed).</p>
-            <AvatarBuilder config={avatarConfig} onChange={setAvatarConfig} disabled={busy} />
+            <p className="door-sub">Choose the mark that feels like you (no photo needed).</p>
+            <div className="avatar-picker" role="radiogroup" aria-label="Choose your mark">
+              {AVATAR_OPTIONS.map((option) => (
+                <button
+                  key={option.key}
+                  type="button"
+                  role="radio"
+                  aria-checked={avatarKey === option.key}
+                  aria-label={option.label}
+                  className={
+                    avatarKey === option.key
+                      ? 'avatar-choice avatar-choice-selected'
+                      : 'avatar-choice'
+                  }
+                  disabled={busy}
+                  onClick={() => {
+                    setAvatarKey(option.key);
+                  }}
+                >
+                  <AvatarArt avatarKey={option.key} />
+                </button>
+              ))}
+            </div>
 
             <label className="crown-check-note">
               <span className="crown-check-note-label">What I&rsquo;m proud of (optional)</span>
@@ -197,11 +218,7 @@ export function QueenCardPage() {
               onClick={() => {
                 const text = proudOf.trim();
                 run(
-                  saveProfile(token, {
-                    avatarKey: null,
-                    avatarConfig,
-                    proudOf: text === '' ? null : text,
-                  }),
+                  saveProfile(token, avatarKey, text === '' ? null : text),
                   'Your card is saved.',
                 );
               }}
