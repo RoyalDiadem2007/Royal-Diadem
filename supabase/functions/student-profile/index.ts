@@ -42,7 +42,8 @@ const isoDate = z
 // option, update both files.
 const AVATAR_VOCABULARY = {
   skin: ['porcelain', 'honey', 'golden', 'amber', 'chestnut', 'espresso'],
-  hair: ['afro', 'coils', 'braids', 'waves', 'straight', 'bun'],
+  faceShape: ['round', 'oval', 'heart', 'square', 'long'],
+  hair: ['afro', 'coils', 'locs', 'braids', 'cornrows', 'puffs'],
   hairColor: ['black', 'espresso', 'chestnut', 'auburn', 'honey'],
   expression: ['smile', 'calm', 'joyful', 'cool'],
   crown: ['classic', 'tiara', 'flowers', 'halo', 'none'],
@@ -51,6 +52,7 @@ const AVATAR_VOCABULARY = {
 const avatarConfigSchema = z
   .object({
     skin: z.enum(AVATAR_VOCABULARY.skin),
+    faceShape: z.enum(AVATAR_VOCABULARY.faceShape),
     hair: z.enum(AVATAR_VOCABULARY.hair),
     hairColor: z.enum(AVATAR_VOCABULARY.hairColor),
     expression: z.enum(AVATAR_VOCABULARY.expression),

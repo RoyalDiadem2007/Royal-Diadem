@@ -123,6 +123,7 @@ afterAll(cleanup);
 
 type AvatarConfig = {
   skin: string;
+  faceShape: string;
   hair: string;
   hairColor: string;
   expression: string;
@@ -186,6 +187,7 @@ describe('student-profile Edge Function (E2E, real encryption)', () => {
   it('stores a composed avatar and rejects an off-vocabulary facet', async () => {
     const built: AvatarConfig = {
       skin: 'espresso',
+      faceShape: 'heart',
       hair: 'braids',
       hairColor: 'auburn',
       expression: 'joyful',

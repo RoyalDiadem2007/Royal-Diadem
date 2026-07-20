@@ -18,7 +18,7 @@
  * branding.config so the avatar still reads as part of the brand's world.
  */
 
-export type AvatarFacetId = 'skin' | 'hair' | 'hairColor' | 'expression' | 'crown';
+export type AvatarFacetId = 'skin' | 'faceShape' | 'hair' | 'hairColor' | 'expression' | 'crown';
 
 /** The five facets, in the order the builder presents them. */
 export type AvatarConfig = Record<AvatarFacetId, string>;
@@ -47,13 +47,24 @@ const SKIN_TONES: readonly AvatarOption[] = [
   { key: 'espresso', label: 'Espresso', swatch: '#5C3A26' },
 ] as const;
 
+// Face outline shapes — the neutral dot is just a swatch placeholder; the
+// label carries the meaning (a shape isn't a colour).
+const FACE_SHAPES: readonly AvatarOption[] = [
+  { key: 'round', label: 'Round', swatch: '#E9C9B3' },
+  { key: 'oval', label: 'Oval', swatch: '#E9C9B3' },
+  { key: 'heart', label: 'Heart', swatch: '#E9C9B3' },
+  { key: 'square', label: 'Square', swatch: '#E9C9B3' },
+  { key: 'long', label: 'Long', swatch: '#E9C9B3' },
+] as const;
+
+// Black-hair-forward styles, each rendered with real texture in AvatarCoin.
 const HAIR_STYLES: readonly AvatarOption[] = [
   { key: 'afro', label: 'Afro', swatch: '#2B2320' },
   { key: 'coils', label: 'Coils', swatch: '#2B2320' },
-  { key: 'braids', label: 'Braids', swatch: '#2B2320' },
-  { key: 'waves', label: 'Waves', swatch: '#2B2320' },
-  { key: 'straight', label: 'Straight', swatch: '#2B2320' },
-  { key: 'bun', label: 'Bun', swatch: '#2B2320' },
+  { key: 'locs', label: 'Locs', swatch: '#2B2320' },
+  { key: 'braids', label: 'Box braids', swatch: '#2B2320' },
+  { key: 'cornrows', label: 'Cornrows', swatch: '#2B2320' },
+  { key: 'puffs', label: 'Puffs', swatch: '#2B2320' },
 ] as const;
 
 const HAIR_COLORS: readonly AvatarOption[] = [
@@ -81,6 +92,7 @@ const CROWNS: readonly AvatarOption[] = [
 
 export const AVATAR_FACETS: readonly AvatarFacet[] = [
   { id: 'skin', label: 'Skin', options: SKIN_TONES },
+  { id: 'faceShape', label: 'Face shape', options: FACE_SHAPES },
   { id: 'hair', label: 'Hair', options: HAIR_STYLES },
   { id: 'hairColor', label: 'Hair colour', options: HAIR_COLORS },
   { id: 'expression', label: 'Expression', options: EXPRESSIONS },
@@ -90,6 +102,7 @@ export const AVATAR_FACETS: readonly AvatarFacet[] = [
 /** A gentle, representative starting point for a girl who hasn't built one. */
 export const DEFAULT_AVATAR_CONFIG: AvatarConfig = {
   skin: 'golden',
+  faceShape: 'round',
   hair: 'coils',
   hairColor: 'black',
   expression: 'smile',
@@ -98,6 +111,7 @@ export const DEFAULT_AVATAR_CONFIG: AvatarConfig = {
 
 const OPTION_KEYS: Readonly<Record<AvatarFacetId, ReadonlySet<string>>> = {
   skin: new Set(SKIN_TONES.map((o) => o.key)),
+  faceShape: new Set(FACE_SHAPES.map((o) => o.key)),
   hair: new Set(HAIR_STYLES.map((o) => o.key)),
   hairColor: new Set(HAIR_COLORS.map((o) => o.key)),
   expression: new Set(EXPRESSIONS.map((o) => o.key)),
@@ -140,7 +154,7 @@ export function optionLabel(facetId: AvatarFacetId, key: string): string {
 export function describeAvatar(config: AvatarConfig): string {
   const crown = config.crown === 'none' ? 'no crown' : optionLabel('crown', config.crown);
   return (
-    `${optionLabel('skin', config.skin)} skin, ` +
+    `${optionLabel('skin', config.skin)} skin, ${optionLabel('faceShape', config.faceShape)} face, ` +
     `${optionLabel('hairColor', config.hairColor)} ${optionLabel('hair', config.hair)} hair, ` +
     `${optionLabel('expression', config.expression)} expression, ${crown}`
   );

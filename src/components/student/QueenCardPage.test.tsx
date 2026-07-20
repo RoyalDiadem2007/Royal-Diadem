@@ -23,6 +23,7 @@ const CARD_BODY = {
     avatarKey: null,
     avatarConfig: {
       skin: 'espresso',
+      faceShape: 'oval',
       hair: 'afro',
       hairColor: 'black',
       expression: 'calm',
@@ -163,8 +164,9 @@ describe('My Queen Card', () => {
     await signInAndOpenCard();
 
     const user = userEvent.setup();
-    // Change two facets away from what loaded; the rest stay as stored.
-    await user.click(screen.getByRole('radio', { name: 'Hair: Braids' }));
+    // Change three facets away from what loaded; the rest stay as stored.
+    await user.click(screen.getByRole('radio', { name: 'Face shape: Heart' }));
+    await user.click(screen.getByRole('radio', { name: 'Hair: Box braids' }));
     await user.click(screen.getByRole('radio', { name: 'Expression: Joyful' }));
     await user.click(screen.getByRole('button', { name: 'Save my card' }));
 
@@ -175,6 +177,7 @@ describe('My Queen Card', () => {
       avatarKey: null,
       avatarConfig: {
         skin: 'espresso',
+        faceShape: 'heart',
         hair: 'braids',
         hairColor: 'black',
         expression: 'joyful',
