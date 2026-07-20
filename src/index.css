@@ -1595,7 +1595,8 @@ textarea:focus-visible {
 .crown-hero-greeting {
   position: relative;
   font-family: var(--font-display);
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
+  /* Bespoke fluid hero size — intentionally off the type scale. */
   font-size: clamp(1.8rem, 3.4vw, 2.6rem);
   margin: 0 0 0.2rem;
   color: var(--color-background);
@@ -1608,7 +1609,7 @@ textarea:focus-visible {
 
 .crown-hero-sub {
   position: relative;
-  margin: 0 0 1rem;
+  margin: 0 0 var(--space-4);
   color: color-mix(in srgb, var(--color-background) 62%, var(--color-secondary));
 }
 
@@ -1620,9 +1621,9 @@ textarea:focus-visible {
 .crown-hero .crown-check-question {
   color: var(--color-background);
   font-family: var(--font-display);
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
   font-size: 1.15rem;
-  margin: 0 0 0.75rem;
+  margin: 0 0 var(--space-3);
 }
 
 .crown-hero .crown-check-scale {
@@ -1740,12 +1741,12 @@ textarea:focus-visible {
   align-items: center;
   justify-content: space-between;
   font-family: var(--font-display);
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
   font-size: clamp(1.35rem, 2vw, 1.7rem);
   color: var(--color-text-primary);
   max-width: 30rem;
   margin: 1.9rem auto 0.35rem;
-  padding-bottom: 0.5rem;
+  padding-bottom: var(--space-2);
   border-bottom: 1px solid color-mix(in srgb, var(--color-crown-gold) 28%, transparent);
   width: 100%;
   text-align: left;
@@ -1802,15 +1803,15 @@ textarea:focus-visible {
 
 .today-row-label {
   font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-label);
   text-transform: uppercase;
   color: var(--color-primary);
 }
 
 .today-row-text {
   font-family: var(--font-display);
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
   color: var(--color-text-primary);
 }
 
@@ -2149,7 +2150,7 @@ textarea:focus-visible {
   justify-content: center;
   width: 4.5rem;
   height: 4.5rem;
-  border-radius: 12px;
+  border-radius: var(--radius-control);
   flex: none;
 }
 
@@ -2179,7 +2180,7 @@ textarea:focus-visible {
 
 .today-tile-text {
   font-family: var(--font-display);
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
   font-size: 1.2rem;
   line-height: 1.4;
   color: var(--color-text-primary);
@@ -2207,7 +2208,7 @@ textarea:focus-visible {
   border-radius: 50%;
   border: 1px solid var(--hairline-strong);
   color: var(--color-crown-gold);
-  font-size: 1.3rem;
+  font-size: var(--text-lg);
   flex: none;
 }
 
