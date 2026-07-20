@@ -121,8 +121,17 @@ beforeAll(async () => {
 
 afterAll(cleanup);
 
+type AvatarConfig = {
+  skin: string;
+  faceShape: string;
+  hair: string;
+  hairColor: string;
+  expression: string;
+  crown: string;
+};
+
 type ProfilePayload = {
-  profile: { avatarKey: string | null; proudOf: string | null };
+  profile: { avatarKey: string | null; avatarConfig: AvatarConfig | null; proudOf: string | null };
   goals: {
     id: string;
     title: string;
@@ -146,7 +155,7 @@ describe('student-profile Edge Function (E2E, real encryption)', () => {
 
   it('starts warm and empty: no profile row yet, options offered', async () => {
     const payload = await myProfile(studentToken);
-    expect(payload.profile).toEqual({ avatarKey: null, proudOf: null });
+    expect(payload.profile).toEqual({ avatarKey: null, avatarConfig: null, proudOf: null });
     expect(payload.goals).toEqual([]);
     expect(payload.strengths).toEqual([]);
     // Only ACTIVE vocabulary is offered.
@@ -173,6 +182,40 @@ describe('student-profile Edge Function (E2E, real encryption)', () => {
 
     const payload = await myProfile(studentToken);
     expect(payload.profile.proudOf).toBe('I stood up for my little brother.');
+  });
+
+  it('stores a composed avatar and rejects an off-vocabulary facet', async () => {
+    const built: AvatarConfig = {
+      skin: 'espresso',
+      faceShape: 'heart',
+      hair: 'braids',
+      hairColor: 'auburn',
+      expression: 'joyful',
+      crown: 'tiara',
+    };
+    const save = await callFunction('student-profile/update', {
+      method: 'POST',
+      bearer: studentToken,
+      body: { avatarKey: null, avatarConfig: built, proudOf: null },
+    });
+    expect(save.status).toBe(200);
+
+    const payload = await myProfile(studentToken);
+    expect(payload.profile.avatarConfig).toEqual(built);
+    // The builder supersedes the legacy single mark.
+    expect(payload.profile.avatarKey).toBeNull();
+
+    // The server is the boundary: an invented facet value is refused.
+    const bad = await callFunction('student-profile/update', {
+      method: 'POST',
+      bearer: studentToken,
+      body: {
+        avatarKey: null,
+        avatarConfig: { ...built, skin: 'rainbow' },
+        proudOf: null,
+      },
+    });
+    expect(bad.status).toBe(400);
   });
 
   it('creates a goal, encrypted at rest, and reads it back decrypted', async () => {
