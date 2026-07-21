@@ -9,9 +9,14 @@
 -- Additive and non-destructive: a nullable column on an existing table. The
 -- table's existing service_role grants and RLS (server-only, reached through
 -- the student-profile Edge Function) already cover the new column.
+--
+-- Idempotent (`if not exists`): an earlier, superseded avatar migration
+-- (20260720170000) had already added this column on the remote database
+-- before its file was backed out of the repo, so this migration must apply
+-- cleanly on top of an existing column and simply refresh the comment.
 
 alter table public.student_profiles
-  add column avatar_config jsonb;
+  add column if not exists avatar_config jsonb;
 
 comment on column public.student_profiles.avatar_config is
   'Composed avatar facet keys {skin,faceShape,eyes,nose,mouth,hair,hairColor,crown}, validated against the avatar vocabulary in the student-profile Edge Function. Non-sensitive; supersedes avatar_key when present.';
